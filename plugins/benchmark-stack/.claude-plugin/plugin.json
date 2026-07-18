@@ -1,0 +1,9 @@
+{
+  "name": "benchmark-stack",
+  "displayName": "Benchmark Stack",
+  "version": "0.1.0",
+  "description": "Spins up a small OpenTelemetry stack (Docker Compose: Collector + Prometheus + Grafana) and a report generator to compare Claude Code runs (baseline vs. context-layer): API calls, tokens, cost — as a live dashboard and a slide-ready HTML report.",
+  "author": { "name": "OneLiteFeather", "url": "https://github.com/OneLiteFeatherNET" },
+  "license": "MIT",
+  "keywords": ["opentelemetry", "benchmark", "tokens", "cost", "grafana", "report"]
+}
