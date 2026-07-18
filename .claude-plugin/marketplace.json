@@ -2,12 +2,11 @@
   "name": "onelitefeather-claude-marketplace",
   "description": "OneLiteFeather — Claude Code plugins to cut API calls & tokens (retrieval layer, benchmark, day-to-day workflow)",
   "owner": { "name": "OneLiteFeather", "url": "https://github.com/OneLiteFeatherNET" },
-  "metadata": { "pluginRoot": "./plugins" },
   "plugins": [
     {
       "name": "context-layer",
       "displayName": "Context Layer",
-      "source": "./context-layer",
+      "source": "./plugins/context-layer",
       "description": "Retrieval layer between docs and code (Serena + routing) to cut calls/tokens.",
       "category": "productivity",
       "keywords": ["serena", "lsp", "context", "tokens"]
@@ -15,7 +14,7 @@
     {
       "name": "benchmark-stack",
       "displayName": "Benchmark Stack",
-      "source": "./benchmark-stack",
+      "source": "./plugins/benchmark-stack",
       "description": "OpenTelemetry stack (Docker Compose) + report generator for before/after comparison.",
       "category": "productivity",
       "keywords": ["opentelemetry", "benchmark", "grafana", "report"]
@@ -23,7 +22,7 @@
     {
       "name": "workflow",
       "displayName": "Workflow",
-      "source": "./workflow",
+      "source": "./plugins/workflow",
       "description": "Day-to-day control: enforces the layer (hooks/routing) and produces trend reports. Depends on the other two.",
       "category": "productivity",
       "keywords": ["workflow", "hooks", "routing", "trend"]
