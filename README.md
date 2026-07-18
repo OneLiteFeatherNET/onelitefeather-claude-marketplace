@@ -23,9 +23,6 @@ OneLiteFeather's Claude Code marketplace — three plugins that work together to
 /plugin install workflow@onelitefeather-claude-marketplace   # pulls the other two as dependencies
 ```
 
-> Replace `OneLiteFeatherNET/onelitefeather-claude-marketplace` with the actual
-> `owner/repo` you push this repository to.
-
 ## Recommended order
 
 1. Install **context-layer** → Serena + routing active, calls drop immediately.
