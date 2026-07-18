@@ -1,0 +1,11 @@
+{
+  "name": "workflow",
+  "displayName": "Workflow",
+  "version": "0.1.0",
+  "description": "Runs the day-to-day operation of the other two plugins: enforces the context-layer in daily work (routing reminder + grep nudge) and produces trend reports over time, so the token/call effect stays visible.",
+  "author": { "name": "OneLiteFeather", "url": "https://github.com/OneLiteFeatherNET" },
+  "license": "MIT",
+  "keywords": ["workflow", "hooks", "routing", "trend", "tokens"],
+  "dependencies": ["context-layer", "benchmark-stack"],
+  "hooks": "./hooks/hooks.json"
+}
