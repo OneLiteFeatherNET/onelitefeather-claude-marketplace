@@ -19,6 +19,14 @@
       "description": "Optional companion to framework: Serena (LSP symbol search) for JVM/Java-Kotlin projects. Install only where it fits.",
       "category": "productivity",
       "keywords": ["serena", "lsp", "jvm", "java", "kotlin", "code-navigation", "context", "tokens"]
+    },
+    {
+      "name": "minestom-knowledge",
+      "displayName": "Minestom Knowledge",
+      "source": "./plugins/minestom-knowledge",
+      "description": "Accurate knowledge of OneLiteFeather's internal Minestom libraries and tooling (Cyano testing, Gradle conventions, BOM hierarchy, Guira setup flows, Aves utilities, Xerus minigame core, Pica dialogs, Coris floors/rooms/doors), too internal/new to be in general training data.",
+      "category": "productivity",
+      "keywords": ["minestom", "minecraft", "testing", "cyano", "gradle", "bom", "guira", "aves", "xerus", "pica", "coris", "java"]
     }
   ]
 }
