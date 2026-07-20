@@ -50,6 +50,8 @@ loading instead of dumping whole documents into context — and brings
 
 ## Install
 
+### Claude Code
+
 ```bash
 /plugin install framework@onelitefeather-claude-marketplace
 ```
@@ -63,6 +65,28 @@ The first time you touch Outline, a browser OAuth login opens — every team
 member needs their own Outline account with access to the "Vault"
 collection. Afterwards, run `/framework:setup` once to verify everything and
 create the collection and its five categories.
+
+### Codex / Antigravity (`agy`)
+
+This plugin also ships `.codex-plugin/plugin.json` and
+`.antigravity-plugin/plugin.json`, both pointing at the same `skills/`
+directory — so the `vault-knowledge-graph` skill's content ports as-is (it
+only names actions, not Claude-Code-specific tool names). **What does not
+port automatically:**
+
+- The nine `claude-plugins-official` dependency bundle (`superpowers`,
+  `skill-creator`, etc.) — that's Claude Code marketplace-specific
+  dependency resolution.
+- The `/framework:setup` and `/framework:doctor` commands.
+- The Outline MCP server declaration — configure an MCP connection to
+  `https://outline.onelitefeather.dev/mcp` separately on whichever platform
+  you're using; the skill itself checks for the Outline tools at runtime
+  rather than assuming they exist.
+
+The Codex manifest is per Codex's documented format (verified). The
+Antigravity one is a **best-effort approximation, not verified live** in
+this session (no `agy` CLI available to test against) — confirm with
+`agy plugin install` before relying on it.
 
 ## Self-hosted Outline instance
 

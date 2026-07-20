@@ -1,0 +1,9 @@
+{
+  "name": "framework-code-navigation",
+  "version": "0.1.0",
+  "description": "Optional companion to framework: routing policy for JVM/Java-Kotlin projects to use Serena's symbol tools instead of grep/find/read. This manifest carries the bundled skill only — the Serena MCP server declaration is not ported here; configure a Serena MCP connection separately (see the skill's own runtime check for whether it's available before relying on it).",
+  "author": { "name": "OneLiteFeather", "url": "https://github.com/OneLiteFeatherNET" },
+  "license": "MIT",
+  "keywords": ["serena", "lsp", "jvm", "java", "kotlin", "code-navigation", "context", "tokens"],
+  "skills": "./skills/"
+}
