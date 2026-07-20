@@ -1,21 +1,21 @@
 # framework
 
-Das Onboarding-Bundle fürs Team: ein Install bringt **context-layer**,
-**benchmark-stack**, **workflow** und **superpowers** mit — plus einen
-eigenen **Wissensgraphen** in der Outline-Collection **"Vault"**:
-Research Material, Projektwissen, Konzepte, Quellen und Personen als
-verknüpfte Dokumente, mit gezieltem Laden von Kontext daraus statt ganze
-Dokumente in den Kontext zu dumpen.
+Das Team-Framework: baut und pflegt einen **Wissensgraphen** in der
+Outline-Collection **"Vault"** — Research Material, Projektwissen, Konzepte,
+Quellen und Personen als verknüpfte Dokumente, mit gezieltem Laden von
+Kontext daraus statt ganze Dokumente in den Kontext zu dumpen — und bringt
+**superpowers** als Team-Arbeitsweise mit.
+
+> `context-layer`, `benchmark-stack` und `workflow` wurden aus diesem
+> Marketplace entfernt und werden bei Bedarf von Grund auf neu gebaut,
+> dann direkt als Teil von `framework` statt als eigene Plugins.
 
 ## Was drinsteckt
 
-- **Dependencies `context-layer`, `benchmark-stack`, `workflow`** (aus diesem
-  Marketplace) — werden bei der Installation automatisch mitinstalliert.
-  Damit ist `framework` der einzige Plugin-Install, den ein neues
-  Teammitglied braucht.
-- **Dependency `superpowers`** (aus `claude-plugins-official`) — Team-Arbeitsweisen
-  wie Brainstorming vor Umsetzung, systematisches Debugging, TDD und
-  strukturierte Code-Reviews, unabhängig vom Vault nützlich.
+- **Dependency `superpowers`** (aus `claude-plugins-official`) — wird bei der
+  Installation automatisch mitinstalliert. Bringt Team-Arbeitsweisen wie
+  Brainstorming vor Umsetzung, systematisches Debugging, TDD und
+  strukturierte Code-Reviews mit, die unabhängig vom Vault nützlich sind.
 - **MCP-Server `outline`** — Anthropics offizieller Outline-MCP-Server
   (seit Februar 2026 in jedem Outline-Workspace enthalten), verbunden per
   HTTP/OAuth mit `https://outline.onelitefeather.dev/mcp`.
@@ -33,16 +33,10 @@ Dokumente in den Kontext zu dumpen.
 /plugin install framework@onelitefeather-claude-marketplace
 ```
 
-Installiert `context-layer`, `benchmark-stack`, `workflow` und
-`superpowers@claude-plugins-official` automatisch mit (dafür muss
-`claude-plugins-official` als Marketplace bereits registriert sein — bei den
-meisten Setups schon der Fall; falls nicht, meldet der Installer das und
-schlägt `/plugin marketplace add` vor).
-
-> Geplant: Auf lange Sicht soll `framework` die anderen drei Plugins
-> vollständig ersetzen, statt sie nur als Dependencies zu bündeln — dann
-> entfallen `context-layer`, `benchmark-stack` und `workflow` als eigene
-> Marketplace-Einträge.
+Installiert `superpowers@claude-plugins-official` automatisch mit (dafür
+muss `claude-plugins-official` als Marketplace bereits registriert sein —
+bei den meisten Setups schon der Fall; falls nicht, meldet der Installer das
+und schlägt `/plugin marketplace add` vor).
 
 Beim ersten Zugriff auf Outline öffnet sich ein Browser-Login (OAuth) —
 jedes Teammitglied braucht dafür einen eigenen Outline-Account mit Zugriff auf
