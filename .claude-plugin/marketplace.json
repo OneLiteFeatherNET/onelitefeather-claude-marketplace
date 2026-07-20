@@ -1,6 +1,6 @@
 {
   "name": "onelitefeather-claude-marketplace",
-  "description": "OneLiteFeather — Claude Code plugins: team framework bundle (Outline knowledge graph + superpowers)",
+  "description": "OneLiteFeather — Claude Code plugins for our developer framework (Outline knowledge graph + standardized dev tooling)",
   "owner": { "name": "OneLiteFeather", "url": "https://github.com/OneLiteFeatherNET" },
   "allowCrossMarketplaceDependenciesOn": ["claude-plugins-official"],
   "plugins": [
@@ -8,7 +8,7 @@
       "name": "framework",
       "displayName": "Framework",
       "source": "./plugins/framework",
-      "description": "Team framework: knowledge graph in Outline's \"Vault\" collection, plus superpowers, skill-creator, and a curated set of default Claude dev skills.",
+      "description": "OneLiteFeather's developer framework: bundles standardized tools for how the team builds software, including a knowledge graph in Outline's \"Vault\" collection.",
       "category": "productivity",
       "keywords": ["outline", "wiki", "knowledge-graph", "vault", "context", "retrieval"]
     },

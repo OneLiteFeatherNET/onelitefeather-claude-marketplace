@@ -2,7 +2,7 @@
   "name": "framework",
   "displayName": "Framework",
   "version": "0.1.0",
-  "description": "Team developer framework: knowledge graph in Outline's \"Vault\" collection, plus a curated bundle of default Claude Code skills (superpowers, skill-creator, code review/simplification, security guidance, frontend design, docs lookup, iterative loops).",
+  "description": "OneLiteFeather's developer framework: bundles standardized tools for how the team builds software — a knowledge graph in Outline's \"Vault\" collection, a curated set of default Claude Code skills (superpowers, skill-creator, CLAUDE.md management, code review/simplification, security guidance, frontend design, docs lookup, iterative loops), and guided /framework:setup and /framework:doctor commands to onboard and verify the whole bundle.",
   "author": { "name": "OneLiteFeather", "url": "https://github.com/OneLiteFeatherNET" },
   "license": "MIT",
   "keywords": ["outline", "wiki", "knowledge-graph", "vault", "context", "retrieval"],

@@ -17,7 +17,11 @@ SKILL.md, "Before anything else" section).
 
 - **MCP server `serena`** — LSP symbol search via `uvx` (definitions,
   references, structure, symbol-based editing), including JavaDoc at the
-  symbol when `-sources` jars are present.
+  symbol when `-sources` jars are present. Pinned to a specific release tag
+  (currently `v1.6.0`) rather than the moving `git+https://...` HEAD, so
+  every install pulls the same known-good version instead of whatever
+  upstream happens to contain that day. Bump the tag in
+  `.claude-plugin/plugin.json` deliberately when upgrading.
 - **Skill `code-navigation`** — routing policy: Serena symbol tools instead
   of grep/find/read, but only when the project looks JVM-based (`pom.xml`,
   `build.gradle(.kts)`, `.java`/`.kt` files) *and* Serena actually responds.
