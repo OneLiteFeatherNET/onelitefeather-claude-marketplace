@@ -2,6 +2,7 @@
   "name": "onelitefeather-claude-marketplace",
   "description": "OneLiteFeather — Claude Code plugins to cut API calls & tokens (retrieval layer, benchmark, day-to-day workflow)",
   "owner": { "name": "OneLiteFeather", "url": "https://github.com/OneLiteFeatherNET" },
+  "allowCrossMarketplaceDependenciesOn": ["claude-plugins-official"],
   "plugins": [
     {
       "name": "context-layer",
@@ -26,6 +27,14 @@
       "description": "Day-to-day control: enforces the layer (hooks/routing) and produces trend reports. Depends on the other two.",
       "category": "productivity",
       "keywords": ["workflow", "hooks", "routing", "trend"]
+    },
+    {
+      "name": "framework",
+      "displayName": "Framework",
+      "source": "./plugins/framework",
+      "description": "Knowledge graph in Outline's \"Vault\" collection: research material, project knowledge, targeted context recall.",
+      "category": "productivity",
+      "keywords": ["outline", "wiki", "knowledge-graph", "vault", "context", "retrieval"]
     }
   ]
 }
