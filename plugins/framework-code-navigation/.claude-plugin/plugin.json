@@ -1,0 +1,20 @@
+{
+  "name": "framework-code-navigation",
+  "displayName": "Framework Code Navigation",
+  "version": "0.1.0",
+  "description": "Optional companion to framework: Serena (LSP symbol search, JVM/Java-Kotlin) so the agent navigates code on purpose instead of spamming grep/find/read. Install only on projects where it fits.",
+  "author": { "name": "OneLiteFeather", "url": "https://github.com/OneLiteFeatherNET" },
+  "license": "MIT",
+  "keywords": ["serena", "lsp", "jvm", "java", "kotlin", "code-navigation", "context", "tokens"],
+  "mcpServers": {
+    "serena": {
+      "command": "uvx",
+      "args": [
+        "--from", "git+https://github.com/oraios/serena",
+        "serena", "start-mcp-server",
+        "--context", "claude-code",
+        "--project", "${CLAUDE_PROJECT_DIR}"
+      ]
+    }
+  }
+}

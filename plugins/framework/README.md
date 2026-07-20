@@ -1,31 +1,52 @@
 # framework
 
-Das Team-Framework: baut und pflegt einen **Wissensgraphen** in der
-Outline-Collection **"Vault"** — Research Material, Projektwissen, Konzepte,
-Quellen und Personen als verknüpfte Dokumente, mit gezieltem Laden von
-Kontext daraus statt ganze Dokumente in den Kontext zu dumpen — und bringt
-**superpowers** als Team-Arbeitsweise mit.
+The team framework: builds and maintains a **knowledge graph** in the
+Outline collection **"Vault"** — research material, project knowledge,
+concepts, sources, and people as linked documents, with targeted context
+loading instead of dumping whole documents into context — and brings
+**superpowers** along as a shared team workflow.
 
-> `context-layer`, `benchmark-stack` und `workflow` wurden aus diesem
-> Marketplace entfernt und werden bei Bedarf von Grund auf neu gebaut,
-> dann direkt als Teil von `framework` statt als eigene Plugins.
+> `context-layer`, `benchmark-stack`, and `workflow` were removed from this
+> marketplace and will be rebuilt from scratch as needed. Code navigation
+> has already been rebuilt — as its own optional plugin,
+> `framework-code-navigation` (see below), not as part of `framework`
+> itself, since not every project is JVM-based.
 
-## Was drinsteckt
+## What's inside
 
-- **Dependency `superpowers`** (aus `claude-plugins-official`) — wird bei der
-  Installation automatisch mitinstalliert. Bringt Team-Arbeitsweisen wie
-  Brainstorming vor Umsetzung, systematisches Debugging, TDD und
-  strukturierte Code-Reviews mit, die unabhängig vom Vault nützlich sind.
-- **MCP-Server `outline`** — Anthropics offizieller Outline-MCP-Server
-  (seit Februar 2026 in jedem Outline-Workspace enthalten), verbunden per
-  HTTP/OAuth mit `https://outline.onelitefeather.dev/mcp`.
-- **Skill `vault-knowledge-graph`** — Anleitung für den Agenten, wie Dokumente
-  im Vault als Graph-Knoten angelegt (Metadaten-Tabelle, Kategorien,
-  Backlinks) und später gezielt wieder abgerufen werden (Suchen → Laden →
-  einen Hop weitergehen → Verdichten).
-- **Command `/framework:setup`** — legt die Vault-Collection und die fünf
-  Kategorie-Dokumente an, falls sie noch fehlen. Idempotent, jederzeit erneut
-  ausführbar (z. B. nach dem Onboarding eines neuen Teammitglieds).
+- **Dependencies from `claude-plugins-official`** — installed automatically
+  alongside `framework`:
+  - `superpowers` — shared team workflows like brainstorming before
+    implementation, systematic debugging, TDD, and structured code review.
+  - `skill-creator` — build and iterate on new skills (this is how
+    `vault-knowledge-graph` and `framework-code-navigation` were built).
+  - `claude-md-management` — audit and improve `CLAUDE.md` files, capture
+    session learnings.
+  - `code-review` — automated multi-agent PR review.
+  - `code-simplifier` — simplifies recently changed code for clarity and
+    maintainability without changing behavior.
+  - `security-guidance` — pattern-based and LLM-reviewed security checks on
+    Claude-generated code.
+  - `frontend-design` — production-grade frontend interfaces with high
+    design quality.
+  - `context7` — up-to-date, version-specific library/framework docs
+    lookup.
+  - `ralph-loop` — self-referential iterative development loops.
+- **MCP server `outline`** — Anthropic's official Outline MCP server
+  (built into every Outline workspace since February 2026), connected via
+  HTTP/OAuth to `https://outline.onelitefeather.dev/mcp`.
+- **Skill `vault-knowledge-graph`** — tells the agent how to create
+  documents in the vault as graph nodes (metadata table, categories,
+  backlinks) and later load them back in a targeted way (search → load →
+  follow one hop → condense).
+- **Command `/framework:setup`** — full onboarding check: verifies the nine
+  bundled dependency plugins are installed and enabled, checks the Outline
+  MCP connection, and creates the vault collection and its five category
+  documents if they're missing. Idempotent, safe to re-run any time (e.g.
+  after onboarding a new team member).
+- **Command `/framework:doctor`** — read-only version of the same checks.
+  Reports what's working and what needs attention without changing
+  anything; safe to run anytime just to confirm the setup is still intact.
 
 ## Install
 
@@ -33,26 +54,26 @@ Kontext daraus statt ganze Dokumente in den Kontext zu dumpen — und bringt
 /plugin install framework@onelitefeather-claude-marketplace
 ```
 
-Installiert `superpowers@claude-plugins-official` automatisch mit (dafür
-muss `claude-plugins-official` als Marketplace bereits registriert sein —
-bei den meisten Setups schon der Fall; falls nicht, meldet der Installer das
-und schlägt `/plugin marketplace add` vor).
+Installs all nine dependency plugins from `claude-plugins-official`
+automatically (this requires `claude-plugins-official` to already be
+registered as a marketplace — true for most setups; if not, the installer
+reports it and suggests `/plugin marketplace add`).
 
-Beim ersten Zugriff auf Outline öffnet sich ein Browser-Login (OAuth) —
-jedes Teammitglied braucht dafür einen eigenen Outline-Account mit Zugriff auf
-die "Vault"-Collection. Danach einmalig `/framework:setup` ausführen, um die
-Collection und die fünf Kategorien einzurichten.
+The first time you touch Outline, a browser OAuth login opens — every team
+member needs their own Outline account with access to the "Vault"
+collection. Afterwards, run `/framework:setup` once to verify everything and
+create the collection and its five categories.
 
-## Selbst gehostete Outline-Instanz
+## Self-hosted Outline instance
 
-Die URL in `.claude-plugin/plugin.json` ist bewusst fest auf
-`outline.onelitefeather.dev` eingestellt — dieses Plugin ist kein generisches
-Outline-Tool, sondern das Wissensgraph-Setup für unser Team. Bei einer
-Instanz-Migration muss nur diese URL angepasst werden.
+The URL in `.claude-plugin/plugin.json` is deliberately hardcoded to
+`outline.onelitefeather.dev` — this plugin isn't a generic Outline tool,
+it's our team's knowledge-graph setup. If the instance ever migrates, only
+that URL needs to change.
 
-## Getestet
+## Tested
 
-Iterativ mit `skill-creator` gegen die echte Vault-Collection verifiziert:
-Kategorie-Struktur, Metadaten-Tabellenformat (übersteht Outlines
-Markdown-Speicherung zuverlässig), deutsche Sonderzeichen, LaTeX-Formeln,
-Capture- und Recall-Workflow. Details siehe Commit-Historie.
+Iteratively verified against the real Vault collection with `skill-creator`:
+category structure, metadata table format (survives Outline's markdown
+storage reliably), German special characters, LaTeX formulas, and the
+capture/recall workflow. Details in the commit history.

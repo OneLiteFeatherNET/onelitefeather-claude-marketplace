@@ -1,37 +1,37 @@
 ---
 name: vault-knowledge-graph
-description: Baut und pflegt einen Wissensgraphen in der "Vault"-Collection in Outline — legt Research Material, Projekt-Infos, Konzepte, Quellen und Personen als verknüpfte Dokumente ab und lädt später gezielt relevanten Kontext daraus. Nutze diesen Skill IMMER, wenn der Nutzer etwas "im Vault", "in Outline" oder "in der Wissensdatenbank" ablegen, festhalten oder nachschlagen will — auch wenn er nur "merk dir das", "speicher das Research dazu" oder "was wissen wir schon über X" sagt, ohne Outline oder Vault explizit zu nennen. Gilt sowohl für das Schreiben (neue Erkenntnisse, Projektstände, Recherche-Ergebnisse) als auch für das gezielte Laden von Hintergrundwissen, bevor eine Aufgabe bearbeitet wird.
+description: Builds and maintains a knowledge graph in the "Vault" collection in Outline — stores research material, project info, concepts, sources, and people as linked documents, and later loads relevant context back from it in a targeted way. ALWAYS use this skill when the user wants to store, note down, or look something up "in the Vault", "in Outline", or "in the knowledge base" — even if they just say "remember this", "save that research", or "what do we already know about X" without naming Outline or Vault explicitly. Applies both to writing (new findings, project status, research results) and to targeted loading of background knowledge before working on a task.
 ---
 
 # Vault Knowledge Graph
 
-Dieser Skill macht aus der Outline-Collection **"Vault"** einen Wissensgraphen: Dokumente sind Knoten, gegenseitige Hyperlinks im Text sind Kanten. Outline selbst kennt keinen Graphen — die Graph-Eigenschaft entsteht ausschließlich dadurch, dass jedes Dokument seine verwandten Dokumente explizit verlinkt und diese Links in beide Richtungen gepflegt werden. Ohne konsequente Backlinks verkommt der Vault zur gewöhnlichen Dokumentenablage.
+This skill turns the Outline collection **"Vault"** into a knowledge graph: documents are nodes, mutual hyperlinks in the text are edges. Outline itself has no concept of a graph — the graph property exists only because every document explicitly links its related documents, and those links are maintained in both directions. Without consistent backlinks, the Vault degrades into an ordinary document dump.
 
-Nutze für alle Aktionen die Outline-MCP-Tools (`list_collections`, `list_collection_documents`, `list_documents`, `fetch`, `create_document`, `update_document`, `move_document`, `create_collection`). Sind sie als deferred markiert, lade sie zuerst per ToolSearch.
+Use the Outline MCP tools for every action (`list_collections`, `list_collection_documents`, `list_documents`, `fetch`, `create_document`, `update_document`, `move_document`, `create_collection`). If they're marked deferred, load them first via ToolSearch.
 
-## Grundprinzip: Suchen vor Erstellen
+## Core principle: search before creating
 
-Bevor du irgendetwas Neues anlegst, durchsuche den Vault (`list_documents` mit `collectionId` der Vault-Collection) nach verwandten Begriffen. Ein Wissensgraph gewinnt seinen Wert aus Verknüpfung, nicht aus der Menge an Dokumenten — ein neuer Fund ist fast immer mit etwas Bestehendem verwandt (gleiches Projekt, gleiches Konzept, gleiche Quelle). Diese Treffer werden später zu Kanten.
+Before creating anything new, search the Vault (`list_documents` with the Vault collection's `collectionId`) for related terms. A knowledge graph gets its value from connections, not from the sheer number of documents — a new find is almost always related to something that already exists (same project, same concept, same source). These hits become edges later.
 
-## Setup: Struktur sicherstellen
+## Setup: ensure the structure exists
 
-Ermittle die Vault-Collection-ID über `list_collections(query="Vault")`. Existiert sie nicht, frage den Nutzer nach, bevor du sie anlegst — eine neue Collection ist eine sichtbare Strukturänderung im (ggf. geteilten) Workspace.
+Look up the Vault collection ID via `list_collections(query="Vault")`. If it doesn't exist, ask the user before creating it — a new collection is a visible structural change in a (possibly shared) workspace.
 
-Prüfe mit `list_collection_documents` die Top-Level-Dokumente. Fehlt eine der fünf Kategorien, lege sie an (unkritisch, reine Struktur, kein Rückfrage nötig):
+Check the top-level documents with `list_collection_documents`. If one of the five categories is missing, create it (uncritical, pure structure, no need to ask first). These five titles are literal document titles already in use in the real Vault — keep them exactly as written, don't translate them:
 
-| Icon | Kategorie | Gehört hinein |
+| Icon | Category | Belongs here |
 |---|---|---|
-| 📚 | Research Material | Paper, Artikel, Recherche-Notizen, Experimentergebnisse, Zusammenfassungen |
-| 🗂️ | Projekte | Ein Dokument pro Projekt: Ziel, Status, Architektur-Entscheidungen, offene Fragen |
-| 💡 | Konzepte & Themen | Wiederkehrende Begriffe, Definitionen, Muster, projektübergreifende Ideen |
-| 🔗 | Quellen | Externe Referenzen: Links, Zitate, Tools, bibliografische Angaben |
-| 👤 | Personen & Organisationen | Wer ist wer, Rolle, Bezug zu Projekten/Themen |
+| 📚 | Research Material | Papers, articles, research notes, experiment results, summaries |
+| 🗂️ | Projekte | One document per project: goal, status, architecture decisions, open questions |
+| 💡 | Konzepte & Themen | Recurring terms, definitions, patterns, cross-project ideas |
+| 🔗 | Quellen | External references: links, citations, tools, bibliographic details |
+| 👤 | Personen & Organisationen | Who's who, role, relation to projects/topics |
 
-Jede Kategorie ist ein Top-Level-Dokument in der Vault-Collection, jeder einzelne Eintrag wird als Kind-Dokument darunter angelegt (`parentDocumentId`). Die Kategorie liefert also die grobe Ordnung; die eigentlichen Beziehungen zwischen Knoten — auch quer über Kategorien hinweg — entstehen über Links im Text, nicht über Verschachtelung.
+Each category is a top-level document in the Vault collection; each individual entry is created as a child document underneath it (`parentDocumentId`). So the category provides the coarse ordering; the actual relationships between nodes — including across categories — come from links in the text, not from nesting.
 
-## Metadaten-Block
+## Metadata block
 
-Jedes Knoten-Dokument beginnt mit einem Metadaten-Block als Tabelle, gefolgt von einer Trennlinie und dem eigentlichen Inhalt:
+Every node document starts with a metadata block as a table, followed by a separator line and the actual content:
 
 ```markdown
 | Feld | Wert |
@@ -43,37 +43,39 @@ Jedes Knoten-Dokument beginnt mit einem Metadaten-Block als Tabelle, gefolgt von
 
 ---
 
-(eigentlicher Inhalt)
+(actual content)
 ```
 
-- **Tabelle statt Blockquote:** Eine frühere Version dieses Skills nutzte vier `> **Feld:**`-Zeilen in einem gemeinsamen Blockquote. Getestet gegen echtes Outline zeigte sich, dass Outline mehrzeilige Blockquotes beim Speichern zu einem einzigen Absatz zusammenfasst (die Zeilenumbrüche gehen verloren) — danach ließ sich keine einzelne Metadaten-Zeile mehr gezielt patchen. Eine Tabelle ist in Outline dagegen ein eigener Blocktyp mit echten, separat adressierbaren Zeilen und übersteht das Speichern zuverlässig.
-- **Tags** sind kurz, klein geschrieben, mit `#`-Präfix, und decken zwei Ebenen ab: mindestens ein Tag für das übergeordnete Thema/Projekt (z. B. `#kundenportal`) und ein bis drei Tags für die konkreten Begriffe aus dem Inhalt (z. B. `#rag`, `#embeddings`) — so bleibt sowohl die grobe als auch die gezielte Suche später treffsicher.
-- **Verwandte Dokumente** enthält die relative Outline-URL (`url`-Feld aus der Tool-Antwort von `create_document`/`fetch`), nicht nur den Titel als Text — nur so wird der Link beim Klick tatsächlich zur Kante.
-- Dieser feste Aufbau ist absichtlich: Die "Verwandte Dokumente"-Zeile lässt sich später per `update_document` mit `editMode: "patch"` gezielt ändern (`findText` = die exakte bestehende Tabellenzeile, z. B. `| Verwandte Dokumente | ... |`), ohne den restlichen Inhalt anzufassen.
+The table's field names (`Typ`, `Tags`, `Erstellt`, `Verwandte Dokumente`) are literal, fixed strings — keep them exactly as shown so every document in the Vault uses the same, greppable structure.
 
-## Schreibkonventionen
+- **Table instead of blockquote:** an earlier version of this skill used four `> **Field:**` lines in a shared blockquote. Testing against real Outline showed that Outline collapses multi-line blockquotes into a single paragraph on save (the line breaks are lost) — after that, no individual metadata line could be patched anymore. A table, on the other hand, is its own block type in Outline with real, separately addressable rows, and survives saving reliably.
+- **Tags** are short, lowercase, with a `#` prefix, and cover two levels: at least one tag for the overarching topic/project (e.g. `#kundenportal`) and one to three tags for the concrete terms in the content (e.g. `#rag`, `#embeddings`) — this keeps both broad and targeted search reliable later.
+- **Verwandte Dokumente** (related documents) holds the relative Outline URL (the `url` field from the `create_document`/`fetch` tool response), not just the title as text — only that way does the link actually become an edge when clicked.
+- This fixed structure is deliberate: the "Verwandte Dokumente" row can later be changed in a targeted way via `update_document` with `editMode: "patch"` (`findText` = the exact existing table row, e.g. `| Verwandte Dokumente | ... |`), without touching the rest of the content.
 
-- **Deutsche Sonderzeichen korrekt setzen:** Titel, Tags und Inhalt verwenden echte Unicode-Umlaute und ß (ä, ö, ü, ß) statt ASCII-Ersatzschreibweisen (ae, oe, ue, ss) — außer ein wörtlich zitierter Fremdtext enthält bereits die ASCII-Variante.
-- **Formeln als LaTeX:** Mathematische Formeln und Gleichungen werden als LaTeX geschrieben (`$...$` inline, `$$...$$` als eigener Block) statt in Prosa umschrieben — Outline rendert LaTeX nativ, und nur so bleiben Formeln später exakt wiederverwendbar.
+## Writing conventions
 
-## Workflow: Wissen ablegen (Capture)
+- **Use correct special characters:** titles, tags, and content use real Unicode umlauts and ß (ä, ö, ü, ß) instead of ASCII substitutes (ae, oe, ue, ss) — unless a literally quoted external text already contains the ASCII variant.
+- **Formulas as LaTeX:** mathematical formulas and equations are written as LaTeX (`$...$` inline, `$$...$$` as its own block) instead of being paraphrased in prose — Outline renders LaTeX natively, and only that way do formulas stay exactly reusable later.
 
-1. **Typ bestimmen** — welche der fünf Kategorien passt am besten. Bei echter Mehrdeutigkeit im Zweifel die naheliegendste Wahl treffen statt nachzufragen.
-2. **Verwandtes suchen** — `list_documents` mit Stichworten aus dem neuen Inhalt, gefiltert auf die Vault-Collection. Die relevantesten Treffer werden zu Kanten.
-3. **Dokument erstellen** — `create_document` mit Titel, Metadaten-Block + Inhalt als `text`, und `parentDocumentId` der passenden Kategorie. Fasse große Quellen (ganze Paper, lange Threads) sinnvoll zusammen statt sie 1:1 hineinzukopieren — ein Recall-Vorgang später soll gezielt laden können, nicht einen Roman durchsuchen.
-4. **Backlinks pflegen** — für jedes in Schritt 2 gefundene verwandte Dokument: dessen aktuellen Text per `fetch` lesen, die vorhandene `Verwandte Dokumente`-Tabellenzeile per `update_document` (`editMode: "patch"`, `findText` = exakte bestehende Zeile, z. B. `| Verwandte Dokumente | ... |`) um den Link zum neuen Dokument ergänzen. Ohne diesen Schritt entsteht nur eine einseitige Verknüpfung — der Graph bleibt unvollständig.
+## Workflow: capturing knowledge
 
-## Workflow: Gezielt Kontext laden (Recall)
+1. **Determine the type** — which of the five categories fits best. In genuinely ambiguous cases, pick the closest match rather than asking.
+2. **Search for related documents** — `list_documents` with keywords from the new content, filtered to the Vault collection. The most relevant hits become edges.
+3. **Create the document** — `create_document` with title, metadata block + content as `text`, and `parentDocumentId` of the matching category. Condense large sources (whole papers, long threads) sensibly instead of copying them in 1:1 — a later recall pass should be able to load something targeted, not search through a novel.
+4. **Maintain backlinks** — for every related document found in step 2: read its current text via `fetch`, then extend its existing `Verwandte Dokumente` table row via `update_document` (`editMode: "patch"`, `findText` = the exact existing row, e.g. `| Verwandte Dokumente | ... |`) with a link to the new document. Skipping this step creates only a one-sided connection — the graph stays incomplete.
 
-Ziel ist es, für eine anstehende Aufgabe genau den relevanten Ausschnitt des Vaults ins Kontextfenster zu holen — nicht möglichst viel, sondern möglichst treffend.
+## Workflow: loading targeted context (recall)
 
-1. **Suchen** — `list_documents` mit den Kernbegriffen der aktuellen Aufgabe, auf die Vault-Collection eingegrenzt.
-2. **Laden** — die relevantesten Treffer per `fetch(resource: "document", id)` vollständig laden.
-3. **Einen Hop weitergehen** — aus deren Metadaten-Block die verlinkten Dokumente extrahieren und nur diejenigen zusätzlich laden, die für die konkrete Aufgabe plausibel beitragen. Blind der gesamten Nachbarschaft zu folgen sprengt das Kontextfenster und verwässert die Relevanz — im Zweifel lieber einen Nachbarn zu wenig als zehn zu viel laden.
-4. **Verdichten** — das Ergebnis kompakt für die eigentliche Aufgabe aufbereiten (relevante Fakten, keine Rohdumps aller geladenen Dokumente).
+The goal is to bring exactly the relevant slice of the Vault into the context window for an upcoming task — not as much as possible, but as precisely as possible.
 
-## Weitere Leitplanken
+1. **Search** — `list_documents` with the core terms of the current task, scoped to the Vault collection.
+2. **Load** — fully load the most relevant hits via `fetch(resource: "document", id)`.
+3. **Follow one hop** — extract the linked documents from their metadata block and only load the ones that plausibly contribute to the concrete task. Blindly following the entire neighborhood blows up the context window and dilutes relevance — when in doubt, load one neighbor too few rather than ten too many.
+4. **Condense** — prepare the result compactly for the actual task (relevant facts, not raw dumps of every document loaded).
 
-- Lösche nie bestehende Vault-Dokumente ohne ausdrückliche Anweisung — Backlink-Pflege heißt ergänzen, nicht ersetzen.
-- Wenn ein neuer Fund thematisch eindeutig zu einem bestehenden Dokument gehört (z. B. neuer Stand desselben Projekts), aktualisiere das bestehende Dokument (`update_document`, meist `editMode: "append"` oder `"patch"`) statt ein Duplikat anzulegen.
-- Bei Unsicherheit über Kategorie oder Verknüpfung: eine sinnvolle Annahme treffen und sie kurz im Chat nennen, statt den Ablauf mit Rückfragen zu unterbrechen — der Nutzer kann jederzeit korrigieren.
+## Further guardrails
+
+- Never delete existing Vault documents without an explicit instruction — maintaining backlinks means adding, not replacing.
+- If a new find clearly belongs to an existing document (e.g. a new status update for the same project), update that existing document (`update_document`, usually `editMode: "append"` or `"patch"`) instead of creating a duplicate.
+- When uncertain about category or linking: make a sensible assumption and briefly mention it in the chat, rather than interrupting the flow with questions — the user can correct it at any time.
