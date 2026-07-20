@@ -1,6 +1,6 @@
 ---
 name: vault-knowledge-graph
-description: Builds and maintains a knowledge graph in the "Vault" collection in Outline — stores research material, project info, concepts, sources, and people as linked documents, and later loads relevant context back from it in a targeted way. ALWAYS use this skill when the user wants to store, note down, or look something up "in the Vault", "in Outline", or "in the knowledge base" — even if they just say "remember this", "save that research", or "what do we already know about X" without naming Outline or Vault explicitly. Applies both to writing (new findings, project status, research results) and to targeted loading of background knowledge before working on a task.
+description: Builds and maintains a knowledge graph in the "Vault" collection in Outline — stores research material, project info, concepts, sources, and people as linked documents, and later loads relevant context back from it in a targeted way. ALWAYS use this skill when the user wants to store, note down, or look something up "in the Vault", "in Outline", or "in the knowledge base" — even if they just say "remember this", "save that research", or "what do we already know about X" without naming Outline or Vault explicitly. ALSO use this skill PROACTIVELY after any research activity, regardless of whether the user explicitly asks to save it — after web searches, after the deep-research skill, after evaluating external sources, papers, or documentation, or after investigating any topic, the result belongs in the Vault automatically. Applies both to writing (new findings, project status, research results) and to targeted loading of background knowledge before working on a task.
 ---
 
 # Vault Knowledge Graph
@@ -8,6 +8,10 @@ description: Builds and maintains a knowledge graph in the "Vault" collection in
 This skill turns the Outline collection **"Vault"** into a knowledge graph: documents are nodes, mutual hyperlinks in the text are edges. Outline itself has no concept of a graph — the graph property exists only because every document explicitly links its related documents, and those links are maintained in both directions. Without consistent backlinks, the Vault degrades into an ordinary document dump.
 
 Use the Outline MCP tools for every action (`list_collections`, `list_collection_documents`, `list_documents`, `fetch`, `create_document`, `update_document`, `move_document`, `create_collection`). If they're marked deferred, load them first via ToolSearch.
+
+## Core principle: research lands in the Vault automatically
+
+As soon as research happens as part of a task — a web search, the `deep-research` skill, reading documentation/papers/articles, evaluating a third-party repo, or any other investigation of a topic — the result gets written to the Vault at the end of that task (category Research Material, see below), without the user having to ask for it explicitly. The reason: research that only lives in the chat history is lost the next time around; the Vault is where it stays findable. Capture what's substantial and reusable (findings, summaries, assessments, source references) — pure intermediate steps or trivial one-off lookups (e.g. a quick fact check with no lasting value) don't need their own document every time. When in doubt, file it and mention it briefly in the chat ("Research on this is now in the Vault under …") rather than silently saving nothing.
 
 ## Core principle: search before creating
 
