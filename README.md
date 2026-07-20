@@ -11,7 +11,7 @@ team knowledge base layer.
 | **context-layer** | Retrieval layer between docs & code: Serena (LSP symbol search) + routing skills, so the agent navigates on purpose instead of spamming grep/find/read. |
 | **benchmark-stack** | Small OpenTelemetry stack (Docker Compose: Collector + Prometheus + Grafana) + a report generator for the before/after comparison (tokens, calls, cost). |
 | **workflow** | Day-to-day control: enforces the layer (SessionStart/grep hooks + routing skill) and produces trend reports over time. Depends on the other two. |
-| **framework** | Knowledge graph in our Outline "Vault" collection: research material, project knowledge, targeted context recall instead of dumping whole docs. Ships `superpowers` (from `claude-plugins-official`) as a dependency. |
+| **framework** | Team onboarding bundle: pulls in context-layer, benchmark-stack, workflow and `superpowers` (from `claude-plugins-official`) in one install, plus its own knowledge graph in our Outline "Vault" collection (research material, project knowledge, targeted context recall). |
 
 ## Install
 
@@ -19,19 +19,21 @@ team knowledge base layer.
 # Register the marketplace (from this git repo)
 /plugin marketplace add OneLiteFeatherNET/onelitefeather-claude-marketplace
 
-# Install the plugins
+# One-shot onboarding: installs context-layer, benchmark-stack, workflow and superpowers too
+/plugin install framework@onelitefeather-claude-marketplace
+
+# Or install the individual plugins yourself
 /plugin install context-layer@onelitefeather-claude-marketplace
 /plugin install benchmark-stack@onelitefeather-claude-marketplace
 /plugin install workflow@onelitefeather-claude-marketplace   # pulls the other two as dependencies
-/plugin install framework@onelitefeather-claude-marketplace # independent, needs Outline access
 ```
 
 ## Recommended order
 
-1. Install **context-layer** → Serena + routing active, calls drop immediately.
-2. **benchmark-stack** → run one A/B pass and prove the effect for a presentation.
-3. **workflow** → for continuous use: keeps routing on in daily work and shows the trend.
-4. **framework** → independent of the other three; install whenever you want Claude to read from and write to our Outline knowledge base. Run `/framework:setup` once afterwards to create the "Vault" collection and its five categories.
+1. **framework** → the fastest path for a new team member: one install brings in every plugin below plus superpowers and the Outline vault. Run `/framework:setup` once afterwards to create the "Vault" collection and its five categories.
+2. Installing individually instead: **context-layer** first → Serena + routing active, calls drop immediately.
+3. **benchmark-stack** → run one A/B pass and prove the effect for a presentation.
+4. **workflow** → for continuous use: keeps routing on in daily work and shows the trend.
 
 ## Prerequisites
 
