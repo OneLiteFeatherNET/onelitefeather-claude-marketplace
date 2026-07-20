@@ -32,9 +32,9 @@
       "name": "framework",
       "displayName": "Framework",
       "source": "./plugins/framework",
-      "description": "Knowledge graph in Outline's \"Vault\" collection: research material, project knowledge, targeted context recall.",
+      "description": "Team onboarding bundle (context-layer, benchmark-stack, workflow, superpowers) plus a knowledge graph in Outline's \"Vault\" collection.",
       "category": "productivity",
-      "keywords": ["outline", "wiki", "knowledge-graph", "vault", "context", "retrieval"]
+      "keywords": ["outline", "wiki", "knowledge-graph", "vault", "context", "retrieval", "onboarding", "bundle"]
     }
   ]
 }

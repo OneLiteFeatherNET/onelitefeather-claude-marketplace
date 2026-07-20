@@ -2,11 +2,14 @@
   "name": "framework",
   "displayName": "Framework",
   "version": "0.1.0",
-  "description": "Baut und pflegt einen Wissensgraphen in der Outline-Collection \"Vault\": Research Material, Projektwissen und alles rund um Wissensaufbau fürs Team, plus gezieltes Laden von Kontext daraus.",
+  "description": "Team onboarding bundle: installs context-layer, benchmark-stack, workflow and superpowers in one go, plus a knowledge graph in Outline's \"Vault\" collection (research material, project knowledge, targeted context recall).",
   "author": { "name": "OneLiteFeather", "url": "https://github.com/OneLiteFeatherNET" },
   "license": "MIT",
-  "keywords": ["outline", "wiki", "knowledge-graph", "vault", "context", "retrieval"],
+  "keywords": ["outline", "wiki", "knowledge-graph", "vault", "context", "retrieval", "onboarding", "bundle"],
   "dependencies": [
+    "context-layer",
+    "benchmark-stack",
+    "workflow",
     { "name": "superpowers", "marketplace": "claude-plugins-official" }
   ],
   "mcpServers": {
