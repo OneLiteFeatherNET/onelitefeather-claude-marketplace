@@ -1,0 +1,10 @@
+{
+  "name": "minestom-knowledge",
+  "version": "0.1.0",
+  "description": "Knowledge about OneLiteFeather's internal Minestom libraries and tooling that Claude wouldn't otherwise know accurately — Cyano (JUnit5 testing), Gradle build conventions, the mycelium/aonyx/manis BOM hierarchy, Guira (setup flows), Aves (GUIs, files, i18n, maps, resource packs, utils), Xerus (kits, teams, phase system), Pica (native dialogs), and Coris (floors, rooms, doors, shapes).",
+  "author": { "name": "OneLiteFeather", "url": "https://github.com/OneLiteFeatherNET" },
+  "license": "MIT",
+  "keywords": ["minestom", "minecraft", "testing", "cyano", "gradle", "bom", "guira", "aves", "xerus", "pica", "coris", "java"],
+  "skills": "./skills/",
+  "hooks": {}
+}

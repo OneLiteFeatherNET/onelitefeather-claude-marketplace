@@ -1,0 +1,10 @@
+{
+  "name": "framework",
+  "version": "0.1.0",
+  "description": "OneLiteFeather's developer framework: a knowledge graph in Outline's \"Vault\" collection, standardized team workflows. This Codex manifest carries the bundled skills only — the Outline MCP connection and the claude-plugins-official dependency bundle (superpowers, skill-creator, etc.) are Claude Code marketplace mechanics and are not ported here; configure Outline's MCP server separately if a skill needs it.",
+  "author": { "name": "OneLiteFeather", "url": "https://github.com/OneLiteFeatherNET" },
+  "license": "MIT",
+  "keywords": ["outline", "wiki", "knowledge-graph", "vault", "context", "retrieval"],
+  "skills": "./skills/",
+  "hooks": {}
+}

@@ -46,9 +46,29 @@ represented (or represented correctly) in general training data.
 
 ## Install
 
+### Claude Code
+
 ```bash
 /plugin install minestom-knowledge@onelitefeather-claude-marketplace
 ```
 
 No MCP servers or external dependencies — this plugin is pure knowledge
 (skills), nothing to configure.
+
+### Codex
+
+This plugin ships `.codex-plugin/plugin.json` (pointing at the same
+`skills/` directory used above), matching Codex's documented plugin
+manifest format. Install it through Codex's own `/plugins` browser once
+this marketplace is registered there, or — the more immediately usable
+path — clone or symlink the individual skill directories you want
+(`skills/cyano/`, `skills/aves/`, etc.) into `~/.codex/skills/`.
+
+### Antigravity (`agy`)
+
+This plugin also ships `.antigravity-plugin/plugin.json`. **Not verified
+live in this environment** (no `agy` CLI available to test against) — the
+manifest follows the same shape as the Codex one as a best-effort
+approximation. Try `agy plugin install <this-repo-url>` and confirm the
+skills actually surface before relying on it; please report back (or open
+an issue) if the manifest needs adjusting.

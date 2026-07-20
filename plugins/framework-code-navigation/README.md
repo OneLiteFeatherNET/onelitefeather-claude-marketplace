@@ -29,11 +29,30 @@ SKILL.md, "Before anything else" section).
 
 ## Install
 
+### Claude Code
+
 ```bash
 /plugin install framework-code-navigation@onelitefeather-claude-marketplace
 ```
 
 Prerequisite: [`uv`](https://docs.astral.sh/uv/) (for `uvx`).
+
+### Codex / Antigravity (`agy`)
+
+This plugin also ships `.codex-plugin/plugin.json` and
+`.antigravity-plugin/plugin.json`, both pointing at the same `skills/`
+directory, so the `code-navigation` routing policy itself ports as-is —
+it already checks at runtime whether Serena's tools are actually reachable
+before using them (see SKILL.md), so it degrades safely wherever Serena
+isn't configured. **The Serena MCP server declaration itself is not
+ported** — set up a Serena MCP connection separately on whichever platform
+you're using (same `uvx`-based command as in `.claude-plugin/plugin.json`,
+pinned to the same release tag).
+
+The Codex manifest is per Codex's documented format (verified). The
+Antigravity one is a **best-effort approximation, not verified live** in
+this session (no `agy` CLI available to test against) — confirm with
+`agy plugin install` before relying on it.
 
 ## Test recipe (manual, once installed)
 
