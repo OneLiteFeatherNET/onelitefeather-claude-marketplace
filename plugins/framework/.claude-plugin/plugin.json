@@ -1,0 +1,18 @@
+{
+  "name": "framework",
+  "displayName": "Framework",
+  "version": "0.1.0",
+  "description": "Baut und pflegt einen Wissensgraphen in der Outline-Collection \"Vault\": Research Material, Projektwissen und alles rund um Wissensaufbau fürs Team, plus gezieltes Laden von Kontext daraus.",
+  "author": { "name": "OneLiteFeather", "url": "https://github.com/OneLiteFeatherNET" },
+  "license": "MIT",
+  "keywords": ["outline", "wiki", "knowledge-graph", "vault", "context", "retrieval"],
+  "dependencies": [
+    { "name": "superpowers", "marketplace": "claude-plugins-official" }
+  ],
+  "mcpServers": {
+    "outline": {
+      "type": "http",
+      "url": "https://outline.onelitefeather.dev/mcp"
+    }
+  }
+}
