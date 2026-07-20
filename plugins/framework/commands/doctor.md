@@ -1,33 +1,44 @@
 ---
 name: doctor
-description: Read-only health check for framework — reports the status of dependency plugins, the Outline MCP connection, and the Vault structure without changing anything. Safe to run anytime.
+description: Guides the user through a read-only health check of framework — narrates each check (dependency plugins, Outline MCP connection, Vault structure) as it runs and ends with a clear, prioritized list of next steps. Safe to run anytime.
 disable-model-invocation: true
 ---
 
-Run a read-only diagnostic of the framework setup. Unlike `/framework:setup`,
-never create, modify, or fix anything here — only report status. The point
-is that a status check must never risk accidentally writing to a shared
-system like Outline.
+Walk the user through a read-only diagnostic of the framework setup, one
+check at a time — narrate what you're checking and why before each one, and
+report its result immediately rather than saving everything for one big
+dump at the end. Unlike `/framework:setup`, never create, modify, or fix
+anything here, no matter what you find — this command exists specifically
+so a status check carries zero risk of accidentally writing to a shared
+system like Outline. If something's wrong, describe it and point to the
+fix; don't attempt the fix yourself.
 
-Check each of the following in order and report ✅/❌:
+**Check 1 — Dependency plugins.** Say briefly what you're about to check,
+then run `claude plugin list --json` via Bash (if that CLI call doesn't
+work that way in this environment, note that plainly and move to Check 2
+rather than failing the whole command). Report ✅/❌ per plugin:
+`superpowers`, `skill-creator`, `claude-md-management`, `code-review`,
+`code-simplifier`, `security-guidance`, `frontend-design`, `context7`,
+`ralph-loop`. Also mention, purely informationally, whether the optional
+`framework-code-navigation` is installed — its absence is never a ❌.
 
-1. **Dependency plugins** — run `claude plugin list --json` via Bash (if the
-   `claude` CLI call doesn't work that way in this environment, note that
-   briefly and skip this check instead of aborting the whole command).
-   Report the status of `superpowers`, `skill-creator`,
-   `claude-md-management`, `code-review`, `code-simplifier`,
-   `security-guidance`, `frontend-design`, `context7`, and `ralph-loop`.
-   Also mention whether the optional `framework-code-navigation` is
-   installed (not an error if it isn't — just informational).
-2. **Outline MCP connection** — a lightweight read call (e.g.
-   `list_collections`). ✅ if it responds, ❌ with the likely cause (not
-   connected / needs OAuth login / server unreachable) if not.
-3. **Vault structure** — does the "Vault" collection exist, and are all
-   five category documents present (Research Material, Projekte, Konzepte &
-   Themen, Quellen, Personen & Organisationen)?
+**Check 2 — Outline MCP connection.** Explain that you're testing whether
+Outline actually responds, then try a lightweight read call (e.g.
+`list_collections`). ✅ if it responds. If not, ❌ and name the likely cause
+in plain terms (not connected yet / needs the browser OAuth login / server
+unreachable) — this determines whether Check 3 can even be meaningful.
 
-Close with a one-line overall verdict ("Everything looks good" / "N items
-need attention") and, for each ❌, the concrete next step:
-`/framework:setup` for Vault structure issues, the matching
-`claude plugin install <name>@claude-plugins-official` command for missing
-dependencies, or a pointer to the Outline OAuth login flow.
+**Check 3 — Vault structure.** If Check 2 failed, say so and skip this
+check rather than pretending it can run against a dead connection. Otherwise
+verify the "Vault" collection exists and all five category documents are
+present (Research Material, Projekte, Konzepte & Themen, Quellen, Personen &
+Organisationen); ✅/❌ overall, naming any missing category by name.
+
+**Wrap-up.** Close with a one-line overall verdict ("Everything looks good"
+or "N items need attention") followed by a short, prioritized list: for
+each ❌, the concrete next action — `/framework:setup` for anything it can
+fix directly (Vault structure, and it'll re-check the connection too), the
+matching `claude plugin install <name>@claude-plugins-official` command for
+each missing dependency, or a pointer to complete the Outline OAuth login.
+Order the list so the Outline connection (if broken) comes first, since it
+blocks the Vault check.
