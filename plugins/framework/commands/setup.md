@@ -1,26 +1,39 @@
 ---
 name: setup
-description: Richtet die Outline-Collection "Vault" für den Wissensgraphen ein (Collection + fünf Kategorie-Dokumente) und bestätigt, dass der MCP-Server erreichbar ist.
+description: Walks through the complete framework setup once — verifies all bundled dependency plugins are installed/enabled, checks the Outline MCP connection, and creates the Vault collection with its five categories.
 disable-model-invocation: true
 ---
 
-Richte die Grundstruktur für `vault-knowledge-graph` in Outline ein. Anders als
-beim beiläufigen Setup-Schritt im Skill ist dieser Befehl ein expliziter,
-vom Nutzer angestoßener Vorgang — eine fehlende "Vault"-Collection darfst du
-hier direkt anlegen, ohne vorher nachzufragen.
+Run the complete framework setup. This is an explicit, user-triggered
+action — you may create missing structure (Vault collection, categories)
+directly, without asking first.
 
-1. Prüfe, ob der MCP-Server `outline` erreichbar ist (z. B. `list_collections`
-   aufrufen). Schlägt das mit einem Auth-/Verbindungsfehler fehl, erkläre kurz,
-   dass beim ersten Zugriff ein Browser-OAuth-Login gegen die Outline-Instanz
-   nötig ist, und stoppe.
-2. Suche die Collection **"Vault"** (`list_collections(query="Vault")`).
-   - Existiert sie nicht: lege sie an (`create_collection`, Name "Vault").
-   - Existiert sie bereits: weiterverwenden, nichts doppelt anlegen.
-3. Prüfe mit `list_collection_documents` die Top-Level-Dokumente der Collection.
-   Lege jede fehlende der fünf Kategorien an (`create_document`,
-   `collectionId` = Vault-Collection, kein `parentDocumentId`):
+1. **Verify dependency plugins.** Run `claude plugin list --json` via Bash
+   and check whether `superpowers`, `skill-creator`, `claude-md-management`,
+   `code-review`, `code-simplifier`, `security-guidance`, `frontend-design`,
+   `context7`, and `ralph-loop` are present and enabled. If the `claude` CLI
+   call itself isn't available in this environment, skip this check with a
+   brief note instead of aborting the whole command. For every missing or
+   disabled plugin, name the exact command the user needs to run themselves
+   (`claude plugin install <name>@claude-plugins-official` or
+   `claude plugin enable <name>`) — don't try to install it yourself.
+2. **Verify the Outline MCP connection.** Try `list_collections` (load via
+   ToolSearch first if the Outline tools are deferred). If it fails with an
+   auth/connection error, briefly explain that a browser OAuth login against
+   the Outline instance is needed on first use — and continue with the
+   remaining setup steps that don't depend on Outline.
+3. **Set up the Vault structure.** Search for the **"Vault"** collection
+   (`list_collections(query="Vault")`).
+   - Missing: create it (`create_collection`, name "Vault").
+   - Existing: reuse it, don't duplicate.
 
-   | Icon | Titel |
+   Then check `list_collection_documents` for the top-level documents and
+   create any of the five categories that are missing (`create_document`,
+   `collectionId` = Vault collection, no `parentDocumentId`). These titles
+   are literal — they match the categories already used in the real Vault,
+   so keep them exactly as written, not translated:
+
+   | Icon | Title |
    |---|---|
    | 📚 | Research Material |
    | 🗂️ | Projekte |
@@ -28,10 +41,11 @@ hier direkt anlegen, ohne vorher nachzufragen.
    | 🔗 | Quellen |
    | 👤 | Personen & Organisationen |
 
-4. Fasse am Ende kurz zusammen, was neu angelegt wurde und was schon vorhanden
-   war (z. B. "Vault existierte bereits, 2 von 5 Kategorien fehlten und wurden
-   angelegt: Quellen, Personen & Organisationen").
+4. **Summarize.** What was already fine, what got created/fixed — and,
+   clearly separated, what the user still needs to do themselves (missing
+   plugin installs, Outline login, `uv` for the optional
+   `framework-code-navigation` if that's installed too). Point to
+   `/framework:doctor` for a quick, change-free re-check anytime.
 
-Für die eigentliche Nutzung (Wissen ablegen/abrufen) gilt danach der Skill
-`vault-knowledge-graph` — dieser Befehl richtet nur die Struktur einmalig ein
-und ist auch später jederzeit sicher erneut ausführbar (idempotent).
+This command is idempotent — safe to re-run any time, e.g. after onboarding
+a new team member or whenever something seems off.

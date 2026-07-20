@@ -8,9 +8,17 @@
       "name": "framework",
       "displayName": "Framework",
       "source": "./plugins/framework",
-      "description": "Team framework: knowledge graph in Outline's \"Vault\" collection, plus superpowers.",
+      "description": "Team framework: knowledge graph in Outline's \"Vault\" collection, plus superpowers, skill-creator, and a curated set of default Claude dev skills.",
       "category": "productivity",
       "keywords": ["outline", "wiki", "knowledge-graph", "vault", "context", "retrieval"]
+    },
+    {
+      "name": "framework-code-navigation",
+      "displayName": "Framework Code Navigation",
+      "source": "./plugins/framework-code-navigation",
+      "description": "Optional companion to framework: Serena (LSP symbol search) for JVM/Java-Kotlin projects. Install only where it fits.",
+      "category": "productivity",
+      "keywords": ["serena", "lsp", "jvm", "java", "kotlin", "code-navigation", "context", "tokens"]
     }
   ]
 }

@@ -2,12 +2,20 @@
   "name": "framework",
   "displayName": "Framework",
   "version": "0.1.0",
-  "description": "Team framework: knowledge graph in Outline's \"Vault\" collection (research material, project knowledge, targeted context recall), plus superpowers.",
+  "description": "Team developer framework: knowledge graph in Outline's \"Vault\" collection, plus a curated bundle of default Claude Code skills (superpowers, skill-creator, code review/simplification, security guidance, frontend design, docs lookup, iterative loops).",
   "author": { "name": "OneLiteFeather", "url": "https://github.com/OneLiteFeatherNET" },
   "license": "MIT",
   "keywords": ["outline", "wiki", "knowledge-graph", "vault", "context", "retrieval"],
   "dependencies": [
-    { "name": "superpowers", "marketplace": "claude-plugins-official" }
+    { "name": "superpowers", "marketplace": "claude-plugins-official" },
+    { "name": "skill-creator", "marketplace": "claude-plugins-official" },
+    { "name": "claude-md-management", "marketplace": "claude-plugins-official" },
+    { "name": "code-review", "marketplace": "claude-plugins-official" },
+    { "name": "code-simplifier", "marketplace": "claude-plugins-official" },
+    { "name": "security-guidance", "marketplace": "claude-plugins-official" },
+    { "name": "frontend-design", "marketplace": "claude-plugins-official" },
+    { "name": "context7", "marketplace": "claude-plugins-official" },
+    { "name": "ralph-loop", "marketplace": "claude-plugins-official" }
   ],
   "mcpServers": {
     "outline": {
