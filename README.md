@@ -44,12 +44,15 @@ Claude Code uses — skill content is written to name actions, not
 Claude-Code-specific tool names, so it carries over as-is. What does **not**
 carry over: the `claude-plugins-official` dependency bundle, the
 `/framework:*` commands, and the two plugins' MCP server declarations
-(Outline, Serena) — configure those separately per platform. The Codex
-manifest shape is per Codex's documented plugin format (verified); the
-Antigravity one is a **best-effort approximation, not verified live** (no
-`agy` CLI available in the session that authored it) — confirm with
-`agy plugin install` before relying on it, and see each plugin's own
-README for specifics.
+(Outline, Serena) — configure those separately per platform.
+
+Full step-by-step install instructions: [`docs/codex.md`](docs/codex.md)
+and [`docs/antigravity.md`](docs/antigravity.md). Short version: the Codex
+manifest shape is per Codex's documented plugin format (verified against a
+known working reference); the Antigravity one is a **best-effort
+approximation, not verified live** (no `agy` CLI available in the session
+that authored it) — confirm with `agy plugin install` before relying on
+it, and please report back what you find.
 
 ## Prerequisites
 
