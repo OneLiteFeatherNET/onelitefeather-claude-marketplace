@@ -1,40 +1,16 @@
 {
   "name": "onelitefeather-claude-marketplace",
-  "description": "OneLiteFeather — Claude Code plugins to cut API calls & tokens (retrieval layer, benchmark, day-to-day workflow)",
+  "description": "OneLiteFeather — Claude Code plugins: team framework bundle (Outline knowledge graph + superpowers)",
   "owner": { "name": "OneLiteFeather", "url": "https://github.com/OneLiteFeatherNET" },
   "allowCrossMarketplaceDependenciesOn": ["claude-plugins-official"],
   "plugins": [
     {
-      "name": "context-layer",
-      "displayName": "Context Layer",
-      "source": "./plugins/context-layer",
-      "description": "Retrieval layer between docs and code (Serena + routing) to cut calls/tokens.",
-      "category": "productivity",
-      "keywords": ["serena", "lsp", "context", "tokens"]
-    },
-    {
-      "name": "benchmark-stack",
-      "displayName": "Benchmark Stack",
-      "source": "./plugins/benchmark-stack",
-      "description": "OpenTelemetry stack (Docker Compose) + report generator for before/after comparison.",
-      "category": "productivity",
-      "keywords": ["opentelemetry", "benchmark", "grafana", "report"]
-    },
-    {
-      "name": "workflow",
-      "displayName": "Workflow",
-      "source": "./plugins/workflow",
-      "description": "Day-to-day control: enforces the layer (hooks/routing) and produces trend reports. Depends on the other two.",
-      "category": "productivity",
-      "keywords": ["workflow", "hooks", "routing", "trend"]
-    },
-    {
       "name": "framework",
       "displayName": "Framework",
       "source": "./plugins/framework",
-      "description": "Team onboarding bundle (context-layer, benchmark-stack, workflow, superpowers) plus a knowledge graph in Outline's \"Vault\" collection.",
+      "description": "Team framework: knowledge graph in Outline's \"Vault\" collection, plus superpowers.",
       "category": "productivity",
-      "keywords": ["outline", "wiki", "knowledge-graph", "vault", "context", "retrieval", "onboarding", "bundle"]
+      "keywords": ["outline", "wiki", "knowledge-graph", "vault", "context", "retrieval"]
     }
   ]
 }
