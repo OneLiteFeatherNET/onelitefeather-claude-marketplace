@@ -1,10 +1,10 @@
 {
   "name": "minestom-knowledge",
   "version": "0.1.0",
-  "description": "Knowledge about OneLiteFeather's internal Minestom libraries and tooling that Claude wouldn't otherwise know accurately — Cyano (JUnit5 testing), Gradle build conventions, the mycelium/aonyx/manis BOM hierarchy, Guira (setup flows), Aves (GUIs, files, i18n, maps, resource packs, utils), Xerus (kits, teams, phase system), Pica (native dialogs), and Coris (floors, rooms, doors, shapes).",
+  "description": "Knowledge about OneLiteFeather's internal Minestom libraries and tooling that Claude wouldn't otherwise know accurately — Cyano (JUnit5 testing), Gradle build conventions, the mycelium/aonyx/manis BOM hierarchy, Guira (setup flows), Aves (GUIs, files, i18n, maps, resource packs, utils), Xerus (kits, teams, phase system), Pica (native dialogs), Coris (floors, rooms, doors, shapes), CloudNet integration (extension bootstrapping, bridge extensions, Gradle/maven-publish setup for CloudNet services), and embedding LuckPerms (JarInJar bootstrap, Adventure excludes, cross-classloader permission bridging).",
   "author": { "name": "OneLiteFeather", "url": "https://github.com/OneLiteFeatherNET" },
   "license": "MIT",
-  "keywords": ["minestom", "minecraft", "testing", "cyano", "gradle", "bom", "guira", "aves", "xerus", "pica", "coris", "java"],
+  "keywords": ["minestom", "minecraft", "testing", "cyano", "gradle", "bom", "guira", "aves", "xerus", "pica", "coris", "cloudnet", "luckperms", "java"],
   "skills": "./skills/",
   "hooks": {}
 }
