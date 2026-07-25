@@ -1,8 +1,11 @@
 # Using this marketplace with Antigravity
 
-Every plugin in this repo ships an `.antigravity-plugin/plugin.json`
-alongside its `.claude-plugin/plugin.json` — same `skills/` directory,
-both manifests point at it. That manifest targets a plugin-installer
+Every plugin in this repo except `agent-orchestrator` ships an
+`.antigravity-plugin/plugin.json` alongside its `.claude-plugin/plugin.json`
+— same `skills/` directory, both manifests point at it. `agent-orchestrator`
+is Claude Code only (it relies on the `Agent` tool's model overrides,
+worktree isolation, and task tracking) and deliberately ships no
+`.antigravity-plugin/plugin.json`. That manifest targets a plugin-installer
 mechanism (`agy plugin install`) that hasn't been verified live in this
 repo. Antigravity's own published docs describe a second, simpler path
 that needs no installer at all: skills are loaded straight from a
