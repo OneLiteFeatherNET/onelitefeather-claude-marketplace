@@ -1,6 +1,6 @@
 ---
 name: orchestrator
-description: Decomposes a complex, multi-step task into independent subtasks and delegates each one via the Agent tool to the cheapest model tier likely to succeed (haiku, then sonnet, then opus), escalating a subtask to the next tier only when it reports being out of its depth or its result looks implausible. Use this proactively whenever a task clearly breaks down into independent, delegable pieces of varying difficulty. Do not use it for a single-shot edit, a simple question, or a task that's inherently sequential and tightly coupled step-to-step. An explicit manual trigger is also available: /agent-orchestrator:run.
+description: Decomposes a complex, multi-step task into independent subtasks and delegates each one via the Agent tool to the cheapest model tier likely to succeed (haiku, then sonnet, then opus, then fable), escalating a subtask to the next tier only when it reports being out of its depth or its result looks implausible; fable requires explicit user confirmation. Use this proactively whenever a task clearly breaks down into independent, delegable pieces of varying difficulty. Do not use it for a single-shot edit, a simple question, or a task that's inherently sequential and tightly coupled step-to-step. An explicit manual trigger is also available: /agent-orchestrator:run.
 ---
 
 # Agent Orchestrator
@@ -35,7 +35,8 @@ where this skill's own judgment doesn't fire but the user wants orchestration an
    (default: `haiku`), using `isolation: 'worktree'` for any subtask that touches files (see
    `references/worktree-merge.md`).
 4. **Apply the escalation protocol** (`references/escalation-protocol.md`) to every result — retry at
-   the next tier when a subtask reports it's out of its depth or the result looks implausible.
+   the next tier when a subtask reports it's out of its depth or the result looks implausible. The
+   ladder tops out at opus; fable is available only as a last resort with explicit user confirmation.
 5. On a subtask's completion, **merge** its worktree branch back (`references/worktree-merge.md`) and
    update both the state file and its `TaskCreate` entry.
 6. Once every subtask has resolved (completed, or handed back unresolved per the escalation
