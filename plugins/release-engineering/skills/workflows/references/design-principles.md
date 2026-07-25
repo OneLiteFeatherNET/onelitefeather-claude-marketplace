@@ -81,10 +81,14 @@ Conventional Commits → automatic changelog → automatic tag → automatic pub
 version bumping and no changelog anyone has to remember to update. See the `release-please` skill for
 the mechanics; this principle is why it was adopted org-wide rather than left per-repo.
 
+**Applies to new mechanics:** any new release-triggering mechanism should derive from a single automated signal (a commit convention, a merge event) rather than a human remembering to bump a version or write a changelog entry by hand.
+
 ## Why Renovate instead of Dependabot for the pipeline pins
 
 Dependabot bumps individual GitHub Actions references but can't group reusable-workflow-ref updates
 into one PR or auto-merge them the same way Renovate can. See the `renovate` skill for the mechanics.
+
+**Applies to new mechanics:** when a new mechanic introduces its own set of versioned references to keep current, prefer whichever update tool can group and auto-merge them safely, rather than defaulting to whatever's built into the platform.
 
 ## How to add a new reusable workflow to the `workflows` repo
 
@@ -109,6 +113,7 @@ into one PR or auto-merge them the same way Renovate can. See the `renovate` ski
    managed too (see the `release-please` skill), so a `feat:`/`fix:` commit becomes a real version
    bump automatically.
 7. **Tag and let consumers pick it up** — the new workflow ships as part of the next `workflows`
-   release; consumers get it via their existing Renovate-managed pin bump, no separate announcement
-   needed for the mechanism to reach them (though a heads-up for anything behavior-changing is still
-   good practice).
+   release. Consumers should pin to it using a full SemVer tag (e.g. `@v2.5.0`), never `@main` or a
+   bare major alias — that's what lets their existing Renovate-managed pin bump (see the `renovate`
+   skill) pick up the new tag automatically, no separate announcement needed for the mechanism to
+   reach them (though a heads-up for anything behavior-changing is still good practice).
