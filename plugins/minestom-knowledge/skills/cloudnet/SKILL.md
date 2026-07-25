@@ -282,9 +282,8 @@ jobs:
     secrets: inherit
 ```
 
-Only override `java-version`/`java-distribution` if there's a concrete reason to pin an exact build (e.g. an
-AOT-cache artifact tied to a specific HotSpot build) — otherwise the workflow's default (Java 25 Temurin) is
-correct.
+Only override `java-version`/`java-distribution` if there's a concrete reason to pin a different build — otherwise
+the workflow's default (Java 25 Temurin) is correct.
 
 ## A node module is a different thing entirely
 
