@@ -27,6 +27,14 @@
       "description": "Accurate knowledge of OneLiteFeather's internal Minestom libraries and tooling (Cyano testing, Gradle conventions, BOM hierarchy, Guira setup flows, Aves utilities, Xerus minigame core, Pica dialogs, Coris floors/rooms/doors), too internal/new to be in general training data.",
       "category": "productivity",
       "keywords": ["minestom", "minecraft", "testing", "cyano", "gradle", "bom", "guira", "aves", "xerus", "pica", "coris", "java"]
+    },
+    {
+      "name": "release-engineering",
+      "displayName": "Release Engineering",
+      "source": "./plugins/release-engineering",
+      "description": "OneLiteFeather's CI/CD standard: Release Please, the central Renovate preset plus general Renovate config help, and the reusable GitHub Actions workflows (build, publish, Docker, Gradle specifics).",
+      "category": "productivity",
+      "keywords": ["release-please", "renovate", "github-actions", "reusable-workflows", "gradle", "docker", "ci-cd"]
     }
   ]
 }
