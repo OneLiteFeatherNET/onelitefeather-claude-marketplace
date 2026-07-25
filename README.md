@@ -47,12 +47,16 @@ carry over: the `claude-plugins-official` dependency bundle, the
 (Outline, Serena) — configure those separately per platform.
 
 Full step-by-step install instructions: [`docs/codex.md`](docs/codex.md)
-and [`docs/antigravity.md`](docs/antigravity.md). Short version: the Codex
-manifest shape is per Codex's documented plugin format (verified against a
-known working reference); the Antigravity one is a **best-effort
-approximation, not verified live** (no `agy` CLI available in the session
-that authored it) — confirm with `agy plugin install` before relying on
-it, and please report back what you find.
+and [`docs/antigravity.md`](docs/antigravity.md). Short version: for Codex,
+either drop skills into `~/.codex/skills/` or install via the
+`.codex-plugin/plugin.json` manifest (matches Codex's documented plugin
+format, verified against a known working reference). For Antigravity, the
+recommended path is the same idea — symlink skills straight into
+`~/.gemini/antigravity/skills/` or `<workspace-root>/.agents/skills/`,
+confirmed against Antigravity's own docs; `agy plugin install` via the
+`.antigravity-plugin/plugin.json` manifest is offered as an alternative
+but was **not verified live** (no `agy` CLI available in the session that
+authored it) — please report back what you find if you try it.
 
 ## Prerequisites
 

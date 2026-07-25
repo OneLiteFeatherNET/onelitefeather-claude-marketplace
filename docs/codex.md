@@ -65,16 +65,34 @@ to have changed since this doc was written.
 If you want the `vault-knowledge-graph` or `code-navigation` skills to
 actually *do* something (not just exist as instructions Codex reads but
 can't act on), you need the underlying MCP server configured on Codex
-too:
+too. Codex reads MCP servers from `config.toml` — `~/.codex/config.toml`
+for a global setup, or `.codex/config.toml` at a project's root to scope
+it to one repo — under a `[mcp_servers.<id>]` table per server. You can
+either edit that file directly or use `codex mcp add <name> --url <URL>`
+for HTTP servers.
 
-- **Outline** (`vault-knowledge-graph`): register Outline's official MCP
-  server at `https://outline.onelitefeather.dev/mcp` through however Codex
-  configures MCP servers (`.mcp.json` at your project root is the
-  documented location — see Codex's plugin docs for the exact schema it
-  expects there).
-- **Serena** (`code-navigation`): same idea, using the `uvx`-based command
-  in `plugins/framework-code-navigation/.claude-plugin/plugin.json` as the
-  reference for the exact invocation (pinned to Serena `v1.6.0`).
+- **Outline** (`vault-knowledge-graph`) is a remote Streamable HTTP
+  server, so it only needs a `type` and `url`:
+
+  ```toml
+  [mcp_servers.outline]
+  type = "http"
+  url = "https://outline.onelitefeather.dev/mcp"
+  ```
+
+- **Serena** (`code-navigation`) runs locally via `uvx`, so it needs a
+  `command` + `args` instead — same invocation as
+  `plugins/framework-code-navigation/.claude-plugin/plugin.json` (pinned
+  to Serena `v1.6.0`), but swap `--context claude-code` for Serena's
+  `codex` context (it strips tools Codex already provides natively, like
+  file reads and shell execution) and replace `${CLAUDE_PROJECT_DIR}` —
+  Codex has no equivalent shorthand — with a literal absolute path:
+
+  ```toml
+  [mcp_servers.serena]
+  command = "uvx"
+  args = ["--from", "git+https://github.com/oraios/serena@v1.6.0", "serena", "start-mcp-server", "--context", "codex", "--project", "/absolute/path/to/your/project"]
+  ```
 
 ## Verifying it worked
 
@@ -86,9 +104,13 @@ this repo doesn't control that path).
 ## This is new — expect rough edges
 
 This integration was added without a live Codex CLI available to test
-against end-to-end. The manifest shape (`.codex-plugin/plugin.json` with
-`"skills": "./skills/"`, `"hooks": {}`) matches Codex's documented format
-and a known working reference (the `superpowers` plugin ships the same
-shape), but the exact install UX above wasn't run through a real Codex
-session. If something in this doc is wrong or outdated, please open an
-issue or PR against this repo.
+against end-to-end, so treat it as documentation-verified, not
+hands-on-tested. Option 1 (the `~/.codex/skills/` directory) and the
+`config.toml` MCP setup above match Codex's own current published docs;
+the manifest shape (`.codex-plugin/plugin.json` with `"skills": "./skills/"`,
+`"hooks": {}`) matches a known working reference (the `superpowers` plugin
+ships the same shape). Option 2 (the plugin browser's exact "install from
+a local path / git subdirectory" syntax) is the part most likely to have
+drifted since this doc was written — if it doesn't work as described,
+fall back to Option 1. If something in this doc is wrong or outdated,
+please open an issue or PR against this repo.
