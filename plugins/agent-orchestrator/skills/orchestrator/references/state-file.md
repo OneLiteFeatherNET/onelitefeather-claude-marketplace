@@ -51,11 +51,18 @@ in directly contradicts its purpose.
 
 Field meanings:
 
-- `status` — one of `pending`, `in_progress`, `escalated`, `blocked`, `done`, `failed`.
+- `status` — one of `pending`, `in_progress`, `escalated`, `blocked`, `done`, `failed`. `failed` and
+  `blocked` are not synonyms: `failed` means a tier attempt itself errored or crashed (the `Agent`
+  call didn't return a usable result at all — an infra failure, not a judgment about the subtask's
+  difficulty), while `blocked` means the subtask ran to completion at every tier it tried but
+  exhausted the escalation ladder (per `references/escalation-protocol.md`'s "Exhausting the ladder"
+  section) without producing a usable result. A `failed` attempt can still be retried at the same or
+  next tier; a `blocked` subtask has already gone through the full ladder and is being handed back.
 - `currentTier` — the tier the subtask is presently running at (or most recently completed at).
 - `tierHistory` — append-only log, one entry per attempt, in the order attempted. `outcome` is
-  `escalated`, `done`, or `failed`; `reason` is the `ESCALATE` text or heuristic observation that
-  triggered the next tier, `null` on the entry that finally succeeded.
+  `escalated`, `done`, or `failed` (using the same `failed` = infra/crash meaning as `status` above,
+  scoped to that one attempt rather than the whole subtask); `reason` is the `ESCALATE` text or
+  heuristic observation that triggered the next tier, `null` on the entry that finally succeeded.
 - `worktree` — `null` for subtasks that never used `isolation: 'worktree'` (read-only/analysis
   subtasks); otherwise the path/branch the `Agent` tool returned, kept until the merge step
   (`references/worktree-merge.md`) completes.

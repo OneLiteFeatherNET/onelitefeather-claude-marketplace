@@ -29,9 +29,14 @@ silently fast-forwarded into indistinguishable individual commits.
 
 If the merge produces a conflict, do not attempt to auto-resolve it and do not silently retry the
 subtask at the same tier — a conflict means two subtasks weren't as independent as the decomposition
-assumed, which is a decomposition problem, not a model-capability problem. Treat it the same as an
-`ESCALATE` result for that subtask (record it in the state file's `tierHistory` with
-`reason: "merge conflict against <branch>"`) and let the escalation protocol's normal ladder
-(`references/escalation-protocol.md`) handle it — usually via recursive decomposition, since
-re-running the same subtask at a stronger model won't fix an overlapping file range that a smarter
-decomposition would have avoided.
+assumed, which is a decomposition problem, not a model-capability problem. Retrying at the next tier
+up wouldn't fix it either: a stronger model re-running the same subtask still produces changes over
+the same overlapping file range, so a tier-by-tier retry cannot resolve a merge conflict regardless
+of which tier the subtask is currently on.
+
+Instead, record it in the state file's `tierHistory` with `reason: "merge conflict against
+<branch>"` and skip straight to the recursive-decomposition step in
+`references/escalation-protocol.md`'s "Exhausting the ladder" section — regardless of the subtask's
+current tier, even if it succeeded on its very first attempt at `haiku`. Do not route it through the
+normal `haiku → sonnet → opus` ladder first; a merge conflict is a decomposition problem, and only
+re-decomposing (not escalating model strength) can fix an overlapping file range.

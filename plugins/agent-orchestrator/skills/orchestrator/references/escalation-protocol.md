@@ -11,6 +11,19 @@ recursive decomposition (see below) starts at `sonnet` instead, since its parent
 proved too hard for `haiku`/`sonnet` — starting it back at `haiku` would just repeat a known-bad
 attempt.
 
+The tier names above (`haiku`, `sonnet`, `opus`, `fable`) are the literal values to pass as the
+`Agent` tool's `model` parameter — the ladder isn't a separate abstraction layered on top, it's just
+which `model` value you pass on each retry. For example, delegating a fresh subtask at the starting
+tier looks like:
+
+```
+Agent({ description, prompt, model: 'haiku', isolation: 'worktree' })
+```
+
+Retrying the same subtask at the next tier after an escalation is the same call with `model` bumped
+up (`'sonnet'`, then `'opus'`, then — only with confirmation — `'fable'`) and the same `prompt`; see
+"The worker-side signal" below for what changes and what doesn't between attempts.
+
 ## The worker-side signal: `ESCALATE`
 
 Append this to every delegated subtask's prompt:
@@ -34,12 +47,25 @@ After every result that isn't itself an `ESCALATE`, check for:
 - **Apology or hedging language** ("I wasn't able to fully...", "this may not be complete...",
   "I couldn't verify...").
 - **Visible non-completion** — TODOs left in code, a described plan with no actual edits made, a
-  claimed file change that `git status`/`git diff` doesn't actually show.
+  claimed file change that verification doesn't actually show. How to verify depends on whether the
+  subtask ran with `isolation: 'worktree'` (see `references/worktree-merge.md`): a worktree-isolated
+  subtask's changes live on its own branch in a separate worktree, so the orchestrator's own
+  `git status`/`git diff` in the working tree will never show them and would false-positive on every
+  successful isolated subtask — check `git diff <working-branch>...<worktree-branch>` instead, using
+  the branch name from the `Agent` result / state file's `worktree` field. For a non-isolated
+  (read-only or in-place) subtask, plain `git status`/`git diff` in the working tree is the right
+  check.
 
 Any of these triggers the same next-tier retry as an explicit `ESCALATE`, with the heuristic
 observation recorded as the reason in the state file.
 
 ## Exhausting the ladder: recursive decomposition, then `fable`, then hand-back
+
+The recursive-decomposition step below has two triggers, not one: a subtask escalating all the way
+to `opus` (the normal case described here), or a worktree merge conflict on that subtask's branch
+(see `references/worktree-merge.md`), which routes straight to step 1 below regardless of the
+subtask's current tier — a merge conflict is a decomposition problem, not something a stronger model
+fixes by retrying, so it skips the tier-by-tier ladder entirely instead of waiting for it to exhaust.
 
 If a subtask still escalates (via either signal) at `opus`:
 

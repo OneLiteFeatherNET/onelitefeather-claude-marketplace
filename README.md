@@ -10,7 +10,7 @@ OneLiteFeather's Claude Code marketplace — the team's developer framework.
 | **framework-code-navigation** | Optional companion to `framework`: Serena (LSP symbol search) for JVM/Java-Kotlin projects, so the agent navigates code on purpose instead of spamming grep/find/read. Install only on projects where it fits. |
 | **minestom-knowledge** | Accurate knowledge of our internal Minestom libraries (Cyano, Aves, Xerus, Guira, Pica, Coris) and tooling (Gradle conventions, BOM hierarchy) — too internal/new to be in general training data. No MCP servers, pure skill content. |
 | **release-engineering** | OneLiteFeather's CI/CD standard: Release Please, the central Renovate preset plus general Renovate config help, and the reusable GitHub Actions workflows (build, publish, Docker, Gradle specifics). No MCP servers, pure skill content. |
-| **agent-orchestrator** | Decomposes complex tasks into independent subtasks and delegates each to the cheapest viable model tier (haiku, sonnet, opus, fable), escalating only when needed. Claude Code only — uses the `Agent` tool's model overrides, worktree isolation, and task tracking. |
+| **agent-orchestrator** | Decomposes complex tasks into independent subtasks and delegates each to the cheapest viable model tier (haiku, sonnet, opus, fable — fable gated behind explicit confirmation), escalating only when needed. Claude Code only — uses the `Agent` tool's model overrides, worktree isolation, and task tracking. |
 
 `context-layer`, `benchmark-stack`, and `workflow` were removed from this
 marketplace. Code navigation has already been rebuilt as
@@ -46,13 +46,17 @@ its five categories.
 
 ### Codex / Antigravity (`agy`)
 
-Every plugin also ships a `.codex-plugin/plugin.json` and an
-`.antigravity-plugin/plugin.json` pointing at the same `skills/` directory
-Claude Code uses — skill content is written to name actions, not
-Claude-Code-specific tool names, so it carries over as-is. What does **not**
-carry over: the `claude-plugins-official` dependency bundle, the
-`/framework:*` commands, and the two plugins' MCP server declarations
-(Outline, Serena) — configure those separately per platform.
+Every plugin except `agent-orchestrator` also ships a
+`.codex-plugin/plugin.json` and an `.antigravity-plugin/plugin.json`
+pointing at the same `skills/` directory Claude Code uses — skill content
+is written to name actions, not Claude-Code-specific tool names, so it
+carries over as-is. `agent-orchestrator` is Claude Code only (it relies on
+the `Agent` tool's model overrides, worktree isolation, and task
+tracking), so it deliberately ships neither manifest. What does **not**
+carry over for the plugins that do port: the `claude-plugins-official`
+dependency bundle, the `/framework:*` commands, and the two plugins' MCP
+server declarations (Outline, Serena) — configure those separately per
+platform.
 
 Full step-by-step install instructions: [`docs/codex.md`](docs/codex.md)
 and [`docs/antigravity.md`](docs/antigravity.md). Short version: for Codex,

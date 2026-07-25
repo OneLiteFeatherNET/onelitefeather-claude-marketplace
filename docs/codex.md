@@ -1,11 +1,14 @@
 # Using this marketplace with Codex
 
-Every plugin in this repo ships a `.codex-plugin/plugin.json` alongside its
-`.claude-plugin/plugin.json` — same `skills/` directory, both manifests
-point at it. This doc explains how to actually get those skills into a
-Codex session, since Codex doesn't (yet) recognize this repo as a
-registered marketplace the way `/plugin marketplace add` does in Claude
-Code.
+Every plugin in this repo except `agent-orchestrator` ships a
+`.codex-plugin/plugin.json` alongside its `.claude-plugin/plugin.json` —
+same `skills/` directory, both manifests point at it. `agent-orchestrator`
+is Claude Code only (it relies on the `Agent` tool's model overrides,
+worktree isolation, and task tracking) and deliberately ships no
+`.codex-plugin/plugin.json`. This doc explains how to actually get the
+portable skills into a Codex session, since Codex doesn't (yet) recognize
+this repo as a registered marketplace the way `/plugin marketplace add`
+does in Claude Code.
 
 ## What you get, and what you don't
 
@@ -14,6 +17,7 @@ Code.
 | `framework` | `vault-knowledge-graph` | The 9-plugin `claude-plugins-official` dependency bundle, `/framework:setup`, `/framework:doctor`, the Outline MCP server declaration |
 | `framework-code-navigation` | `code-navigation` | The Serena MCP server declaration |
 | `minestom-knowledge` | `cyano`, `gradle`, `boms`, `guira`, `aves`, `xerus`, `pica`, `coris` | Nothing — this plugin has no MCP servers or commands, it's pure skill content |
+| `agent-orchestrator` | *(none — doesn't port)* | The whole plugin. It's Claude Code only: the `orchestrator` skill depends on the `Agent` tool's `model`/`isolation` parameters and `TaskCreate`/`TaskUpdate`, none of which Codex has an equivalent for. No `.codex-plugin/plugin.json` is shipped for it. |
 
 The skill files themselves don't need edits to work on Codex — they're
 written to describe actions ("search the Vault", "check if Serena
@@ -55,10 +59,11 @@ ln -s /path/to/onelitefeather-claude-marketplace/plugins/minestom-knowledge/skil
 
 Point Codex's plugin browser at an individual plugin directory (not the
 marketplace root — Codex expects one `.codex-plugin/plugin.json` per
-install target, and this repo has three, one per subdirectory under
-`plugins/`). Check Codex's current docs for the exact "install from a
-local path / git subdirectory" syntax, since this is the part most likely
-to have changed since this doc was written.
+install target, and this repo has five plugin subdirectories under
+`plugins/`, four of which ship that manifest — `agent-orchestrator` is
+Claude Code only and has none). Check Codex's current docs for the exact
+"install from a local path / git subdirectory" syntax, since this is the
+part most likely to have changed since this doc was written.
 
 ## Configuring the MCP servers separately
 

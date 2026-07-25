@@ -69,6 +69,12 @@ plugins/agent-orchestrator/
 Additionally: an entry for `agent-orchestrator` in `.claude-plugin/marketplace.json` (format
 analogous to the four existing plugin entries) and a row in the plugin table in the root `README.md`.
 
+**Deviation from the structure above:** the implementation plan intentionally did not create the
+`README.md` shown in the tree above. `release-engineering` — the most recently added plugin before
+this one — also ships with no per-plugin `README.md`, so omitting it here matches existing repo
+practice rather than being an oversight; this note exists so the gap between this spec's structure
+block and what was actually built is recorded rather than silently diverging.
+
 ## Skill: `orchestrator`
 
 **SKILL.md** (main content):
