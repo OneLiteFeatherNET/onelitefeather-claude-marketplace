@@ -58,6 +58,16 @@ confirmed against Antigravity's own docs; `agy plugin install` via the
 but was **not verified live** (no `agy` CLI available in the session that
 authored it) — please report back what you find if you try it.
 
+None of the three tools walk you through *this* framework's setup the way
+`/framework:setup` does (it's a custom command, specific to Claude Code) —
+but their generic MCP-server setup is guided to different degrees: Codex's
+`codex mcp add` interactively prompts for name/transport/URL; Antigravity
+has a click-to-install MCP Store, but only for servers it already lists —
+our self-hosted Outline server isn't, so that one still needs manual JSON
+either way. Whichever path gets the MCP connection working, no further
+setup step is needed after that: the `vault-knowledge-graph` skill creates
+the "Vault" collection and its categories itself on first use.
+
 ## Prerequisites
 
 - Outline account with access to the "Vault" collection (OAuth on first use)
