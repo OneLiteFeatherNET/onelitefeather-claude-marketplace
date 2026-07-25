@@ -43,6 +43,23 @@ represented (or represented correctly) in general training data.
   `Shape`/`CuboidShape` areas, `Room`/`Floor`/`FloorRegistry`, Coris' own
   `Componentable` (separate from Xerus's), and doors whose open/close
   events you fire yourself.
+- **Skill `cloudnet`** — how to get a Minestom project running as a CloudNet
+  service out of the box: reading CloudNet's injected bind host/port and
+  stdin stop signal, loading `CloudNet_Bridge` through the
+  `minestom-ce-extensions` `ExtensionBootstrap` (Minestom has no built-in
+  extension system anymore), writing a bridge/permission `extension.json`
+  that talks to CloudNet's driver/bridge APIs, and the Gradle
+  dependency/`maven-publish` setup (shaded jar as the published artifact,
+  `compileOnly` for everything CloudNet-related).
+- **Skill `luckperms`** — how to embed LuckPerms in a Minestom project:
+  bootstrapping the `net.luckperms:minestom-loader` JarInJar loader
+  yourself in `main()` (Minestom has no plugin folder for LuckPerms to
+  auto-load from), the required Adventure-version excludes, the hardcoded
+  `data/` runtime directory LuckPerms creates (config, H2 database,
+  downloaded translations, a self-relocated `libs/` cache), the
+  test-classpath Gson conflict its loader causes, and bridging permission
+  checks across a classloader boundary (e.g. into a CloudNet bridge
+  extension).
 
 ## Install
 
