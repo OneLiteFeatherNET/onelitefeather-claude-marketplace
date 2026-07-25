@@ -1,0 +1,9 @@
+{
+  "name": "agent-orchestrator",
+  "displayName": "Agent Orchestrator",
+  "version": "0.1.0",
+  "description": "Decomposes complex, multi-step tasks into independent subtasks and delegates each to the cheapest viable model tier (haiku, sonnet, opus, and — with explicit permission — fable), escalating a subtask only when it reports being out of its depth or its result looks implausible. Claude Code only.",
+  "author": { "name": "OneLiteFeather", "url": "https://github.com/OneLiteFeatherNET" },
+  "license": "MIT",
+  "keywords": ["orchestration", "subagents", "delegation", "multi-agent", "model-routing", "worktree", "task-tracking"]
+}
