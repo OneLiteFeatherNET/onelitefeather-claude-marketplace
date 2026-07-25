@@ -1,78 +1,128 @@
-# Using this marketplace with Antigravity (`agy`)
+# Using this marketplace with Antigravity
 
 Every plugin in this repo ships an `.antigravity-plugin/plugin.json`
 alongside its `.claude-plugin/plugin.json` — same `skills/` directory,
-both manifests point at it.
-
-**Confidence level: unverified.** This was written and the manifests were
-built without an `agy` CLI available to test against. Everything below is
-a best-effort description of how it *should* work, based on public
-documentation and how the `superpowers` plugin (a much larger,
-cross-harness-tested project) handles the same situation — not something
-run end-to-end here. Treat it as a starting point, not a guarantee, and
-please report back (issue or PR) once someone with `agy` installed has
-actually tried it.
+both manifests point at it. That manifest targets a plugin-installer
+mechanism (`agy plugin install`) that hasn't been verified live in this
+repo. Antigravity's own published docs describe a second, simpler path
+that needs no installer at all: skills are loaded straight from a
+directory Antigravity scans on disk. **That's the recommended option
+below** — it's confirmed against Antigravity's current documentation,
+not just best-effort.
 
 ## What you get, and what you don't
 
-| Plugin | Skills that should port | What's Claude Code-only (not ported) |
+| Plugin | Skills that port | What's Claude Code-only (not ported) |
 |---|---|---|
 | `framework` | `vault-knowledge-graph` | The 9-plugin `claude-plugins-official` dependency bundle, `/framework:setup`, `/framework:doctor`, the Outline MCP server declaration |
 | `framework-code-navigation` | `code-navigation` | The Serena MCP server declaration |
 | `minestom-knowledge` | `cyano`, `gradle`, `boms`, `guira`, `aves`, `xerus`, `pica`, `coris` | Nothing — this plugin has no MCP servers or commands, it's pure skill content |
 
 The skill files describe actions, not Claude-Code-specific tool names, so
-in principle they don't need edits to run under Antigravity. What
-definitely doesn't carry over is Claude Code's plugin-installation
-mechanics: dependency resolution, slash commands, and the `mcpServers`
-field in `.claude-plugin/plugin.json`.
+they don't need edits to run under Antigravity. What definitely doesn't
+carry over is Claude Code's plugin-installation mechanics: dependency
+resolution, slash commands, and the `mcpServers` field in
+`.claude-plugin/plugin.json`.
 
-## Install
+## Install (recommended) — drop the skill folder in place
+
+Antigravity reads skills directly from a folder, no install command
+needed: workspace-scoped skills live at
+`<workspace-root>/.agents/skills/<skill-name>/`, global ones (available
+in every workspace) at `~/.gemini/antigravity/skills/<skill-name>/`. Pick
+whichever scope fits, then symlink so you stay on the latest version as
+this repo updates:
+
+```bash
+git clone https://github.com/OneLiteFeatherNET/onelitefeather-claude-marketplace.git /tmp/olf-marketplace
+
+# global — available in every workspace
+ln -s /tmp/olf-marketplace/plugins/framework/skills/vault-knowledge-graph ~/.gemini/antigravity/skills/vault-knowledge-graph
+
+# or workspace-scoped — only this project
+ln -s /tmp/olf-marketplace/plugins/framework/skills/vault-knowledge-graph <workspace-root>/.agents/skills/vault-knowledge-graph
+```
+
+Same pattern for any other skill in this repo (`code-navigation`, the
+`minestom-knowledge` skills, etc.) — just swap the source path.
+
+## Install (alternative, unverified) — `agy plugin install`
 
 ```bash
 agy plugin install https://github.com/OneLiteFeatherNET/onelitefeather-claude-marketplace.git
 ```
 
-Whether `agy` treats this whole repo as one installable unit or expects a
-single-plugin repo (in which case you'd point it at a plugin subdirectory,
-e.g. `.../onelitefeather-claude-marketplace.git#plugins/minestom-knowledge`
-or a local checkout path) is exactly the part that needs live
-verification — try the whole-repo URL first, and if `agy` doesn't
-recognize it, fall back to pointing it at one `plugins/<name>/` directory
-at a time.
-
-If `agy plugin install` doesn't work against a remote URL at all in your
-version, clone locally first and install from the local path:
-
-```bash
-git clone https://github.com/OneLiteFeatherNET/onelitefeather-claude-marketplace.git
-agy plugin install ./onelitefeather-claude-marketplace/plugins/minestom-knowledge
-```
+This route uses the `.antigravity-plugin/plugin.json` manifests instead
+and was **not** tested against a live `agy` CLI, so treat it as a
+starting point, not a guarantee — whether `agy` treats this whole repo as
+one installable unit or expects a single-plugin repo (in which case
+you'd point it at a plugin subdirectory, e.g.
+`.../onelitefeather-claude-marketplace.git#plugins/minestom-knowledge`,
+or a local checkout path) is exactly what needs live verification. If it
+doesn't work, use the recommended option above instead — it doesn't
+depend on `agy` at all. Please report back (issue or PR) once someone
+with `agy` installed has actually tried this path.
 
 ## Configuring the MCP servers separately
 
-Same as for Codex (see `docs/codex.md`) — if `vault-knowledge-graph` or
-`code-navigation` should actually act, not just narrate instructions,
-configure the underlying MCP server on Antigravity separately:
+Skills alone only give Antigravity instructions to read — for
+`vault-knowledge-graph` or `code-navigation` to actually *act*, register
+the underlying MCP server too. Antigravity's MCP config lives at
+`~/.gemini/config/mcp_config.json` (open it via the Agent panel's "..."
+menu → MCP Servers → Manage MCP Servers → View raw config, or edit the
+file directly), under a single `mcpServers` object. Remote HTTP servers
+use `serverUrl` rather than `url`:
 
-- **Outline**: `https://outline.onelitefeather.dev/mcp`
-- **Serena**: the `uvx`-based command in
-  `plugins/framework-code-navigation/.claude-plugin/plugin.json`, pinned
-  to `v1.6.0`
+- **Outline** (`vault-knowledge-graph`):
+
+  ```json
+  {
+    "mcpServers": {
+      "outline": {
+        "serverUrl": "https://outline.onelitefeather.dev/mcp"
+      }
+    }
+  }
+  ```
+
+- **Serena** (`code-navigation`) runs locally via `uvx`, so it needs
+  `command` + `args` instead of `serverUrl` — same invocation as
+  `plugins/framework-code-navigation/.claude-plugin/plugin.json` (pinned
+  to Serena `v1.6.0`), but swap `--context claude-code` for Serena's
+  `ide` context (Antigravity is an IDE-style client, so this strips tools
+  it already provides natively) and replace `${CLAUDE_PROJECT_DIR}` —
+  Antigravity has no equivalent shorthand — with a literal absolute path:
+
+  ```json
+  {
+    "mcpServers": {
+      "serena": {
+        "command": "uvx",
+        "args": ["--from", "git+https://github.com/oraios/serena@v1.6.0", "serena", "start-mcp-server", "--context", "ide", "--project", "/absolute/path/to/your/project"]
+      }
+    }
+  }
+  ```
+
+  Merge this into the same `mcpServers` object as Outline rather than
+  overwriting the file.
 
 ## Verifying it worked
 
-Ask the model directly: *"What skills do you have available?"* If nothing
-shows up, the install didn't register the `skills/` directory the way
-this manifest assumes — check `agy plugin validate` or the equivalent
-diagnostic command for what it actually loaded.
+Ask the model directly: *"What skills do you have available?"* If
+nothing shows up after the symlink approach, double-check the symlink
+target and that you used the right scope (workspace vs. global) for how
+you're running Antigravity. If you went the `agy plugin install` route
+instead, check `agy plugin validate` or the equivalent diagnostic command
+for what it actually loaded.
 
-## If this doesn't work as written
+## If something here is wrong
 
-Antigravity's plugin/install surface is new enough that its exact
-conventions may have moved since this was written. If `agy plugin
-install` behaves differently than described here, the fix is almost
-certainly in this doc or in `.antigravity-plugin/plugin.json` — not in
-the skill content itself (`plugins/*/skills/*/SKILL.md`), which is
-intentionally harness-agnostic. Please open an issue or PR with what you
-found.
+The symlink-based skill loading and the MCP config format above are
+sourced from Antigravity's own current docs, not guessed — but "current"
+moves fast in this space, and the `agy plugin install` / manifest path
+was never tested live at all. If either doesn't match what you see,
+the fix is almost certainly in this doc or in `.antigravity-plugin/plugin.json`
+— not in the skill content itself (`plugins/*/skills/*/SKILL.md`), which
+is intentionally harness-agnostic. Please open an issue or PR with what
+you found.
