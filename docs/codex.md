@@ -67,9 +67,14 @@ actually *do* something (not just exist as instructions Codex reads but
 can't act on), you need the underlying MCP server configured on Codex
 too. Codex reads MCP servers from `config.toml` — `~/.codex/config.toml`
 for a global setup, or `.codex/config.toml` at a project's root to scope
-it to one repo — under a `[mcp_servers.<id>]` table per server. You can
-either edit that file directly or use `codex mcp add <name> --url <URL>`
-for HTTP servers.
+it to one repo — under a `[mcp_servers.<id>]` table per server. Rather
+than hand-editing that file, `codex mcp add <name>` is the guided route:
+run it without flags and Codex prompts you for the server name, the
+transport (STDIO or Streamable HTTP), and the command or URL, then writes
+the `config.toml` entry itself — no separate step walks you through what
+*our* Outline/Serena servers specifically need, but the add flow itself
+is interactive. (`codex mcp add <name> --url <URL>` also works
+non-interactively if you already have the values from below.)
 
 - **Outline** (`vault-knowledge-graph`) is a remote Streamable HTTP
   server, so it only needs a `type` and `url`:

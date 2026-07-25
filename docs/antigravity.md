@@ -67,11 +67,18 @@ with `agy` installed has actually tried this path.
 
 Skills alone only give Antigravity instructions to read — for
 `vault-knowledge-graph` or `code-navigation` to actually *act*, register
-the underlying MCP server too. Antigravity's MCP config lives at
-`~/.gemini/config/mcp_config.json` (open it via the Agent panel's "..."
-menu → MCP Servers → Manage MCP Servers → View raw config, or edit the
-file directly), under a single `mcpServers` object. Remote HTTP servers
-use `serverUrl` rather than `url`:
+the underlying MCP server too. Antigravity does have a guided add flow —
+an "Add MCP" button backed by the **MCP Store**, a searchable list of
+known servers you install with one click (in Antigravity IDE/2.0), or an
+"Interactive MCP Manager" via the `/mcp` command (Antigravity CLI). Both
+only help for servers that are *listed* there, though — our self-hosted
+Outline server isn't, so for it (and for Serena) you still end up at
+manual JSON: open the Agent panel's "..." menu → MCP Servers → Manage MCP
+Servers → View raw config, or edit the file directly. That file is
+`~/.gemini/config/mcp_config.json` for a global setup, or
+`.agents/mcp_config.json` at a workspace root to scope it to one project
+— either way, a single `mcpServers` object. Remote HTTP servers use
+`serverUrl` rather than `url`:
 
 - **Outline** (`vault-knowledge-graph`):
 
