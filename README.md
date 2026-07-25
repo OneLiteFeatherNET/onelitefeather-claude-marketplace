@@ -9,6 +9,7 @@ OneLiteFeather's Claude Code marketplace — the team's developer framework.
 | **framework** | Team framework: knowledge graph in our Outline "Vault" collection (research material, project knowledge, targeted context recall instead of dumping whole docs), plus `superpowers` (from `claude-plugins-official`) for shared team workflows. |
 | **framework-code-navigation** | Optional companion to `framework`: Serena (LSP symbol search) for JVM/Java-Kotlin projects, so the agent navigates code on purpose instead of spamming grep/find/read. Install only on projects where it fits. |
 | **minestom-knowledge** | Accurate knowledge of our internal Minestom libraries (Cyano, Aves, Xerus, Guira, Pica, Coris) and tooling (Gradle conventions, BOM hierarchy) — too internal/new to be in general training data. No MCP servers, pure skill content. |
+| **release-engineering** | OneLiteFeather's CI/CD standard: Release Please, the central Renovate preset plus general Renovate config help, and the reusable GitHub Actions workflows (build, publish, Docker, Gradle specifics). No MCP servers, pure skill content. |
 
 `context-layer`, `benchmark-stack`, and `workflow` were removed from this
 marketplace. Code navigation has already been rebuilt as
@@ -31,6 +32,9 @@ directly as part of this framework instead of as separate plugins.
 
 # Minestom library knowledge, no MCP servers needed
 /plugin install minestom-knowledge@onelitefeather-claude-marketplace
+
+# CI/CD standard: Release Please, Renovate, reusable workflows
+/plugin install release-engineering@onelitefeather-claude-marketplace
 ```
 
 Run `/framework:setup` once afterwards to create the "Vault" collection and
