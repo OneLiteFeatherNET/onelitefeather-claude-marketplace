@@ -1,44 +1,44 @@
 # Plugin `release-engineering` — Design
 
-## Zweck
+## Purpose
 
-Ein neues Claude-Code-Plugin, das den OneLiteFeather-CI/CD-Standard lehrt: Release Please, Renovate
-und die reusable GitHub-Actions-Workflows (inkl. Docker-Publishing und Gradle-Besonderheiten). Analog
-zu `minestom-knowledge` ist es reines Skill-Wissen — keine MCP-Server, keine externen Abhängigkeiten.
+A new Claude Code plugin that teaches OneLiteFeather's CI/CD standard: Release Please, Renovate, and
+the reusable GitHub Actions workflows (including Docker publishing and Gradle specifics). Like
+`minestom-knowledge`, it is pure skill knowledge — no MCP servers, no external dependencies.
 
-Quellen: die Outline-Doku ("Engineering-Standards — Start hier" + das Diátaxis-Set "Reusable GitHub
-Actions Workflows"), der echte Code in `workflows` und `renovate` (OneLiteFeatherNET), Gold-Master-Repos
-(**Cygnus** ohne Docker, **Otis** mit Docker, **Guira** als frischer Migrations-Pilot-PR #70), sowie
-aktuelle Renovate-Upstream-Doku (docs.renovatebot.com, gegengecheckt gegen Terminologie-Änderungen wie
-`regexManagers` → `customManagers`, `fileMatch` → `managerFilePatterns`).
+Sources: the Outline docs ("Engineering Standards — Start Here" plus the Diátaxis set "Reusable GitHub
+Actions Workflows"), the actual code in `workflows` and `renovate` (OneLiteFeatherNET), gold-master
+repos (**Cygnus** without Docker, **Otis** with Docker, **Guira** as a fresh migration pilot PR #70),
+and current upstream Renovate documentation (docs.renovatebot.com, cross-checked against terminology
+changes such as `regexManagers` → `customManagers`, `fileMatch` → `managerFilePatterns`).
 
-## Scope-Entscheidungen (im Brainstorming getroffen)
+## Scope decisions (made during brainstorming)
 
-- Nur die vier angefragten Themenblöcke: Release Please, Renovate, reusable Workflows (mit/ohne
-  Docker), Gradle-Besonderheiten. Keine Community-Health-Dateien-Vorlage (README/CONTRIBUTING/
-  CODEOWNERS) — bewusst außerhalb des Scopes.
-- Keine Org-weiten Migrations-Tracking-Listen (`RELEASE-PLEASE-TRACKING.md` etc.) im Skill — das ist
-  transienter Zustand einer laufenden Migration, kein wiederverwendbares Skill-Wissen.
-- Drei eigenständige Skills statt einem, damit z. B. eine reine Renovate-Frage nicht das gesamte
-  Release-Please-Wissen mitlädt (jede `SKILL.md` hat ihr eigenes `description`-Frontmatter fürs
-  Trigger-Matching).
-- **Release Please:** Versionsmarker-Standard ist ausschließlich ein Kommentar direkt in der
-  Root-`build.gradle.kts` (`version = "1.2.3" // x-release-please-version`), gelesen über den
-  eingebauten `generic`-extra-files-Updater von release-please. Explizit **kein**
-  `gradle.properties`-Parsing per Shell-Skript (wie aktuell teils in Publish-Workflows zu finden,
-  z. B. `grep '^version' gradle.properties | cut -d= -f2`) und **kein** selbstgebauter
-  Kotlin-`replace`-Task/`Copy`+`ReplaceTokens` zur Versionssynchronisation. Der Skill deckt sowohl
-  Setup (neues Repo) als auch Migration (bestehendes Repo weg von `@semantic-release`/
-  `release-drafter`/tag-getriggertem Publish) als vollständige, getrennte Abschnitte ab, jeweils für
-  Single-Module- und Multi-Module-Gradle-Projekte (Multi-Module: eigene Version pro Subprojekt über
-  mehrere `packages`-Einträge in `release-please-config.json`).
-- **Renovate:** nicht nur "zentrales Preset einbinden", sondern allgemeine Hilfe bei
-  Renovate-Configs — eine breite, generische Referenz zu Renovate-Config-Optionen (nicht nur
-  aktuell bei OLF gelebte Muster), plus manager-spezifische Abschnitte für **alle** Ecosysteme, die
-  in der Org tatsächlich vorkommen (Gradle, Docker, GitHub Actions, npm/Node, Ansible, Python,
-  Dart/pub) — nicht nur den Gradle/Docker/Actions-Kernstack.
+- Only the four requested topic areas: Release Please, Renovate, reusable workflows (with/without
+  Docker), Gradle specifics. No community-health-files template (README/CONTRIBUTING/CODEOWNERS) —
+  deliberately out of scope.
+- No org-wide migration tracking lists (`RELEASE-PLEASE-TRACKING.md` etc.) in the skill — that's
+  transient state from an ongoing migration, not reusable skill knowledge.
+- Three standalone skills instead of one, so a pure Renovate question, for example, doesn't pull in
+  all the Release Please knowledge (each `SKILL.md` has its own `description` frontmatter for trigger
+  matching).
+- **Release Please:** the version-marker standard is exclusively a comment directly in the root
+  `build.gradle.kts` (`version = "1.2.3" // x-release-please-version`), read via release-please's
+  built-in `generic` extra-files updater. Explicitly **no** shell-script parsing of
+  `gradle.properties` (as is currently found in some publish workflows, e.g.
+  `grep '^version' gradle.properties | cut -d= -f2`) and **no** homegrown Kotlin `replace` task /
+  `Copy` + `ReplaceTokens` for version synchronization. The skill covers both Setup (new repo) and
+  Migration (existing repo moving away from `@semantic-release`/`release-drafter`/tag-triggered
+  publish) as complete, separate sections, each for single-module and multi-module Gradle projects
+  (multi-module: an independent version per subproject via multiple `packages` entries in
+  `release-please-config.json`).
+- **Renovate:** not just "adopt the central preset," but general help with Renovate configs — a
+  broad, generic reference of Renovate config options (not limited to patterns currently used at
+  OLF), plus manager-specific sections for **all** ecosystems that actually occur in the org
+  (Gradle, Docker, GitHub Actions, npm/Node, Ansible, Python, Dart/pub) — not just the
+  Gradle/Docker/Actions core stack.
 
-## Struktur
+## Structure
 
 ```
 plugins/release-engineering/
@@ -63,132 +63,131 @@ plugins/release-engineering/
             └── design-principles.md
 ```
 
-Zusätzlich: Eintrag `release-engineering` in `.claude-plugin/marketplace.json` (Format analog zu den
-drei bestehenden Plugin-Einträgen) und eine Zeile in der Plugin-Tabelle der Root-`README.md`.
+Additionally: an entry for `release-engineering` in `.claude-plugin/marketplace.json` (format
+analogous to the three existing plugin entries) and a row in the plugin table in the root `README.md`.
 
 ## Skill: `release-please`
 
-**SKILL.md** (Hauptinhalt, generisch mit Platzhaltern statt echten Repo-Namen):
+**SKILL.md** (main content, generic with placeholders instead of real repo names):
 
-- Kurzüberblick: Conventional Commits → automatischer Changelog → Tag → Release → verketteter Publish.
-  Löst `@semantic-release` und manuelles Taggen ab.
-- **Versionsmarker-Konvention** als eigener, prominenter Abschnitt: `build.gradle.kts` statt
-  `gradle.properties`, mit Begründung (kein Parse-/Replace-Code nötig, Gradle liest `project.version`
-  nativ). Anti-Pattern-Kasten: kein `grep`/`cut`-Parsing, kein Kotlin-`replace`-Task.
-- `## Setup` — neues, leeres Repo: `release-please-config.json` (`release-type: simple`,
+- Short overview: Conventional Commits → automatic changelog → tag → release → chained publish.
+  Replaces `@semantic-release` and manual tagging.
+- **Version-marker convention** as its own, prominent section: `build.gradle.kts` instead of
+  `gradle.properties`, with rationale (no parse/replace code needed, Gradle reads `project.version`
+  natively). Anti-pattern callout: no `grep`/`cut` parsing, no Kotlin `replace` task.
+- `## Setup` — new, empty repo: `release-please-config.json` (`release-type: simple`,
   `extra-files: [{"type": "generic", "path": "build.gradle.kts"}]`), `.release-please-manifest.json`,
-  `.github/workflows/release-please.yml` (`googleapis/release-please-action@v5`, verkettet mit
-  `gradle-publish.yml` über `needs.release-please.outputs.release_created`).
-- `## Migration` — bestehendes Repo: Erkennungsmerkmale von Alt-Tooling (`.releaserc*`,
-  `release-drafter.yml`, tag-getriggerte `publish.yaml`), Entfernen inkl. etwaiger
-  Parse-/Replace-Skripte, `bootstrap-sha` aus der Historie bestimmen, Versionsmarker von
-  `gradle.properties` (falls vorhanden) nach `build.gradle.kts` überführen, Manifest auf aktuelle
-  Version setzen.
-- Beide Abschnitte behandeln Single-Module explizit; Multi-Module wird kurz angerissen und auf die
-  Reference verlinkt.
+  `.github/workflows/release-please.yml` (`googleapis/release-please-action@v5`, chained with
+  `gradle-publish.yml` via `needs.release-please.outputs.release_created`).
+- `## Migration` — existing repo: recognizing legacy tooling (`.releaserc*`, `release-drafter.yml`,
+  tag-triggered `publish.yaml`), removing it including any parse/replace scripts, determining
+  `bootstrap-sha` from history, moving the version marker from `gradle.properties` (if present) to
+  `build.gradle.kts`, setting the manifest to the current version.
+- Both sections explicitly cover single-module; multi-module is briefly introduced and linked to the
+  reference.
 
-**references/multi-module.md**: generisches Multi-Module-Gradle-Beispiel (Platzhalter-Modulnamen) —
-mehrere Einträge im `packages`-Objekt (ein Pfad pro Subprojekt), je eigener Versionsmarker in dessen
-`build.gradle.kts`, je eigener Eintrag in `.release-please-manifest.json`. Erklärt, dass ein Commit,
-der nur Dateien unter einem Modul-Pfad ändert, nur die Version dieses Moduls bumpt.
+**references/multi-module.md**: a generic multi-module Gradle example (placeholder module names) —
+multiple entries in the `packages` object (one path per subproject), each with its own version marker
+in that subproject's `build.gradle.kts`, each with its own entry in `.release-please-manifest.json`.
+Explains that a commit touching only files under one module's path bumps only that module's version.
 
 ## Skill: `renovate`
 
 **SKILL.md**:
 
-- Was Renovate bei OLF leistet, Abgrenzung zu Dependabot (kurz, aus der Explanation-Doc: bessere
-  Gruppierung/Automerge für reusable-workflow-Refs).
-- Org-Standard-Setup: zentrales Preset
-  `github>OneLiteFeatherNET/renovate:default(OneLiteFeatherNET/<team>-maintainers)`, Team-Argument
-  ist Pflicht (setzt Reviewer), Flavors `:paper` / `:minestom` als zweiter `extends`-Eintrag.
-- Was das Default-Preset mitbringt (Automerge Patch, Office-Hours-Schedule Europe/Berlin, Semantic
-  Commits, Label `renovate`, Vulnerability-Alerts).
-- Migration weg von nicht-kanonischen Alt-Configs (lowercase-Preset ohne `:default`, `config:base`
-  direkt, `config:recommended` direkt ohne Org-Preset).
-- Separater Abschnitt: Renovate für die Pipeline-Pins selbst (`github-actions`-Manager bumpt
-  `OneLiteFeatherNET/workflows/...@vX.Y.Z` automatisch).
-- Verweis auf die zwei References für alles, was über den Org-Standard hinausgeht.
+- What Renovate does for OLF, brief contrast with Dependabot (from the Explanation doc: better
+  grouping/automerge for reusable-workflow refs).
+- Org-standard setup: central preset
+  `github>OneLiteFeatherNET/renovate:default(OneLiteFeatherNET/<team>-maintainers)`, the team
+  argument is mandatory (sets the reviewer), flavors `:paper` / `:minestom` as a second `extends`
+  entry.
+- What the default preset brings (patch automerge, Europe/Berlin office-hours schedule, semantic
+  commits, `renovate` label, vulnerability alerts).
+- Migration away from non-canonical legacy configs (lowercase preset without `:default`,
+  `config:base` directly, `config:recommended` directly without the org preset).
+- Separate section: Renovate for the pipeline pins themselves (the `github-actions` manager bumps
+  `OneLiteFeatherNET/workflows/...@vX.Y.Z` automatically).
+- Pointer to the two references for anything beyond the org standard.
 
-**references/cookbook.md** (breite generische Referenz, nicht auf aktuelle OLF-Nutzung beschränkt):
+**references/cookbook.md** (broad generic reference, not limited to current OLF usage):
 
 - Scheduling (`schedule`, `automergeSchedule`, `prHourlyLimit`/`prConcurrentLimit`).
-- `packageRules`-Matching (`matchManagers`, `matchPackageNames`, `matchUpdateTypes`, `matchDatasources`),
-  `ignoreDeps`/`ignorePaths`.
+- `packageRules` matching (`matchManagers`, `matchPackageNames`, `matchUpdateTypes`,
+  `matchDatasources`), `ignoreDeps`/`ignorePaths`.
 - Grouping (`groupName`, `groupSlug`, `minimumGroupSize`).
-- Automerge (`automerge`, `automergeType`, `platformAutomerge`) inkl. Differenzierung nach
-  Update-Typ (minor/patch/digest automerge, major nie).
-- `customManagers` (aktueller Name, vormals `regexManagers`) mit `customType: "regex"`,
-  `managerFilePatterns` (vormals `fileMatch`), `matchStrings` — für Dateien, die kein nativer Manager
-  abdeckt.
-- `lockFileMaintenance`, Dependency Dashboard, `vulnerabilityAlerts`/`osvVulnerabilityAlerts`.
-- `config:recommended` vs. `config:best-practices` (was Letzteres zusätzlich bringt: Digest-Pinning,
-  Abandonment-Handling, wöchentliche Lockfile-Maintenance) als bewusste Erweiterungsoption.
-- Kasten "veraltete Syntax aus Blogposts/älteren Beispielen": `regexManagers` → `customManagers`,
+- Automerge (`automerge`, `automergeType`, `platformAutomerge`) including differentiating by update
+  type (automerge minor/patch/digest, never major).
+- `customManagers` (current name, formerly `regexManagers`) with `customType: "regex"`,
+  `managerFilePatterns` (formerly `fileMatch`), `matchStrings` — for files no native manager covers.
+- `lockFileMaintenance`, dependency dashboard, `vulnerabilityAlerts`/`osvVulnerabilityAlerts`.
+- `config:recommended` vs. `config:best-practices` (what the latter adds on top: digest pinning,
+  abandonment handling, weekly lockfile maintenance) as a deliberate extension option.
+- Callout box "outdated syntax from blog posts/older examples": `regexManagers` → `customManagers`,
   `fileMatch` → `managerFilePatterns`, `baseBranches` → `baseBranchPatterns`.
-- Config-Validierung: `npx --package renovate -- renovate-config-validator`.
+- Config validation: `npx --package renovate -- renovate-config-validator`.
 
-**references/managers.md** (pro Ecosystem, alle in der Org vorkommenden Stacks):
+**references/managers.md** (per ecosystem, all stacks that occur in the org):
 
-- Gradle (`gradle`, `gradle-wrapper`) — was automatisch erkannt wird, Zusammenspiel mit den
-  `:paper`/`:minestom`-Versionierungs-Flavors aus dem `renovate`-Repo.
+- Gradle (`gradle`, `gradle-wrapper`) — what's auto-detected, interplay with the `:paper`/`:minestom`
+  versioning flavors from the `renovate` repo.
 - Docker (`dockerfile`, `docker-compose`).
-- GitHub Actions (`github-actions`) — Pin-Format `uses: .../foo.yml@vX.Y.Z`, Zusammenspiel mit der
-  Pin-Strategie aus dem `workflows`-Skill.
+- GitHub Actions (`github-actions`) — pin format `uses: .../foo.yml@vX.Y.Z`, interplay with the pin
+  strategy from the `workflows` skill.
 - npm/Node (`npm`).
-- Ansible (`ansible`, `ansible-galaxy`) — relevant für `infra-ansible-roles`, `infra-dns`,
+- Ansible (`ansible`, `ansible-galaxy`) — relevant for `infra-ansible-roles`, `infra-dns`,
   `Kubernetes-FLUX`.
-- Python (`pip_requirements`, `poetry`, `pep621`, ...) — relevant für `Dungeon-Python`, `ProtoScript`.
-- Dart/pub (`pub`, `fvm`) — relevant für `stelaris`, `vulpes-*-dart`.
-- Wann auf `customManagers`/regex zurückfallen (Datei/Format, das kein nativer Manager kennt).
+- Python (`pip_requirements`, `poetry`, `pep621`, ...) — relevant for `Dungeon-Python`, `ProtoScript`.
+- Dart/pub (`pub`, `fvm`) — relevant for `stelaris`, `vulpes-*-dart`.
+- When to fall back to `customManagers`/regex (a file/format no native manager knows).
 
 ## Skill: `workflows`
 
 **SKILL.md**:
 
-- Katalog aller reusable Workflows (`gradle-build-pr`, `gradle-publish`, `gradle-docker-context`,
-  `docker-publish`, `release-please`, `close-invalid-prs`, `markdown-lint`) mit einem Satz Zweck pro
-  Workflow.
-- Pin-Strategie: voller SemVer-Tag (`@v2.4.0`), bewusst kein `@v2`-Major-Alias — Renovate hält den
-  Pin aktuell (Verweis auf `renovate`-Skill, Abschnitt "Pipeline-Pins").
-- Docker-Entscheidung als eigener Abschnitt: plain `Dockerfile` im Repo → `docker-publish.yml`
-  direkt mit `context`/`dockerfile`; Gradle/Micronaut-generierter Context (`optimizedDockerfile`) →
-  erst `gradle-docker-context.yml` (produziert Artifact), dann `docker-publish.yml` mit demselben
-  `artifact-name` konsumiert. Kurzfassung, Details in `references/docker.md`.
-- Gradle-Besonderheiten: Java 25 (Temurin) als Default, 3-OS-Matrix auf PRs vs. Single-OS beim
-  Publish, Path-Filter-Schlüssel `code`, `run-tests: false` für BOM-/testlose Projekte (senkt
-  Default-Task auf `build`), kein `clean` im Default-Task (Cache-Killer), Cache ist read-only auf
-  Nicht-Default-Branches.
-- **Neuer Abschnitt "Neue Mechanik einführen?":** Kurzer Entscheidungsbaum für Fälle, die der
-  bestehende Katalog nicht direkt abdeckt — bestehenden Workflow per zusätzlichem Input erweitern
-  vs. neuen reusable Workflow im `workflows`-Repo anlegen vs. einen Custom-Job im Caller-Repo lassen
-  (z. B. einmalige/repo-spezifische Logik, die sich nicht verallgemeinern lässt). Verweist für die
-  Detailanleitung und das "Warum" auf `references/design-principles.md`.
+- Catalog of all reusable workflows (`gradle-build-pr`, `gradle-publish`, `gradle-docker-context`,
+  `docker-publish`, `release-please`, `close-invalid-prs`, `markdown-lint`) with a one-line purpose
+  per workflow.
+- Pin strategy: full SemVer tag (`@v2.4.0`), deliberately no `@v2` major alias — Renovate keeps the
+  pin current (pointer to the `renovate` skill, "Pipeline Pins" section).
+- Docker decision as its own section: plain `Dockerfile` in the repo → `docker-publish.yml` directly
+  with `context`/`dockerfile`; Gradle/Micronaut-generated context (`optimizedDockerfile`) →
+  `gradle-docker-context.yml` first (produces an artifact), then `docker-publish.yml` consumes it via
+  the same `artifact-name`. Short version here, details in `references/docker.md`.
+- Gradle specifics: Java 25 (Temurin) as the default, 3-OS matrix on PRs vs. single-OS on publish,
+  path-filter key `code`, `run-tests: false` for BOM/test-less projects (drops the default task to
+  `build`), no `clean` in the default task (cache killer), cache is read-only on non-default
+  branches.
+- **New section "Introducing a new mechanic?":** a short decision tree for cases the existing catalog
+  doesn't directly cover — extend an existing workflow via an additional input vs. add a new reusable
+  workflow to the `workflows` repo vs. leave a custom job in the caller repo (e.g. one-off,
+  repo-specific logic that doesn't generalize). Points to `references/design-principles.md` for the
+  detailed guidance and the "why."
 
-**references/inputs-reference.md**: vollständige Input-/Default-/Secret-Tabellen pro Workflow
-(gespiegelt aus dem tatsächlichen `workflow_call`-Schema im `workflows`-Repo, nicht nur aus der
-Outline-Doku übernommen — beide wurden gegengecheckt).
+**references/inputs-reference.md**: complete input/default/secret tables per workflow (mirrored from
+the actual `workflow_call` schema in the `workflows` repo, not just taken from the Outline docs — both
+were cross-checked).
 
-**references/docker.md**: Otis-Muster im Detail (`gradle-docker-context.yml` →
-`docker-publish.yml`-Handoff, Snapshot- vs. Release-Build als zwei parallele Jobpaare,
-`workflow_dispatch` mit `docker_version`-Input für manuelles Re-Publish), plain-Dockerfile-Muster
-ohne Gradle-Kopplung, Chunked-Upload-Hintergrund (Harbor hinter Cloudflare, 100-MB-Proxy-Limit,
-`regctl --blob-chunk`) und keyless Cosign-Signing (`id-token: write`, kein Signing-Secret).
+**references/docker.md**: the Otis pattern in detail (`gradle-docker-context.yml` →
+`docker-publish.yml` handoff, snapshot vs. release build as two parallel job pairs,
+`workflow_dispatch` with a `docker_version` input for manual re-publishing), the plain-Dockerfile
+pattern without Gradle coupling, the chunked-upload rationale (Harbor behind Cloudflare, 100 MB proxy
+limit, `regctl --blob-chunk`), and keyless Cosign signing (`id-token: write`, no signing secret).
 
-**references/design-principles.md** (neu): das "Warum" hinter den bestehenden Defaults, aus der
-Outline-Seite "Explanation: Design-Entscheidungen" übernommen und gegen den echten Workflow-Code
-verifiziert — Matrix auf PRs vs. Single-OS beim Publish, `cancel-in-progress: true` auf PRs vs.
-`false` beim Publish, Grund für den Path-Filter, kein `clean` im Default-Task, Cache read-only auf
-Nicht-Default-Branches, Java-25-Wahl, warum release-please statt `@semantic-release`, warum Renovate
-statt Dependabot für die Pipeline-Pins. Diese Prinzipien werden als übertragbarer Rahmen formuliert,
-damit eine neue Mechanik (neuer Ecosystem-Typ, neues Deployment-Ziel, neuer Artefakt-Typ) konsistent
-dazu entworfen werden kann — plus eine konkrete Anleitung, wie ein neuer reusable Workflow im
-`workflows`-Repo eingereicht wird (`workflow_call`-Schema-Konventionen, `secrets: inherit`,
-Conventional-Commit-PR, eigene Versionierung des `workflows`-Repos via release-please, volles
-SemVer-Pin für Konsumenten statt `@main`/Major-Alias).
+**references/design-principles.md** (new): the "why" behind the existing defaults, taken from the
+Outline page "Explanation: Design Decisions" and verified against the actual workflow code — matrix
+on PRs vs. single-OS on publish, `cancel-in-progress: true` on PRs vs. `false` on publish, the reason
+for the path filter, no `clean` in the default task, cache read-only on non-default branches, the
+Java 25 choice, why release-please instead of `@semantic-release`, why Renovate instead of Dependabot
+for the pipeline pins. These principles are framed as a transferable set of rules so a new mechanic
+(new ecosystem type, new deployment target, new artifact type) can be designed consistently with
+them — plus concrete guidance on how to submit a new reusable workflow to the `workflows` repo
+(`workflow_call` schema conventions, `secrets: inherit`, conventional-commit PR, the `workflows`
+repo's own versioning via release-please, full SemVer pin for consumers instead of `@main`/a major
+alias).
 
-## Nicht im Scope
+## Out of scope
 
-- Community-Health-Dateien-Vorlage (README/CONTRIBUTING/CODEOWNERS) — eigenes, späteres Thema.
-- Org-weite Migrations-Tracking-Listen — transienter Zustand, gehört nicht in ein Skill.
-- SBOM-Einbindung (`cyclonedxBom` + DependencyTrack-Upload, wie in Cygnus zu sehen) — eigenes Thema,
-  nicht Teil dieser Anfrage.
+- Community-health-files template (README/CONTRIBUTING/CODEOWNERS) — a separate, later topic.
+- Org-wide migration tracking lists — transient state, doesn't belong in a skill.
+- SBOM integration (`cyclonedxBom` + DependencyTrack upload, as seen in Cygnus) — a separate topic,
+  not part of this request.
