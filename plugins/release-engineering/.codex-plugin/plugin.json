@@ -1,0 +1,10 @@
+{
+  "name": "release-engineering",
+  "version": "0.1.0",
+  "description": "OneLiteFeather's CI/CD standard: Release Please (version/changelog/release automation from Conventional Commits), the central Renovate preset and general Renovate config help, and the org's reusable GitHub Actions workflows (build, publish, Docker, with Gradle-specific guidance).",
+  "author": { "name": "OneLiteFeather", "url": "https://github.com/OneLiteFeatherNET" },
+  "license": "MIT",
+  "keywords": ["release-please", "renovate", "github-actions", "reusable-workflows", "gradle", "docker", "ci-cd", "conventional-commits"],
+  "skills": "./skills/",
+  "hooks": {}
+}
