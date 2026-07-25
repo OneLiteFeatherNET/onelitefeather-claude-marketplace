@@ -35,6 +35,14 @@
       "description": "OneLiteFeather's CI/CD standard: Release Please, the central Renovate preset plus general Renovate config help, and the reusable GitHub Actions workflows (build, publish, Docker, Gradle specifics).",
       "category": "productivity",
       "keywords": ["release-please", "renovate", "github-actions", "reusable-workflows", "gradle", "docker", "ci-cd"]
+    },
+    {
+      "name": "agent-orchestrator",
+      "displayName": "Agent Orchestrator",
+      "source": "./plugins/agent-orchestrator",
+      "description": "Decomposes complex tasks into independent subtasks and delegates each to the cheapest viable model tier (haiku, sonnet, opus, fable), escalating only when a subtask proves too hard. Claude Code only.",
+      "category": "productivity",
+      "keywords": ["orchestration", "subagents", "delegation", "multi-agent", "model-routing"]
     }
   ]
 }
