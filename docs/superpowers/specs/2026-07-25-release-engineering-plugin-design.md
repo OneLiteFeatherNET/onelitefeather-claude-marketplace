@@ -59,7 +59,8 @@ plugins/release-engineering/
         ├── SKILL.md
         └── references/
             ├── inputs-reference.md
-            └── docker.md
+            ├── docker.md
+            └── design-principles.md
 ```
 
 Zusätzlich: Eintrag `release-engineering` in `.claude-plugin/marketplace.json` (Format analog zu den
@@ -157,6 +158,11 @@ der nur Dateien unter einem Modul-Pfad ändert, nur die Version dieses Moduls bu
   Publish, Path-Filter-Schlüssel `code`, `run-tests: false` für BOM-/testlose Projekte (senkt
   Default-Task auf `build`), kein `clean` im Default-Task (Cache-Killer), Cache ist read-only auf
   Nicht-Default-Branches.
+- **Neuer Abschnitt "Neue Mechanik einführen?":** Kurzer Entscheidungsbaum für Fälle, die der
+  bestehende Katalog nicht direkt abdeckt — bestehenden Workflow per zusätzlichem Input erweitern
+  vs. neuen reusable Workflow im `workflows`-Repo anlegen vs. einen Custom-Job im Caller-Repo lassen
+  (z. B. einmalige/repo-spezifische Logik, die sich nicht verallgemeinern lässt). Verweist für die
+  Detailanleitung und das "Warum" auf `references/design-principles.md`.
 
 **references/inputs-reference.md**: vollständige Input-/Default-/Secret-Tabellen pro Workflow
 (gespiegelt aus dem tatsächlichen `workflow_call`-Schema im `workflows`-Repo, nicht nur aus der
@@ -167,6 +173,18 @@ Outline-Doku übernommen — beide wurden gegengecheckt).
 `workflow_dispatch` mit `docker_version`-Input für manuelles Re-Publish), plain-Dockerfile-Muster
 ohne Gradle-Kopplung, Chunked-Upload-Hintergrund (Harbor hinter Cloudflare, 100-MB-Proxy-Limit,
 `regctl --blob-chunk`) und keyless Cosign-Signing (`id-token: write`, kein Signing-Secret).
+
+**references/design-principles.md** (neu): das "Warum" hinter den bestehenden Defaults, aus der
+Outline-Seite "Explanation: Design-Entscheidungen" übernommen und gegen den echten Workflow-Code
+verifiziert — Matrix auf PRs vs. Single-OS beim Publish, `cancel-in-progress: true` auf PRs vs.
+`false` beim Publish, Grund für den Path-Filter, kein `clean` im Default-Task, Cache read-only auf
+Nicht-Default-Branches, Java-25-Wahl, warum release-please statt `@semantic-release`, warum Renovate
+statt Dependabot für die Pipeline-Pins. Diese Prinzipien werden als übertragbarer Rahmen formuliert,
+damit eine neue Mechanik (neuer Ecosystem-Typ, neues Deployment-Ziel, neuer Artefakt-Typ) konsistent
+dazu entworfen werden kann — plus eine konkrete Anleitung, wie ein neuer reusable Workflow im
+`workflows`-Repo eingereicht wird (`workflow_call`-Schema-Konventionen, `secrets: inherit`,
+Conventional-Commit-PR, eigene Versionierung des `workflows`-Repos via release-please, volles
+SemVer-Pin für Konsumenten statt `@main`/Major-Alias).
 
 ## Nicht im Scope
 
