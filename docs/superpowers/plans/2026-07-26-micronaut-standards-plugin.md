@@ -2054,7 +2054,7 @@ resolving to its own Testcontainers-backed datasource) is how a Liquibase change
 ## Unit tests vs. integration tests
 
 - **Unit test**: exercises a service's business logic with a mocked repository (no container, no
-  database, no Micronaml application context needed) — fast, and the default choice for anything that
+  database, no Micronaut application context needed) — fast, and the default choice for anything that
   isn't itself testing persistence or wiring.
 - **Integration test**: exercises a repository, a Liquibase migration, or a full controller request
   end-to-end — needs a real container, via the setup above.
