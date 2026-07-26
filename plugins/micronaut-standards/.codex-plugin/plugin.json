@@ -1,0 +1,10 @@
+{
+  "name": "micronaut-standards",
+  "version": "0.1.0",
+  "description": "OneLiteFeather's standard for Micronaut REST APIs: Gradle/Micronaut dependency management, observability, a mandatory service layer, entity design, configuration, DTO and sealed-interface response modeling, OpenAPI documentation via a doc-only *Api interface, HTTP routing, global exception handling, a deny-by-default security baseline, Liquibase migrations (always XML), Testcontainers-based integration testing, and structured logging.",
+  "author": { "name": "OneLiteFeather", "url": "https://github.com/OneLiteFeatherNET" },
+  "license": "MIT",
+  "keywords": ["micronaut", "java", "rest-api", "openapi", "liquibase", "testcontainers", "dto", "architecture", "dependency-management", "gradle"],
+  "skills": "./skills/",
+  "hooks": {}
+}
