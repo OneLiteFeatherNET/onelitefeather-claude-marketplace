@@ -23,16 +23,16 @@ public class FontEntity {
     private UUID id;
 
     private String uiName;
-    private String provider;
+    private String texturePath;
     // ...
 
     public FontEntity() {
     } // required by Hibernate
 
-    public FontEntity(UUID id, String uiName, String provider /*, ... */) {
+    public FontEntity(UUID id, String uiName, String texturePath /*, ... */) {
         this.id = id;
         this.uiName = uiName;
-        this.provider = provider;
+        this.texturePath = texturePath;
     }
 
     // getters and setters

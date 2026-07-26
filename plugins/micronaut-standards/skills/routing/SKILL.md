@@ -17,6 +17,7 @@ public class FontController implements FontApi {
 
     @Override
     @Post
+    @Validated(groups = ValidationGroup.Create.class)
     public HttpResponse<FontModelResponseDTO> add(@Body FontModelDTO item) { /* ... */ }
 
     @Override
@@ -25,6 +26,7 @@ public class FontController implements FontApi {
 
     @Override
     @Put("/{id}")
+    @Validated(groups = ValidationGroup.Update.class)
     public HttpResponse<FontModelResponseDTO> update(@PathVariable UUID id, @Body FontModelDTO item) { /* ... */ }
 
     @Override
@@ -45,6 +47,11 @@ public HttpResponse<FontModelResponseDTO> remove(@PathVariable UUID id) { /* ...
 `/update/{id}` and `/delete/{id}` via `@Post` both work mechanically, but they throw away the
 information the HTTP verb itself already carries — a caller (or an API gateway, or a cache) can no
 longer tell a mutating call from a read just by looking at the verb.
+
+Validation-group triggers (`@Validated(groups = ...)`) are set on the controller method itself,
+alongside its routing annotation, as in the `add`/`update` examples above — see the `dto` skill for the
+`ValidationGroup.Create`/`Update` marker interfaces themselves and why one shared DTO uses groups instead
+of separate Create/Update DTO types.
 
 ## Blocking `HttpResponse<T>` as the standard return type
 

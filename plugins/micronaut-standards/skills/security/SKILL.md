@@ -11,6 +11,18 @@ common failure mode of adding security "later" once a public-facing deployment f
 which almost always means auditing every existing endpoint retroactively instead of every new endpoint
 having to justify why it's open.
 
+## Dependencies
+
+```kotlin
+dependencies {
+    annotationProcessor(mn.micronaut.security.annotations)
+    implementation(mn.micronaut.security)
+}
+```
+
+Both resolve through the `mn.*` platform catalog like every other Micronaut module dependency (see
+`dependency-management`) — no separate version-catalog entry is needed.
+
 ## Enabling the deny-by-default baseline
 
 ```yaml
@@ -18,7 +30,6 @@ having to justify why it's open.
 micronaut:
   security:
     enabled: true
-    intercept-url-map-uses-security-rule: true
 ```
 
 With Micronaut Security enabled and no further per-endpoint configuration, every controller method is

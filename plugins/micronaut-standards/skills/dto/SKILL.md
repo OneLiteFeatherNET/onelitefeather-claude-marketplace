@@ -5,10 +5,10 @@ description: OneLiteFeather's request-DTO conventions for Micronaut REST APIs �
 
 # Request DTOs
 
-A request DTO is a Java record, annotated `@Serdeable` (Micronaut Serde, for JSON (de)serialization) and
-`@Introspected` (Micronaut bean introspection, needed for validation to work without reflection at
-runtime). It lives in `domain/<feature>/`, alongside the response DTOs from the `response-modeling`
-skill.
+A request DTO is a Java record, annotated `@Serdeable` (Micronaut Serde, for JSON (de)serialization,
+meta-annotated with `@Introspected` so bean introspection for validation works without reflection at
+runtime too — no separate `@Introspected` needed alongside it). It lives in `domain/<feature>/`,
+alongside the response DTOs from the `response-modeling` skill.
 
 ## One shared DTO for Create and Update, via validation groups
 
@@ -63,7 +63,7 @@ public HttpResponse<FontModelResponseDTO> add(@Body FontModelDTO item) { /* ... 
 
 @Put("/{id}")
 @Validated(groups = ValidationGroup.Update.class)
-public HttpResponse<FontModelResponseDTO> update(@Body FontModelDTO item) { /* ... */ }
+public HttpResponse<FontModelResponseDTO> update(@PathVariable UUID id, @Body FontModelDTO item) { /* ... */ }
 ```
 
 The `id` field is a good example of why groups matter here: it must be absent (`@Null`) on create — the

@@ -122,12 +122,35 @@ plugins {
 Adopt it when the project is externally deployed or when the org starts requiring SBOMs org-wide;
 skip it for small internal-only services if the extra build step isn't worth it yet.
 
+## Structured logging dependencies
+
+The Logstash JSON encoder and the OpenTelemetry MDC appender (see `logging`) aren't part of the `mn.*`
+platform catalog, so they need their own version-catalog entries:
+
+```kotlin
+// settings.gradle.kts version catalog
+library("logstash.logback.encoder", "net.logstash.logback", "logstash-logback-encoder")
+library("opentelemetry.logback.mdc", "io.opentelemetry.instrumentation", "opentelemetry-logback-mdc-1.0")
+```
+
+```kotlin
+// build.gradle.kts
+dependencies {
+    implementation(libs.logstash.logback.encoder)
+    implementation(libs.opentelemetry.logback.mdc)
+    runtimeOnly(libs.janino) // enables <if>/<then>/<else> in logback.xml
+}
+```
+
+`logging` covers when and how these get used (structured JSON output, trace/span correlation); this is
+only where their Gradle coordinates come from.
+
 ## What lives in other skills, not here
 
 - Metrics, tracing, and Kubernetes service discovery dependencies — `observability`.
 - The database migration tool and its dependency — `liquibase`.
 - Test dependencies for container-backed integration tests — `testcontainers`.
-- Structured logging dependencies (Logstash encoder, OpenTelemetry MDC appender) — `logging`.
+- Micronaut Security dependencies for the deny-by-default baseline — security.
 
 This skill only establishes the Micronaut/Gradle plugin baseline and version-handling convention; it
 does not enumerate every dependency a backend might need.

@@ -18,8 +18,8 @@ package net.onelitefeather.otis.exception;
 public class ExceptionHandlerAdvice implements ExceptionHandler<Throwable, HttpResponse<ErrorResponse>> {
 
     @Override
-    public HttpResponse<ErrorResponse> handle(HttpRequest request, Throwable exception) {
-        if (exception instanceof ConstraintViolationException || exception instanceof jakarta.validation.ValidationException) {
+    public HttpResponse<ErrorResponse> handle(HttpRequest<?> request, Throwable exception) {
+        if (exception instanceof ConstraintViolationException || exception instanceof ValidationException) {
             return HttpResponse.badRequest(new ErrorResponse.ErrorResponseDTO(exception.getMessage()));
         }
         if (exception instanceof EntityNotFoundException) {
@@ -29,6 +29,13 @@ public class ExceptionHandlerAdvice implements ExceptionHandler<Throwable, HttpR
     }
 }
 ```
+
+Registering a handler for `Throwable` itself replaces Micronaut's own built-in per-type exception
+handlers, not just adds to them — any status code Micronaut normally derives automatically (e.g.
+`UnsatisfiedRouteException` → 400 when a required parameter is missing) needs its own explicit branch
+here too, or it silently falls through to the generic 500 branch instead. Don't treat the three branches
+shown above as exhaustive for a real project; audit which exceptions Micronaut itself used to map before
+this handler existed, and add a branch for each one that still needs to produce its original status code.
 
 **This is an explicit correction, not an incidental design choice**: an early reference implementation's
 global handler returned `HttpResponse.notFound(...)` unconditionally for every `Throwable`, regardless of

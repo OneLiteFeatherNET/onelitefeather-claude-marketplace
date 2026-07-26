@@ -20,15 +20,16 @@ dependencies {
 }
 ```
 
-`micronaut-management` exposes the `/metrics` endpoint (guarded by the `security` skill's
-deny-by-default baseline like every other endpoint); the Prometheus registry formats those metrics for
-scraping. No extra configuration is needed beyond enabling the endpoint in `application.yml`:
+`micronaut-management` exposes the `/metrics` endpoint; the Prometheus registry formats those metrics
+for scraping. Enable it in `application.yml`, keeping it marked `sensitive` so it stays behind the
+`security` skill's deny-by-default baseline like every other endpoint, rather than carving out an
+unauthenticated exception for it:
 
 ```yaml
 endpoints:
   metrics:
     enabled: true
-    sensitive: false
+    sensitive: true
 ```
 
 ## Tracing: OpenTelemetry for HTTP and JDBC

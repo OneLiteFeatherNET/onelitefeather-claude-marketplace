@@ -25,7 +25,10 @@ dependencies {
 `micronaut-test-resources` manages the container lifecycle automatically per test run — a test class
 doesn't need to manually start/stop a container or wire its JDBC URL into `application-test.yml` by hand;
 Micronaut's test-resources service starts the right container on demand and injects its connection
-properties.
+properties. That automatic lifecycle management doesn't remove the need for the Testcontainers module
+dependencies themselves (`mn.testcontainers.mariadb`, `mn.testcontainers.postgresql`) — test-resources
+still needs them on the test classpath to know which container images exist to manage in the first
+place.
 
 ## JUnit 5 lifecycle
 

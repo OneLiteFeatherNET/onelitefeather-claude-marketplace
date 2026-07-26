@@ -33,7 +33,7 @@ was written.
 ## Structured JSON logging + trace correlation
 
 The Gradle dependencies for the Logstash JSON encoder and the OpenTelemetry MDC appender are covered in
-`dependency-management`/`observability`; this skill covers when and how to use the result. With the
+`dependency-management`; this skill covers when and how to use the result. With the
 appender configured, every log line automatically carries the current `trace_id`/`span_id` from
 OpenTelemetry (see `observability`) when one is active — logs and traces correlate in whatever log
 aggregation tool (e.g. Grafana Loki) ingests them, with no manual MDC-setting code needed in application

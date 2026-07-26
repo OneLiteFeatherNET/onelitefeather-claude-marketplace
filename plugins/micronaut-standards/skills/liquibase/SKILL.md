@@ -86,7 +86,7 @@ against a given database.
 
 ```kotlin
 dependencies {
-    implementation(mn.liquibase)
+    implementation(mn.micronaut.liquibase)
 }
 ```
 
