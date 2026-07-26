@@ -1,6 +1,6 @@
 ---
 name: dependency-management
-description: OneLiteFeather's Gradle/Micronaut dependency-management conventions for REST API backends — the Micronaut Application and AOT plugins, reading the Micronaut version from gradle.properties instead of hardcoding it, the mn.* platform catalog, the private OneLiteFeather Maven repo, and the optional CycloneDX SBOM plugin. Use this whenever setting up or editing a Micronaut backend's build.gradle.kts/settings.gradle.kts. For the general OneLiteFeather Gradle/BOM mechanics that apply beyond Micronaut (private repo credential split, Java toolchain pattern), see minestom-knowledge:gradle/boms instead. For observability, database-migration, Testcontainers, and logging dependencies specifically, see the observability, liquibase, testcontainers, and logging skills — this skill only lists that those dependencies exist and where to look, not their coordinates.
+description: OneLiteFeather's Gradle/Micronaut dependency-management conventions for REST API backends — the Micronaut Application and AOT plugins, reading the Micronaut version from gradle.properties instead of hardcoding it, the mn.* platform catalog, the private OneLiteFeather Maven repo, and the optional CycloneDX SBOM plugin. Use this whenever setting up or editing a Micronaut backend's build.gradle.kts/settings.gradle.kts. For the general OneLiteFeather Gradle/BOM mechanics that apply beyond Micronaut (private repo credential split, Java toolchain pattern), see minestom-knowledge:gradle/boms instead. For observability, database-migration, Testcontainers, and security dependencies specifically, see the observability, liquibase, testcontainers, and security skills — this skill only lists that those dependencies exist and where to look, not their coordinates; the one exception is structured-logging dependencies (Logstash encoder, OpenTelemetry MDC appender), whose coordinates live directly in this skill since `logging` covers only their usage.
 ---
 
 # Micronaut dependency management
@@ -131,6 +131,7 @@ platform catalog, so they need their own version-catalog entries:
 // settings.gradle.kts version catalog
 library("logstash.logback.encoder", "net.logstash.logback", "logstash-logback-encoder")
 library("opentelemetry.logback.mdc", "io.opentelemetry.instrumentation", "opentelemetry-logback-mdc-1.0")
+library("janino", "org.codehaus.janino", "janino")
 ```
 
 ```kotlin
@@ -150,7 +151,7 @@ only where their Gradle coordinates come from.
 - Metrics, tracing, and Kubernetes service discovery dependencies — `observability`.
 - The database migration tool and its dependency — `liquibase`.
 - Test dependencies for container-backed integration tests — `testcontainers`.
-- Micronaut Security dependencies for the deny-by-default baseline — security.
+- Micronaut Security dependencies for the deny-by-default baseline — `security`.
 
 This skill only establishes the Micronaut/Gradle plugin baseline and version-handling convention; it
 does not enumerate every dependency a backend might need.
