@@ -1,67 +1,63 @@
 # Plugin `micronaut-standards` — Design
 
-## Zweck
+## Purpose
 
-Ein neues Claude-Code-Plugin, das OneLiteFeathers verbindlichen Standard für Micronaut-REST-APIs setzt —
-von Dependency-Verwaltung über Software-Architektur bis Software-Design. Wie `minestom-knowledge` und
-`release-engineering` ist es reines Skill-Wissen — keine MCP-Server, keine Commands, keine Agents.
+A new Claude Code plugin that sets OneLiteFeather's binding standard for Micronaut REST APIs — from
+dependency management to software architecture to software design. Like `minestom-knowledge` and
+`release-engineering`, it is pure skill knowledge — no MCP servers, no commands, no agents.
 
-Quellen: die geklonten Repositories **Otis** (`OneLiteFeatherNET/Otis`, Backend unter `backend/`) und
-**Vulpes-Backend** (`OneLiteFeatherNET/Vulpes-Backend`). Otis liefert die Grund-Konventionen
-(Dependency-Management, DTO/Entity-Trennung, konsequente OpenAPI-Annotierung), zeigt aber auch
-Schwachstellen (kein Service-Layer, kein globaler Exception-Handler, keine Security-Schicht, doppelte
-Validierung, kaum Testabdeckung, `hbm2ddl.auto=update` statt Migrationstool). Vulpes-Backend ist die
-architektonisch reifere Referenz (Service-Interfaces mit Impl, Sealed-Interface-Response-Modeling,
-globaler Exception-Handler, Validation-Groups, Testcontainers, CycloneDX) und liefert den Großteil der
-Muster für den finalen Standard.
+Sources: the cloned repositories **Otis** (`OneLiteFeatherNET/Otis`, backend under `backend/`) and
+**Vulpes-Backend** (`OneLiteFeatherNET/Vulpes-Backend`). Otis supplies the baseline conventions
+(dependency management, DTO/entity separation, consistent OpenAPI annotation), but also shows
+weaknesses (no service layer, no global exception handler, no security layer, duplicated validation,
+almost no test coverage, `hbm2ddl.auto=update` instead of a migration tool). Vulpes-Backend is the
+architecturally more mature reference (service interfaces with impl, sealed-interface response
+modeling, global exception handler, validation groups, Testcontainers, CycloneDX) and supplies most of
+the patterns for the final standard.
 
-## Scope-Entscheidungen (aus dem Brainstorming)
+## Scope decisions (from brainstorming)
 
-- **Otis als Basis, Schwachstellen bewusst beheben** — der Standard ist normativ, kein reines Abbild
-  des Ist-Zustands. Wo Otis oder Vulpes-Backend selbst Schwächen zeigen (z. B. Vulpes' globaler
-  Handler, der jede Exception auf 404 mappt), wird das im Standard explizit korrigiert, nicht
-  übernommen.
-- **Nur Wissens-Skills, keine Scaffolding-Commands.** Claude liest die Skills und wendet die
-  Konventionen beim Schreiben von Code an; es gibt keine `/micronaut-standards:new-controller`-artigen
-  Commands.
-- **Viele kleine, isolierte Skills statt weniger großer.** Jedes Skill deckt genau ein Teilthema ab,
-  mit präziser `description`, damit ein einzelnes Thema (z. B. nur Liquibase) triggert, ohne die
-  anderen Skills mitzuladen. Diese Aufteilung entstand iterativ im Brainstorming: ursprünglich 3
-  Skills, dann 9, am Ende **14** — jede Runde hat ehemals gebündelte Themen (Architektur, DTOs, HTTP,
-  Dependency-Management) in eigenständige Skills aufgeteilt. Explizite Nutzerpräferenz: "Liebe viele
-  kleine isolierte Skills."
-- **Kein verpflichtendes Multi-Modul-/separates-Model-Artefakt-Muster.** Vulpes-Backend bezieht seine
-  Entities aus einer separat published Library (`vulpes-model`). Das wird nur als optionales,
-  fortgeschrittenes Muster in einer `references/`-Datei des `entity-design`-Skills dokumentiert. Der
-  Standardfall hält Entities im Backend-Modul selbst (wie Otis).
-- **Portabel**: `.claude-plugin/`, `.codex-plugin/`, `.antigravity-plugin/` Manifeste wie bei
-  `minestom-knowledge`/`requirement-engineering` — reines Wissen ohne Claude-Code-spezifische
-  Tool-Nutzung lässt sich verlustfrei portieren.
-- **Doku-Trennung im Controller**: OpenAPI-Annotationen (`@Operation`, `@ApiResponse`) wandern in ein
-  begleitendes `*Api`-Interface. **Korrektur während des Brainstormings:** Routing-Annotationen
-  (`@Controller`, `@Get`/`@Post`/`@Put`/`@Delete`) und Validation-Trigger (`@Validated`, `@Valid`)
-  bleiben auf der konkreten Controller-Klasse — nur die Dokumentation wird ausgelagert, nicht das
-  Routing.
-- **Response-Modeling per Sealed Interface** (aus Vulpes-Backend übernommen) statt des zunächst
-  vorgeschlagenen RFC-7807-Problem-Detail-Formats: pro Ressource ein `sealed interface FooResponseDTO`
-  mit einem Erfolgs-Record und einem Fehler-Record, der ein gemeinsames `ErrorResponse`-Marker-Interface
-  implementiert.
-- **Validation-Groups statt separater Create-/Update-DTOs**: ein gemeinsames Request-DTO mit
-  `ValidationGroup.Create`/`Update`-Markern (aus Vulpes-Backend übernommen), keine eigene
-  Mapper-Klasse — Konvertierungsmethoden leben auf dem jeweiligen DTO selbst.
-- **Liquibase statt `hbm2ddl.auto=update`**, immer XML-Changelogs (nie YAML/SQL/JSON) als eigener Skill,
-  damit derselbe Changelog unverändert gegen MariaDB und PostgreSQL läuft.
-- **Testcontainers als eigener Skill**, verbindlicher Integrationstest-Ansatz statt dauerhaft
-  eingebundenem H2.
-- **Weitere Skill-Zerlegung (letzte Iteration):** `dependency-management` gibt seinen
-  Observability-Teil an einen eigenen Skill `observability` ab; das ehemalige Sammel-Skill
-  `architecture` wird zu drei eigenständigen Skills (`service-layer`, `entity-design`,
-  `configuration`); `dto` gibt sein Response-Modeling an einen eigenen Skill `response-modeling` ab;
-  `http` wird zu `routing` und `exception-handling`. Der grobe Package-Layout-Überblick (welches Skill
-  für welches Package zuständig ist) steht dafür zentral im Plugin-`README.md`, nicht mehr in einem
-  einzelnen Skill.
+- **Otis as the base, weaknesses deliberately fixed** — the standard is normative, not a plain mirror
+  of the current state. Where Otis or Vulpes-Backend themselves show weaknesses (e.g. Vulpes' global
+  handler mapping every exception to 404), the standard explicitly corrects it rather than adopting it.
+- **Knowledge skills only, no scaffolding commands.** Claude reads the skills and applies the
+  conventions when writing code; there are no `/micronaut-standards:new-controller`-style commands.
+- **Many small, isolated skills instead of a few large ones.** Each skill covers exactly one
+  sub-topic, with a precise `description`, so a single topic (e.g. just Liquibase) triggers without
+  pulling in the other skills. This split emerged iteratively during brainstorming: originally 3
+  skills, then 9, finally **14** — each round split formerly bundled topics (architecture, DTOs, HTTP,
+  dependency management) into standalone skills. Explicit user preference: "I love lots of small
+  isolated skills."
+- **No mandatory multi-module / separate model artifact pattern.** Vulpes-Backend sources its entities
+  from a separately published library (`vulpes-model`). This is only documented as an optional,
+  advanced pattern in a `references/` file of the `entity-design` skill. The default case keeps
+  entities inside the backend module itself (like Otis).
+- **Portable**: `.claude-plugin/`, `.codex-plugin/`, `.antigravity-plugin/` manifests like
+  `minestom-knowledge`/`requirement-engineering` — pure knowledge with no Claude-Code-specific tool
+  usage ports losslessly.
+- **Documentation split out of the controller**: OpenAPI annotations (`@Operation`, `@ApiResponse`)
+  move into an accompanying `*Api` interface. **Correction made during brainstorming:** routing
+  annotations (`@Controller`, `@Get`/`@Post`/`@Put`/`@Delete`) and validation triggers (`@Validated`,
+  `@Valid`) stay on the concrete controller class — only the documentation is extracted, not the
+  routing.
+- **Response modeling via sealed interface** (adopted from Vulpes-Backend) instead of the initially
+  proposed RFC 7807 problem-detail format: per resource, a `sealed interface FooResponseDTO` with a
+  success record and an error record that implements a shared `ErrorResponse` marker interface.
+- **Validation groups instead of separate Create/Update DTOs**: one shared request DTO with
+  `ValidationGroup.Create`/`Update` markers (adopted from Vulpes-Backend), no dedicated mapper class —
+  conversion methods live on the respective DTO itself.
+- **Liquibase instead of `hbm2ddl.auto=update`**, always XML changelogs (never YAML/SQL/JSON) as its
+  own skill, so the same changelog runs unchanged against both MariaDB and PostgreSQL.
+- **Testcontainers as its own skill**, the mandatory integration-test approach instead of a
+  permanently embedded H2.
+- **Further skill decomposition (final iteration):** `dependency-management` hands off its
+  observability portion to a dedicated `observability` skill; the former catch-all `architecture`
+  skill becomes three standalone skills (`service-layer`, `entity-design`, `configuration`); `dto`
+  hands off its response modeling to a dedicated `response-modeling` skill; `http` becomes `routing`
+  and `exception-handling`. The overall package-layout overview (which skill owns which package) lives
+  centrally in the plugin `README.md` instead of in any single skill.
 
-## Struktur
+## Structure
 
 ```
 plugins/micronaut-standards/
@@ -102,156 +98,156 @@ plugins/micronaut-standards/
         └── SKILL.md
 ```
 
-`plugin.json` bleibt schlank (kein `mcpServers`, keine `dependencies`), analog zu
-`minestom-knowledge`/`release-engineering`. Das `README.md` enthält neben der Skill-Übersicht auch das
-Package-Layout-Diagramm (`domain/<feature>/`, `controller/<feature>/`, `service/` + `service/impl/`,
-`database/entity/`, `exception/`, `validation/`) mit einer Zeile pro Package, welches Skill dafür
-zuständig ist — das ist der einzige Ort, der das Gesamtbild zeigt, damit kein einzelnes Skill diese
-Übersichts-Last tragen muss. Registrierung erfolgt als neuer Eintrag in
-`.claude-plugin/marketplace.json` (Kategorie `productivity`, Keywords u. a. `micronaut`, `java`,
-`rest-api`, `openapi`, `liquibase`) sowie eine Tabellenzeile + Install-Codeblock in der Root-`README.md`,
-im exakten Stil der bestehenden Plugin-Einträge.
+`plugin.json` stays lean (no `mcpServers`, no `dependencies`), analogous to
+`minestom-knowledge`/`release-engineering`. The `README.md` contains, besides the skill overview, the
+package-layout diagram (`domain/<feature>/`, `controller/<feature>/`, `service/` + `service/impl/`,
+`database/entity/`, `exception/`, `validation/`) with one line per package stating which skill owns it
+— this is the only place that shows the whole picture, so no single skill has to carry that overview
+burden. Registration happens as a new entry in `.claude-plugin/marketplace.json` (category
+`productivity`, keywords including `micronaut`, `java`, `rest-api`, `openapi`, `liquibase`) plus a table
+row + install code block in the root `README.md`, in the exact style of the existing plugin entries.
 
 ## Skill: `dependency-management`
 
 **SKILL.md**:
 
-- Micronaut Application Plugin (`io.micronaut.application`) + AOT-Plugin (`io.micronaut.aot`) als
-  Grundgerüst; Micronaut-Version einzig aus `gradle.properties`/dem Versionskatalog lesen, nie im Skill
-  hardcoden — Anweisung an Claude, die tatsächliche Version im Zielprojekt zu prüfen, statt sie aus
-  diesem Skill zu übernehmen (Otis' CLAUDE.md hatte hier eine veraltete Angabe, das darf sich nicht
-  wiederholen).
-- Micronaut Platform Catalog Plugin (`io.micronaut.platform.catalog`) für den `mn.*`-Versionskatalog;
-  privates Maven-Repo (`repo.onelitefeather.dev`) mit CI/Local-Credential-Split.
-- Querverweis auf `minestom-knowledge:gradle`/`boms` für die generelle OLF-Gradle-/BOM-Mechanik (privates
-  Repo, Java-Toolchain-Pattern) — keine Duplizierung, dieser Skill beschreibt nur das
-  Micronaut-Spezifische (AOT-Flags, `mn`-Catalog, Annotation-Processing für Serde/Data/Validation/DI/
-  OpenAPI).
-- CycloneDX-Plugin (`org.cyclonedx.bom`) als empfohlener, nicht verpflichtender Baustein für
-  SBOM-Generierung.
-- Kommentare im Build-File zur Begründung von Trade-off-Entscheidungen (AOT-Flags, inerte Dependencies)
-  sind vorbildlich und werden als Konvention übernommen.
-- Reine Gradle-Koordinaten für Observability, Migration, Testcontainers und Logging werden hier nicht
-  aufgelistet — Querverweis auf `observability`, `liquibase`, `testcontainers`, `logging`, die jeweils
-  ihre eigenen Dependencies mitbringen.
+- Micronaut Application plugin (`io.micronaut.application`) + AOT plugin (`io.micronaut.aot`) as the
+  baseline; the Micronaut version is read solely from `gradle.properties`/the version catalog, never
+  hardcoded in the skill — an instruction to Claude to verify the actual version in the target project
+  instead of copying it from this skill (Otis' CLAUDE.md had a stale version number here, that must not
+  repeat).
+- Micronaut Platform Catalog plugin (`io.micronaut.platform.catalog`) for the `mn.*` version catalog;
+  private Maven repo (`repo.onelitefeather.dev`) with a CI/local credential split.
+- Cross-reference to `minestom-knowledge:gradle`/`boms` for the general OLF Gradle/BOM mechanics
+  (private repo, Java toolchain pattern) — no duplication; this skill covers only the
+  Micronaut-specific parts (AOT flags, `mn` catalog, annotation processing for Serde/Data/
+  Validation/DI/OpenAPI).
+- CycloneDX plugin (`org.cyclonedx.bom`) as a recommended, non-mandatory building block for SBOM
+  generation.
+- Comments in the build file explaining trade-off decisions (AOT flags, inert dependencies) are
+  exemplary and adopted as a convention.
+- Plain Gradle coordinates for observability, migrations, Testcontainers, and logging are not listed
+  here — cross-reference to `observability`, `liquibase`, `testcontainers`, `logging`, each of which
+  brings its own dependencies.
 
 ## Skill: `observability`
 
-**SKILL.md** (vormals `references/observability-stack.md` unter `dependency-management`, jetzt
-eigenständig):
+**SKILL.md** (formerly `references/observability-stack.md` under `dependency-management`, now
+standalone):
 
-- Micrometer + Prometheus (`mn.micronaut.management`, `mn.micronaut.micrometer.*`) als
-  Metrics-Baseline.
-- OpenTelemetry-Tracing für HTTP und JDBC (`mn.micronaut.tracing.opentelemetry.*`) — Aktivierung nur
-  bei gesetzter `OTEL_TRACES_EXPORTER`-Umgebungsvariable (inert in lokaler Entwicklung ohne Exporter).
-- Kubernetes-Service-Discovery (`mn.micronaut.kubernetes.discovery.client`) — inert außerhalb von
-  k8s-Umgebungen, benötigt RBAC (`read` auf `services`/`endpoints`) im Cluster; wird trotzdem immer
-  eingebunden, mit Kommentar im Build-File begründet (Konvention aus `dependency-management`).
-- Abgrenzung zu `logging`: dieser Skill deckt Metriken/Tracing-Infrastruktur ab, `logging` deckt die
-  eigentlichen Log-Nutzungskonventionen (inkl. Trace/Log-Korrelation) ab.
+- Micrometer + Prometheus (`mn.micronaut.management`, `mn.micronaut.micrometer.*`) as the metrics
+  baseline.
+- OpenTelemetry tracing for HTTP and JDBC (`mn.micronaut.tracing.opentelemetry.*`) — only activates
+  when the `OTEL_TRACES_EXPORTER` environment variable is set (inert in local development without an
+  exporter).
+- Kubernetes service discovery (`mn.micronaut.kubernetes.discovery.client`) — inert outside k8s
+  environments, requires RBAC (`read` on `services`/`endpoints`) in-cluster; still always included,
+  justified by a build-file comment (convention from `dependency-management`).
+- Boundary with `logging`: this skill covers metrics/tracing infrastructure, `logging` covers the
+  actual log-usage conventions (including trace/log correlation).
 
 ## Skill: `service-layer`
 
 **SKILL.md**:
 
-- Service-Layer ist verbindlich — Business-Logik gehört nie in den Controller (bewusste Abkehr von
-  Otis' Controller→Repository-Direktzugriff).
-- Konkret als Interface + `impl`-Unterpaket: `service/FooService.java` (Interface) +
-  `service/impl/FooServiceImpl.java` (Implementierung), analog `FontService`/`FontServiceImpl` aus
-  Vulpes-Backend.
-- Constructor-Injection ausschließlich (`@Inject` auf dem Konstruktor), kein Field-Injection — gilt
-  org-weit für Services, Controller und alle injizierbaren Beans.
-- Der Service orchestriert Repository-Zugriffe und DTO↔Entity-Konvertierung (letztere ruft er auf den
-  DTOs auf, siehe `dto`/`response-modeling`), enthält aber selbst keine Persistenz-Logik.
+- The service layer is mandatory — business logic never belongs in the controller (a deliberate
+  departure from Otis' direct controller→repository access).
+- Concretely as an interface + `impl` sub-package: `service/FooService.java` (interface) +
+  `service/impl/FooServiceImpl.java` (implementation), analogous to `FontService`/`FontServiceImpl`
+  from Vulpes-Backend.
+- Constructor injection only (`@Inject` on the constructor), no field injection — applies org-wide to
+  services, controllers, and all injectable beans.
+- The service orchestrates repository access and DTO↔entity conversion (invoking the conversion methods
+  that live on the DTOs themselves, see `dto`/`response-modeling`), but contains no persistence logic
+  itself.
 
 ## Skill: `entity-design`
 
 **SKILL.md**:
 
-- `database/entity/`-Paket: Entities sind reine Persistenzschicht, **keine**
-  Bean-Validation-Annotationen auf der Entity (Single Source of Truth für Validation ist das DTO,
-  behebt Otis' doppelte Validierung).
-- Muster "interne UUID getrennt vom fachlichen/externen Identifier" (Otis' `OtisPlayer`: eigene
-  `@Id`-UUID vs. externe `playerUuid`) wird übernommen.
-- Custom `AttributeConverter`s für komplexe Spaltentypen (z. B. `Locale`, JSON-`Map`), kombiniert mit
-  `@JdbcTypeCode(SqlTypes.JSON)` für JSON-Spalten (Hibernate-6-Pattern aus Otis).
-- Kein Lombok, kein Record für Entities (Records sind DTOs vorbehalten, siehe `dto`) — klassisches
-  Java-Bean-Pattern mit No-Args- und All-Args-Konstruktor, da Hibernate einen No-Args-Konstruktor
-  benötigt.
+- `database/entity/` package: entities are a pure persistence layer, with **no** bean-validation
+  annotations on the entity (the single source of truth for validation is the DTO, fixing Otis'
+  duplicated validation).
+- The "internal UUID separate from the business/external identifier" pattern (Otis' `OtisPlayer`: its
+  own `@Id` UUID vs. an external `playerUuid`) is adopted.
+- Custom `AttributeConverter`s for complex column types (e.g. `Locale`, JSON `Map`), combined with
+  `@JdbcTypeCode(SqlTypes.JSON)` for JSON columns (a Hibernate 6 pattern from Otis).
+- No Lombok, no records for entities (records are reserved for DTOs, see `dto`) — the classic Java
+  bean pattern with a no-args and an all-args constructor, since Hibernate requires a no-args
+  constructor.
 
-**references/separate-model-module.md**: das Vulpes-Backend-Muster (Entities/Models in einem separat
-versionierten und published Artefakt, z. B. `vulpes-model`, Konsum über das private Maven-Repo) als
-optionales Muster für Projekte mit mehreren Konsumenten (Backend + Minecraft-Plugin/Client). Enthält
-Trade-offs (eigene Versionierung/Publish-Pipeline nötig) und eine klare Entscheidungsregel, wann sich der
-Mehraufwand lohnt.
+**references/separate-model-module.md**: the Vulpes-Backend pattern (entities/models in a separately
+versioned and published artifact, e.g. `vulpes-model`, consumed via the private Maven repo) as an
+optional pattern for projects with multiple consumers (backend + Minecraft plugin/client). Includes the
+trade-offs (needs its own versioning/publish pipeline) and a clear decision rule for when the extra
+effort is worth it.
 
 ## Skill: `configuration`
 
 **SKILL.md**:
 
-- Dedizierte `@ConfigurationProperties`-Klassen pro Fachbereich im `config`-Paket, statt Ad-hoc-
-  Konfiguration direkt auf der Application-Klasse (Otis' `OtisApplication` mit direkt angehängten
-  `@ConfigurationProperties("application.properties")` ist kein zu übernehmendes Muster).
-- Eine Konfigurationsklasse pro fachlichem Bereich (nicht eine riesige Klasse für die ganze
-  `application.yml`), mit sprechendem `@ConfigurationProperties("prefix")`.
-- Konstruktor- oder Record-basierte Konfigurationsklassen bevorzugt gegenüber Feldern mit Settern, wo
-  Micronaut das zulässt.
+- Dedicated `@ConfigurationProperties` classes per concern in the `config` package, instead of ad-hoc
+  configuration attached directly to the application class (Otis' `OtisApplication` with
+  `@ConfigurationProperties("application.properties")` attached directly is not a pattern to adopt).
+- One configuration class per functional area (not one giant class for the whole `application.yml`),
+  with a descriptive `@ConfigurationProperties("prefix")`.
+- Constructor- or record-based configuration classes are preferred over field-plus-setter style
+  wherever Micronaut allows it.
 
 ## Skill: `dto`
 
 **SKILL.md**:
 
-- Request-DTOs sind Java Records mit `@Serdeable` + `@Introspected`, im `domain/<feature>/`-Paket.
-- Ein gemeinsames Request-DTO für Create/Update statt getrennter Typen, gesteuert über
-  JSR-380-Validation-Groups (`ValidationGroup.Create`/`Update`-Marker-Interfaces im `validation`-Paket),
-  z. B. `@NotNull(groups = Update.class) @Null(groups = Create.class)` für ein serverseitig vergebenes
-  Feld wie die ID.
-- **Konvertierung lebt auf dem Request-DTO selbst**, nicht auf der Entity und nicht in einer separaten
-  Mapper-Klasse: eine `toXxxEntity()`-Instanzmethode wandelt das DTO in die Entity um.
-- `@Schema`-Feldannotationen (`description`, `requiredMode`) gehören zum DTO selbst; die
-  Controller-/Endpunkt-Dokumentation (`@Operation`, `@ApiResponse`) ist Sache des `openapi`-Skills,
-  das Response-Pendant (Erfolgs-/Fehler-Modeling) ist Sache von `response-modeling` — beide Querverweise
-  explizit, um Redundanz zu vermeiden.
+- Request DTOs are Java records with `@Serdeable` + `@Introspected`, in the `domain/<feature>/`
+  package.
+- One shared request DTO for create/update instead of separate types, controlled via JSR-380
+  validation groups (`ValidationGroup.Create`/`Update` marker interfaces in the `validation` package),
+  e.g. `@NotNull(groups = Update.class) @Null(groups = Create.class)` for a server-assigned field like
+  the ID.
+- **Conversion lives on the request DTO itself**, not on the entity and not in a separate mapper
+  class: a `toXxxEntity()` instance method converts the DTO into the entity.
+- `@Schema` field annotations (`description`, `requiredMode`) belong on the DTO itself; the
+  controller/endpoint documentation (`@Operation`, `@ApiResponse`) is the concern of the `openapi`
+  skill, and the response counterpart (success/error modeling) is the concern of `response-modeling` —
+  both cross-referenced explicitly to avoid redundancy.
 
 ## Skill: `response-modeling`
 
 **SKILL.md**:
 
-- **Response-DTO als Sealed Interface**: pro Ressource `sealed interface FooResponseDTO` mit einem
-  Erfolgs-Record (`FooDTO`, mit `@Schema`-Feldannotationen) und einem Fehler-Record (`FooErrorDTO`).
-- Der Fehler-Record implementiert zusätzlich ein gemeinsames `ErrorResponse`-Marker-Interface (mit
-  Default-`ErrorResponseDTO`) aus einem zentralen `domain/error`-Paket — ein Typ für alle
-  Fehlerantworten org-weit, egal welche Ressource betroffen ist.
-- Statische `createDTO(entity)`-Factory-Methoden auf dem Response-DTO (ggf. mehrere Varianten, z. B.
-  `createDTOWithChars(entity)` für angereicherte Projektionen) übernehmen die Entity→DTO-Konvertierung —
-  Pendant zur `toXxxEntity()`-Methode auf dem Request-DTO aus dem `dto`-Skill.
-- Nutzen: jeder Statuscode bekommt in der OpenAPI-Doku (siehe `openapi`) ein präzises Schema, und der
-  Controller kann typsicher per `instanceof`/Pattern-Matching auf Fehlerfälle reagieren, statt rohe
-  Strings oder `null` zu prüfen.
-- Querverweis zu `exception-handling`: der globale Exception-Handler gibt ebenfalls `ErrorResponse`
-  zurück — dieselbe Fehler-Abstraktion wird für erwartete (hier) und unerwartete (dort) Fehlerfälle
-  verwendet.
+- **Response DTO as a sealed interface**: per resource, a `sealed interface FooResponseDTO` with a
+  success record (`FooDTO`, with `@Schema` field annotations) and an error record (`FooErrorDTO`).
+- The error record additionally implements a shared `ErrorResponse` marker interface (with a default
+  `ErrorResponseDTO`) from a central `domain/error` package — one type for all error responses
+  org-wide, regardless of which resource is involved.
+- Static `createDTO(entity)` factory methods on the response DTO (possibly several variants, e.g.
+  `createDTOWithChars(entity)` for enriched projections) handle entity→DTO conversion — the
+  counterpart to the `toXxxEntity()` method on the request DTO from the `dto` skill.
+- Benefit: every status code gets a precise schema in the OpenAPI docs (see `openapi`), and the
+  controller can react to error cases type-safely via `instanceof`/pattern matching instead of
+  checking raw strings or `null`.
+- Cross-reference to `exception-handling`: the global exception handler also returns `ErrorResponse` —
+  the same error abstraction is used for expected (here) and unexpected (there) failure cases.
 
 ## Skill: `openapi`
 
 **SKILL.md**:
 
-- **`*Api`-Doku-Interface-Pattern**: pro Controller ein begleitendes Interface (z. B. `FontApi`) im
-  selben `controller/<feature>/`-Paket, das ausschließlich `@Operation`- und `@ApiResponse`-Annotationen
-  trägt. Der Controller implementiert dieses Interface. **Wichtig:** Routing (`@Controller`, `@Get`/
-  `@Post`/...) und Validation-Trigger bleiben auf der Controller-Klasse (siehe `routing`) — das Interface
-  dokumentiert nur, es routet nicht.
-- `operationId`/`tags`-Namenskonvention (camelCase Verb+Nomen, z. B. `getFontById`; ein Tag pro
-  Ressource/Domain).
-- `@ApiResponse` pro tatsächlich möglichem Statuscode, `schema = @Schema(implementation = ...)`
-  referenziert die Erfolgs-/Fehler-Records aus `response-modeling` (getrennt nach Statuscode).
-- Aktivierung von Swagger-UI/Rapidoc/OpenAPI-Explorer über die
-  `-Dmicronaut.openapi.views.spec=...`-JVM-Property als empfohlene Dev-Convenience (aus Vulpes-Backend
-  übernommen).
-- Beispiel für das Interface-Pattern:
+- **`*Api` documentation-interface pattern**: per controller, an accompanying interface (e.g.
+  `FontApi`) in the same `controller/<feature>/` package that carries exclusively `@Operation` and
+  `@ApiResponse` annotations. The controller implements this interface. **Important:** routing
+  (`@Controller`, `@Get`/`@Post`/...) and validation triggers stay on the controller class (see
+  `routing`) — the interface documents only, it does not route.
+- `operationId`/`tags` naming convention (camelCase verb+noun, e.g. `getFontById`; one tag per
+  resource/domain).
+- One `@ApiResponse` per status code that can actually occur, `schema = @Schema(implementation = ...)`
+  referencing the success/error records from `response-modeling` (separated by status code).
+- Enabling Swagger UI/Rapidoc/OpenAPI Explorer via the `-Dmicronaut.openapi.views.spec=...` JVM
+  property as a recommended dev convenience (adopted from Vulpes-Backend).
+- Example of the interface pattern:
 
   ```java
-  // FontApi.java — nur Dokumentation
+  // FontApi.java — documentation only
   public interface FontApi {
       @Operation(summary = "Get a font by ID", operationId = "getFontById", tags = {"Font"})
       @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = FontModelResponseDTO.FontModelDTO.class)))
@@ -259,7 +255,7 @@ Mehraufwand lohnt.
       HttpResponse<FontModelResponseDTO> getById(UUID id);
   }
 
-  // FontController.java — Routing + Logik
+  // FontController.java — routing + logic
   @Controller("/font")
   public class FontController implements FontApi {
       @Override
@@ -273,97 +269,97 @@ Mehraufwand lohnt.
 
 **SKILL.md**:
 
-- Ressourcenbasierte Pfade mit echten HTTP-Verben (`@Get`/`@Post`/`@Put`/`@Delete`) statt Action-URLs
-  wie Otis' `/update/{id}` bzw. `/delete/{id}` per `@Post` — explizite Korrektur.
-- Blockierendes `HttpResponse<T>` als Standard-Rückgabetyp (kein `Mono`/`Flux`/`Publisher`, außer
-  begründete Ausnahme).
-- `Pageable`/`Page<T>`-Pagination-Konvention (Otis' gutes Muster wird übernommen) als Methodenparameter
-  bzw. Rückgabetyp; OpenAPI-Dokumentation der Paginierungshülle ist Sache des `openapi`-Skills.
-- `@Controller("/basis-pfad")` auf Klassenebene, konsistente Ressourcen-Namensgebung (Plural/Singular je
-  nach Kollektion vs. Einzelressource).
+- Resource-based paths with real HTTP verbs (`@Get`/`@Post`/`@Put`/`@Delete`) instead of action URLs
+  like Otis' `/update/{id}` / `/delete/{id}` via `@Post` — an explicit correction.
+- Blocking `HttpResponse<T>` as the default return type (no `Mono`/`Flux`/`Publisher`, unless
+  justified).
+- `Pageable`/`Page<T>` pagination convention (Otis' good pattern is adopted) as a method parameter or
+  return type; documenting the pagination envelope in OpenAPI is the concern of the `openapi` skill.
+- `@Controller("/base-path")` at the class level, consistent resource naming (plural vs. singular
+  depending on collection vs. single resource).
 
 ## Skill: `exception-handling`
 
 **SKILL.md**:
 
-- **Globaler Exception-Handler** (`ExceptionHandlerAdvice implements ExceptionHandler<Throwable,
-  HttpResponse<ErrorResponse>>`) ist verbindlich — jedes Backend hat genau einen.
-- **Korrektur ggü. Vulpes-Backend:** Der Handler mappt Exception-Typen auf passende Statuscodes
-  (Validierungsfehler → 400, fachliche Not-Found-Exception → 404, alles andere → 500) statt pauschal
-  `notFound()` für jede Exception zurückzugeben.
-- Fachliche Exceptions bekommen eigene Klassen im `exception`-Paket (z. B. `EntityNotFoundException`),
-  keine generischen `RuntimeException`s mit String-Message als einzige Fehlerinformation.
-- Rückgabetyp ist immer `ErrorResponse` aus dem `response-modeling`-Skill — dieselbe Abstraktion für
-  erwartete (im Controller behandelte) und unerwartete (hier global behandelte) Fehlerfälle.
+- A **global exception handler** (`ExceptionHandlerAdvice implements ExceptionHandler<Throwable,
+  HttpResponse<ErrorResponse>>`) is mandatory — every backend has exactly one.
+- **Correction relative to Vulpes-Backend:** the handler maps exception types to the appropriate
+  status code (validation errors → 400, a domain not-found exception → 404, everything else → 500)
+  instead of unconditionally returning `notFound()` for every exception.
+- Domain exceptions get their own classes in the `exception` package (e.g.
+  `EntityNotFoundException`), not generic `RuntimeException`s with a string message as the only error
+  information.
+- The return type is always `ErrorResponse` from the `response-modeling` skill — the same abstraction
+  for both expected (handled in the controller) and unexpected (handled here, globally) failure cases.
 
 ## Skill: `security`
 
 **SKILL.md**:
 
-- Micronaut-Security-Baseline "deny by default": jeder Endpunkt ist implizit gesperrt, bis er
-  explizit geöffnet wird.
-- `@Secured`-Konvention pro Endpunkt/Controller; explizites Öffnen einzelner Routen dokumentiert (z. B.
-  `@Secured(SecurityRule.IS_ANONYMOUS)` für öffentliche Endpunkte).
-- Da weder Otis noch Vulpes-Backend eine Security-Schicht zeigen, ist dieser Skill stärker
-  präskriptiv/grundlegend statt aus Beispielcode abgeleitet — er beschreibt die Baseline-Konvention
-  und den Entscheidungsprozess (welche Endpunkte dürfen offen sein und warum), nicht ein vollständiges
-  Auth-Schema (JWT/OAuth-Konfiguration ist bewusst außerhalb des Scopes, siehe „Out of scope“).
+- Micronaut Security baseline "deny by default": every endpoint is implicitly locked down until
+  explicitly opened.
+- `@Secured` convention per endpoint/controller; explicitly opening individual routes is documented
+  (e.g. `@Secured(SecurityRule.IS_ANONYMOUS)` for public endpoints).
+- Since neither Otis nor Vulpes-Backend show a security layer, this skill is more prescriptive/
+  foundational rather than derived from example code — it describes the baseline convention and the
+  decision process (which endpoints may be open and why), not a complete auth scheme (JWT/OAuth
+  configuration is deliberately out of scope, see "Out of scope").
 
 ## Skill: `liquibase`
 
 **SKILL.md**:
 
-- Liquibase ist verbindlich für jede Schemaänderung, statt `hbm2ddl.auto=update`.
-- **Immer XML-Changelogs**, nie YAML/SQL/JSON — Begründung: Liquibases abstrakte Change-Types
-  (`createTable`, `addColumn`, `addForeignKeyConstraint`, ...) sind in XML am konsequentesten
-  dialektneutral. Rohes `<sql>` wird vermieden bzw. nur mit explizitem `dbms`-Attribut pro Dialekt
-  eingesetzt, wenn kein abstrakter Change-Type existiert.
-- Struktur: `db/changelog/db.changelog-master.xml` inkludiert versionierte Einzeldateien unter
-  `db/changelog/changes/<nnn>-<beschreibung>.xml`; ein Changeset pro fachlicher Änderung, `id` + `author`
-  verpflichtend gesetzt.
-- Micronaut-Integration: `micronaut-liquibase`-Dependency, Konfiguration in `application.yml` je
-  Datenquelle/Environment.
-- `rollback`-Elemente bzw. `<preConditions>` wo sinnvoll, statt ungetesteter Vorwärts-only-Migrationen.
-- Cross-DB-Verifikation (Changelog gegen MariaDB **und** PostgreSQL laufen lassen) wird nicht hier
-  beschrieben, sondern verweist auf den `testcontainers`-Skill.
+- Liquibase is mandatory for every schema change, instead of `hbm2ddl.auto=update`.
+- **Always XML changelogs**, never YAML/SQL/JSON — rationale: Liquibase's abstract change types
+  (`createTable`, `addColumn`, `addForeignKeyConstraint`, ...) are most consistently dialect-neutral in
+  XML. Raw `<sql>` is avoided, or only used with an explicit `dbms` attribute per dialect when no
+  abstract change type exists.
+- Structure: `db/changelog/db.changelog-master.xml` includes versioned individual files under
+  `db/changelog/changes/<nnn>-<description>.xml`; one changeset per functional change, `id` + `author`
+  mandatory.
+- Micronaut integration: the `micronaut-liquibase` dependency, configuration in `application.yml` per
+  data source/environment.
+- `rollback` elements or `<preConditions>` where sensible, instead of untested forward-only
+  migrations.
+- Cross-DB verification (running the changelog against both MariaDB **and** PostgreSQL) is not
+  described here — it refers to the `testcontainers` skill.
 
 ## Skill: `testcontainers`
 
 **SKILL.md**:
 
-- Testcontainers + `micronaut-test-resources` ist der verbindliche Integrationstest-Ansatz — löst
-  Otis' Muster ab, dauerhaft einen H2-Treiber einzubinden, nur damit Tests ohne echte Datenbank laufen.
-- Container-Setup für MariaDB und PostgreSQL parallel, damit ein Liquibase-Changelog gegen beide
-  verifiziert werden kann (Querverweis vom `liquibase`-Skill hierher).
-- JUnit5-Lifecycle-Konventionen (`@Testcontainers`/`@Container`, Container-Wiederverwendung zwischen
-  Testklassen, Vermeidung unnötiger Neustarts).
-- Abgrenzung: reine Unit-Tests (Service-Logik mit gemockten Repositories) brauchen keinen Container;
-  Repository-/Migrations-/Controller-Integrationstests brauchen einen.
+- Testcontainers + `micronaut-test-resources` is the mandatory integration-test approach — replaces
+  Otis' pattern of permanently including an H2 driver just so tests can run without a real database.
+- Container setup for MariaDB and PostgreSQL in parallel, so a Liquibase changelog can be verified
+  against both (cross-reference from the `liquibase` skill here).
+- JUnit 5 lifecycle conventions (`@Testcontainers`/`@Container`, container reuse across test classes,
+  avoiding unnecessary restarts).
+- Boundary: pure unit tests (service logic with mocked repositories) don't need a container;
+  repository/migration/controller integration tests do.
 
 ## Skill: `logging`
 
 **SKILL.md**:
 
-- SLF4J-Logger-Konvention: ein `private static final Logger` pro Klasse (Controller, Service-Impl),
-  keine Klasse ohne Logger — behebt Otis' inkonsistente Nutzung (nicht jeder Controller loggt).
-  Konkrete Gradle-Dependencies dafür stehen im `dependency-management`-Skill (Querverweis).
-- Strukturiertes JSON-Logging (Logstash-Encoder) + OpenTelemetry-MDC-Appender für Trace/Span-Korrelation
-  — Nutzungskonventionen (wann strukturiert vs. plain, wie Trace-IDs in Log-Zeilen landen); die
-  zugrundeliegende Metrics-/Tracing-Infrastruktur selbst ist Sache des `observability`-Skills.
-- Log-Level-Richtlinien: wann `debug`/`info`/`warn`/`error` angemessen ist.
-- Explizites Verbot: keine PII, Secrets oder vollständigen Request-Bodies mit sensiblen Feldern loggen.
+- SLF4J logger convention: one `private static final Logger` per class (controller, service impl), no
+  class without a logger — fixes Otis' inconsistent usage (not every controller logged). The concrete
+  Gradle dependencies for this live in the `dependency-management` skill (cross-reference).
+- Structured JSON logging (Logstash encoder) + OpenTelemetry MDC appender for trace/span correlation —
+  usage conventions (when to log structured vs. plain, how trace IDs end up in log lines); the
+  underlying metrics/tracing infrastructure itself is the concern of the `observability` skill.
+- Log-level guidelines: when `debug`/`info`/`warn`/`error` is appropriate.
+- Explicit prohibition: never log PII, secrets, or full request bodies containing sensitive fields.
 
 ## Out of scope
 
-- Scaffolding-Commands/Codegeneratoren (`/micronaut-standards:new-controller` o. ä.) — bewusst nicht
-  Teil dieses Plugins (Nutzerentscheidung im Brainstorming).
-- Verpflichtendes Multi-Modul-/separates-Model-Artefakt-Setup — bleibt optionales Muster in einer
-  Referenzdatei (`entity-design`), nicht Teil des Kern-Standards.
-- Vollständiges Auth-/Identity-Schema (JWT-Ausstellung, OAuth2-Flows, Rollen-/Berechtigungsmodell) — der
-  `security`-Skill deckt nur die Deny-by-default-Baseline und `@Secured`-Konvention ab, kein komplettes
-  Auth-System.
-- Reactive Programmiermodell (`Mono`/`Flux`/`Publisher`) — der Standard setzt durchgängig auf
-  blockierendes `HttpResponse<T>`, reaktive Alternativen werden nicht behandelt.
-- CI/CD-Konventionen (Release-Please, Renovate, reusable Workflows) — dafür existiert bereits das
-  `release-engineering`-Plugin; `micronaut-standards` verweist bei Bedarf dorthin, statt es zu
-  duplizieren.
+- Scaffolding commands/code generators (`/micronaut-standards:new-controller` or similar) —
+  deliberately not part of this plugin (user decision during brainstorming).
+- Mandatory multi-module / separate model artifact setup — remains an optional pattern in a reference
+  file (`entity-design`), not part of the core standard.
+- A complete auth/identity scheme (JWT issuance, OAuth2 flows, role/permission model) — the `security`
+  skill covers only the deny-by-default baseline and the `@Secured` convention, not a full auth system.
+- Reactive programming model (`Mono`/`Flux`/`Publisher`) — the standard consistently uses blocking
+  `HttpResponse<T>`; reactive alternatives are not covered.
+- CI/CD conventions (Release Please, Renovate, reusable workflows) — the `release-engineering` plugin
+  already exists for that; `micronaut-standards` refers to it where relevant instead of duplicating it.
