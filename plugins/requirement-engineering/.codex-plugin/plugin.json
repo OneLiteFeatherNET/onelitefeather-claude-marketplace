@@ -1,0 +1,10 @@
+{
+  "name": "requirement-engineering",
+  "version": "0.1.0",
+  "description": "OneLiteFeather's Requirement-Engineering standard for Outline project docs: User Stories (staged by Ausbaustufen) + EARS acceptance-criteria syntax + MoSCoW prioritization, usable for both game concepts and technical projects. Creates new requirements docs and restructures superficial prose-only concept docs. Complements `framework`, which wires up the Outline MCP connection.",
+  "author": { "name": "OneLiteFeather", "url": "https://github.com/OneLiteFeatherNET" },
+  "license": "MIT",
+  "keywords": ["requirements", "user-stories", "ears", "moscow", "requirement-engineering", "outline", "game-design", "documentation"],
+  "skills": "./skills/",
+  "hooks": {}
+}

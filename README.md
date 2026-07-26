@@ -11,6 +11,7 @@ OneLiteFeather's Claude Code marketplace — the team's developer framework.
 | **minestom-knowledge** | Accurate knowledge of our internal Minestom libraries (Cyano, Aves, Xerus, Guira, Pica, Coris) and tooling (Gradle conventions, BOM hierarchy) — too internal/new to be in general training data. No MCP servers, pure skill content. |
 | **release-engineering** | OneLiteFeather's CI/CD standard: Release Please, the central Renovate preset plus general Renovate config help, and the reusable GitHub Actions workflows (build, publish, Docker, Gradle specifics). No MCP servers, pure skill content. |
 | **agent-orchestrator** | Decomposes complex tasks into independent subtasks and delegates each to the cheapest viable model tier (haiku, sonnet, opus, fable — fable gated behind explicit confirmation), escalating only when needed. Claude Code only — uses the `Agent` tool's model overrides, worktree isolation, and task tracking. |
+| **requirement-engineering** | OneLiteFeather's Requirement-Engineering standard for Outline project docs: User Stories (staged by Ausbaustufen) + EARS acceptance-criteria syntax + MoSCoW prioritization, for game concepts and technical projects alike. Creates new requirements docs and restructures superficial prose-only concept docs. No MCP servers of its own — pairs with `framework`'s Outline connection. |
 
 `context-layer`, `benchmark-stack`, and `workflow` were removed from this
 marketplace. Code navigation has already been rebuilt as
@@ -39,6 +40,9 @@ directly as part of this framework instead of as separate plugins.
 
 # Complex-task delegation: haiku -> sonnet -> opus -> fable escalation
 /plugin install agent-orchestrator@onelitefeather-claude-marketplace
+
+# Requirement Engineering standard: User Stories + EARS + MoSCoW for Outline docs
+/plugin install requirement-engineering@onelitefeather-claude-marketplace
 ```
 
 Run `/framework:setup` once afterwards to create the "Vault" collection and

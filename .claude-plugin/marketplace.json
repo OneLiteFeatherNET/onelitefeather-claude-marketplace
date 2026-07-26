@@ -43,6 +43,14 @@
       "description": "Decomposes complex tasks into independent subtasks and delegates each to the cheapest viable model tier (haiku, sonnet, opus, fable — fable gated behind explicit confirmation), escalating only when a subtask proves too hard. Claude Code only.",
       "category": "productivity",
       "keywords": ["orchestration", "subagents", "delegation", "multi-agent", "model-routing"]
+    },
+    {
+      "name": "requirement-engineering",
+      "displayName": "Requirement Engineering",
+      "source": "./plugins/requirement-engineering",
+      "description": "OneLiteFeather's Requirement-Engineering standard for Outline project docs: User Stories + EARS acceptance-criteria syntax + MoSCoW prioritization, for game concepts and technical projects alike. Creates new requirements docs and restructures superficial prose-only concept docs.",
+      "category": "productivity",
+      "keywords": ["requirements", "user-stories", "ears", "moscow", "requirement-engineering", "outline", "game-design", "documentation"]
     }
   ]
 }
