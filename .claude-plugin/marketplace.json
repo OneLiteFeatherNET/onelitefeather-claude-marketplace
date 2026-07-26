@@ -51,6 +51,14 @@
       "description": "OneLiteFeather's Requirement-Engineering standard for Outline project docs: User Stories + EARS acceptance-criteria syntax + MoSCoW prioritization, for game concepts and technical projects alike. Creates new requirements docs and restructures superficial prose-only concept docs.",
       "category": "productivity",
       "keywords": ["requirements", "user-stories", "ears", "moscow", "requirement-engineering", "outline", "game-design", "documentation"]
+    },
+    {
+      "name": "micronaut-standards",
+      "displayName": "Micronaut Standards",
+      "source": "./plugins/micronaut-standards",
+      "description": "OneLiteFeather's standard for Micronaut REST APIs: dependency management, observability, service layer, entity design, configuration, DTO/response modeling, OpenAPI docs, HTTP routing, exception handling, security baseline, Liquibase migrations, Testcontainers, and logging.",
+      "category": "productivity",
+      "keywords": ["micronaut", "java", "rest-api", "openapi", "liquibase", "testcontainers", "dto", "architecture", "dependency-management"]
     }
   ]
 }
