@@ -104,8 +104,19 @@ gh api repos/{owner}/{repo} --jq '.squash_merge_commit_message'
 **Step 5 — the optional `commit-msg` hook.** Explain what it does: a
 git `commit-msg` hook that strips attribution trailers automatically and
 fails the commit outright on a typography finding, rather than silently
-rewriting the author's message. Ask whether the user wants it installed in
-this clone. **Only on explicit confirmation**, run:
+rewriting the author's message. **Before asking for confirmation**, state
+the caveat that matters for the user's decision: this hook is installed by
+setting `core.hooksPath` in the local, untracked `.git/config` — it is
+**per-clone** and does **not** travel with the repository. A committed
+`.githooks/` directory makes the hook script available to every clone, but
+each teammate still has to run this step (or the
+`git config core.hooksPath .githooks` command by hand) in their own clone
+for it to take effect — installing it here protects only this clone, not the
+team. Also mention that `git commit --no-verify` bypasses this hook
+entirely, by git's own design — it is a courtesy check for cooperative
+authors, not an enforcement boundary. Only once the user has this
+information, ask whether they want it installed in this clone. **Only on
+explicit confirmation**, run:
 
 ```bash
 mkdir -p .githooks
@@ -114,14 +125,6 @@ chmod +x .githooks/commit-msg
 git config core.hooksPath .githooks
 ```
 
-State the caveat clearly, before or immediately after installing: this sets
-`core.hooksPath` in the local, untracked `.git/config` — it is **per-clone**
-and does **not** travel with the repository. A committed `.githooks/`
-directory makes the hook script available to every clone, but each teammate
-still has to run this step (or the `git config core.hooksPath .githooks`
-command by hand) in their own clone for it to take effect. Also mention that
-`git commit --no-verify` bypasses this hook entirely, by git's own design —
-it is a courtesy check for cooperative authors, not an enforcement boundary.
 If the user declines, say the hook was not installed and move on.
 
 **Step 6 — orphaned `worktree-*` branches on origin.** List the candidates
@@ -129,10 +132,19 @@ first, before proposing to delete anything:
 
 ```bash
 git ls-remote --heads origin 'worktree-*'
+git fetch origin
 for b in $(git ls-remote --heads origin 'worktree-*' | awk '{print $2}' | sed 's|refs/heads/||'); do
   echo "== $b: $(git rev-list --count origin/main..origin/$b 2>/dev/null) commits ahead of main"
 done
 ```
+
+The branch *names* above come from the live `git ls-remote` and are always
+current, but the ahead-count for each one reads local remote-tracking refs
+(`origin/$b`) — the `git fetch origin` before the loop is required so those
+refs actually exist for any branch created since the last fetch. Without it,
+a newly created branch's `origin/$b` ref may be missing locally, the
+`2>/dev/null` on the count silently swallows that, and the reported count
+comes out blank or misleading rather than a real number.
 
 Cross-check for open PRs before treating anything as safe to remove:
 
