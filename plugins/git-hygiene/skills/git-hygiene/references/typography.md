@@ -26,7 +26,7 @@ below for why the split falls where it does.
 | U+2011 | NON-BREAKING HYPHEN | ‑ | `-` | REPLACE | Loses the no-break behavior, which is not preserved in plain-text commit/PR bodies anyway. |
 | U+2012 | FIGURE DASH | ‒ | `-` | REPLACE | Rare; meant to be digit-width, indistinguishable from a hyphen once ASCII. |
 | U+2013 | EN DASH | – | `-` | REPLACE | **German exception applies — see section 3.** In English text, spaced or unspaced en dash both collapse to a plain hyphen; the two-stage resolution in section 7 governs the spaced case. |
-| U+2014 | EM DASH | — | ` - ` | REPLACE | Mechanical fallback is spaced hyphen; prefer the function-appropriate resolution in section 7. **Never correct in German — see section 3, it is not used there at all.** |
+| U+2014 | EM DASH | — | ` - ` | REPLACE | Mechanical fallback is spaced hyphen; prefer the function-appropriate resolution in section 7. **Not an exception — always corrected, in German too.** Unlike the spaced en dash (U+2013), the em dash has no legitimate use in German; see section 3. |
 | U+2015 | HORIZONTAL BAR | ― | `-` or ` - ` | REPLACE | Used as a dialogue dash in some typesetting; treat like em dash when it opens a line, like en dash otherwise. |
 | U+2212 | MINUS SIGN | − | `-` | REPLACE | Math minus, not a dash; still collapses to ASCII hyphen since plain text has one character for both. |
 
@@ -116,7 +116,7 @@ wrong at its peril if it treats German prose the same way it treats a commit sub
   it during replacement, and never blanket-replace it either — collapsing `10–12` to `10-12` is a
   narrower, more defensible edit than collapsing it to `10 - 12`, but outside the Git/GitHub scope
   this reference covers, leave it alone entirely.
-- **German quote pairs stay intact.** `„Hallo"` uses U+201E to open and U+201C to close — note that
+- **German quote pairs stay intact.** `„Hallo“` uses U+201E to open and U+201C to close — note that
   the *closing* German mark is the same codepoint (U+201C) an English-oriented script would expect to
   find *opening* an English double quote. A script that maps U+201C to `"` unconditionally, while
   leaving U+201E untouched because it "isn't in the English pairs list," produces `„Hallo"` — an
