@@ -22,6 +22,7 @@ not just best-effort.
 | `minestom-knowledge` | `cyano`, `gradle`, `boms`, `guira`, `aves`, `xerus`, `pica`, `coris` | Nothing — this plugin has no MCP servers or commands, it's pure skill content |
 | `release-engineering` | `release-please`, `renovate`, `workflows` | Nothing — this plugin has no MCP servers or commands, it's pure skill content |
 | `requirement-engineering` | `requirement-engineering` | Nothing — this plugin has no MCP servers or commands, it's pure skill content |
+| `micronaut-standards` | `dependency-management`, `observability`, `service-layer`, `entity-design`, `configuration`, `dto`, `response-modeling`, `openapi`, `routing`, `exception-handling`, `security`, `liquibase`, `testcontainers`, `logging` | Nothing — this plugin has no MCP servers or commands, it's pure skill content |
 | `git-hygiene` | `git-hygiene` | The `/git-hygiene:setup` command and the `PreToolUse` guard hook — `hooks/` and `commands/` do not carry over |
 
 The skill files describe actions, not Claude-Code-specific tool names, so

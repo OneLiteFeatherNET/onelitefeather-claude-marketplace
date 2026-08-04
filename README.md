@@ -12,6 +12,7 @@ OneLiteFeather's Claude Code marketplace — the team's developer framework.
 | **release-engineering** | OneLiteFeather's CI/CD standard: Release Please, the central Renovate preset plus general Renovate config help, and the reusable GitHub Actions workflows (build, publish, Docker, Gradle specifics). No MCP servers, pure skill content. |
 | **agent-orchestrator** | Decomposes complex tasks into independent subtasks and delegates each to the cheapest viable model tier (haiku, sonnet, opus, fable — fable gated behind explicit confirmation), escalating only when needed. Claude Code only — uses the `Agent` tool's model overrides, worktree isolation, and task tracking. |
 | **requirement-engineering** | OneLiteFeather's Requirement-Engineering standard for Outline project docs: User Stories (staged by Ausbaustufen) + EARS acceptance-criteria syntax + MoSCoW prioritization, for game concepts and technical projects alike. Creates new requirements docs and restructures superficial prose-only concept docs. No MCP servers of its own — pairs with `framework`'s Outline connection. |
+| **micronaut-standards** | OneLiteFeather's standard for Micronaut REST APIs: dependency management, observability, service layer, entity design, configuration, DTO/response modeling, OpenAPI docs, HTTP routing, exception handling, security baseline, Liquibase migrations, Testcontainers, and logging. No MCP servers, pure skill content. |
 | **git-hygiene** | Keeps commit messages, branch names, PR titles and bodies, issue comments and release notes free of AI tool branding, session URLs, machine typography and machine phrasing. Ships the attribution settings, a PreToolUse safety net, and an optional commit-msg hook. No MCP servers, pure skill content plus a setup command. |
 
 `context-layer`, `benchmark-stack`, and `workflow` were removed from this
@@ -44,6 +45,9 @@ directly as part of this framework instead of as separate plugins.
 
 # Requirement Engineering standard: User Stories + EARS + MoSCoW for Outline docs
 /plugin install requirement-engineering@onelitefeather-claude-marketplace
+
+# Micronaut REST API standard: dependency management, architecture, DTOs, OpenAPI, security, migrations
+/plugin install micronaut-standards@onelitefeather-claude-marketplace
 
 # Clean commits and PRs: no tool branding, no session URLs, ASCII typography
 /plugin install git-hygiene@onelitefeather-claude-marketplace

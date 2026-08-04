@@ -20,6 +20,7 @@ does in Claude Code.
 | `release-engineering` | `release-please`, `renovate`, `workflows` | Nothing — this plugin has no MCP servers or commands, it's pure skill content |
 | `agent-orchestrator` | *(none — doesn't port)* | The whole plugin. It's Claude Code only: the `orchestrator` skill depends on the `Agent` tool's `model`/`isolation` parameters and `TaskCreate`/`TaskUpdate`, none of which Codex has an equivalent for. No `.codex-plugin/plugin.json` is shipped for it. |
 | `requirement-engineering` | `requirement-engineering` | Nothing — this plugin has no MCP servers or commands, it's pure skill content |
+| `micronaut-standards` | `dependency-management`, `observability`, `service-layer`, `entity-design`, `configuration`, `dto`, `response-modeling`, `openapi`, `routing`, `exception-handling`, `security`, `liquibase`, `testcontainers`, `logging` | Nothing — this plugin has no MCP servers or commands, it's pure skill content |
 | `git-hygiene` | `git-hygiene` | The `/git-hygiene:setup` command and the `PreToolUse` guard hook — `hooks/` and `commands/` do not carry over |
 
 The skill files themselves don't need edits to work on Codex — they're
@@ -62,8 +63,8 @@ ln -s /path/to/onelitefeather-claude-marketplace/plugins/minestom-knowledge/skil
 
 Point Codex's plugin browser at an individual plugin directory (not the
 marketplace root — Codex expects one `.codex-plugin/plugin.json` per
-install target, and this repo has seven plugin subdirectories under
-`plugins/`, six of which ship that manifest — `agent-orchestrator` is
+install target, and this repo has eight plugin subdirectories under
+`plugins/`, seven of which ship that manifest — `agent-orchestrator` is
 Claude Code only and has none). Check Codex's current docs for the exact
 "install from a local path / git subdirectory" syntax, since this is the
 part most likely to have changed since this doc was written.
