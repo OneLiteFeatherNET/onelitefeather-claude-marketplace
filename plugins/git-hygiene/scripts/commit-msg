@@ -30,6 +30,11 @@
 #      patterns are all anchored past leading whitespace only, so a "#"
 #      line can never match them either -- comments survive step 1
 #      untouched for the same structural reason, not a special case here.)
+#      Comment lines are blanked out, not removed, before the typography
+#      check: removing lines would shift every later line's line number in
+#      detypo.pl's output relative to the original message file, pointing
+#      the author at the wrong line. Blanking preserves line count and
+#      position 1:1; a blanked line is empty and detypo.pl never flags it.
 #
 # Locating strip-attribution.sh and detypo.pl: this hook looks first next
 # to itself (works whenever the two scripts are installed alongside it --
@@ -84,7 +89,11 @@ printf '%s' "$stripped" > "$msg_file"
 tmp_check="$(mktemp)"
 trap 'rm -f "$tmp_check"' EXIT
 
-grep -v '^#' -- "$msg_file" > "$tmp_check" || true
+# Blank out (not remove) "#" comment lines so every other line keeps its
+# original line number -- detypo.pl numbers lines within $tmp_check, and a
+# grep -v would shift every line after a removed comment line upward,
+# making the reported line number point at the wrong line in $msg_file.
+sed 's/^#.*//' -- "$msg_file" > "$tmp_check"
 
 if ! findings="$(perl "$detypo" --check "$tmp_check" 2>&1)"; then
   echo "git-hygiene commit-msg hook: typography findings block this commit (attribution, if any, was already stripped above; the message text itself was left untouched):" >&2
