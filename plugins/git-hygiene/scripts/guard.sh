@@ -93,11 +93,22 @@ fi
 
 read_file_or_literal() {
   # $1: a path argument to -F/--file/--body-file/--notes-file. Print the
-  # file's contents if it exists and is readable, else print the literal
-  # argument back (harmless fallback -- it is scanned as ordinary text).
+  # file's contents if it names a real, readable regular file, else print
+  # the literal argument back (harmless fallback -- it is scanned as
+  # ordinary text). This must NEVER be able to abort the whole script via
+  # `set -e`: guard.sh processes a chain of `&&`/`||`/`;`-separated
+  # invocations in one pass, and a crash here (e.g. `cat` on a directory:
+  # `-r` alone passes for a directory's permission bits, but `cat` then
+  # fails) must not skip scanning every segment after this one in the
+  # chain. `[ -f "$val" ]` rules out directories/devices/etc. up front,
+  # and the trailing `|| printf ...` is a second line of defense against
+  # any other reason `cat` might fail between the `-f`/`-r` checks and the
+  # read itself (permission changed out from under us, a symlink loop,
+  # and so on) -- in every such case this degrades to "treat as an
+  # unreadable literal", never to "abort guard.sh entirely".
   local val="$1"
-  if [ -n "$val" ] && [ -r "$val" ]; then
-    cat -- "$val"
+  if [ -n "$val" ] && [ -f "$val" ] && [ -r "$val" ]; then
+    cat -- "$val" 2>/dev/null || printf '%s' "$val"
   else
     printf '%s' "$val"
   fi
@@ -105,13 +116,14 @@ read_file_or_literal() {
 
 expand_one_token() {
   # Expand exactly ONE raw token -- and only a token currently being read
-  # in real OPTION position on the command line -- into the atomic forms
-  # the dispatch `case` statements below actually match, so option-name
-  # equality checks cannot be bypassed by an equivalent flag SPELLING.
-  # Without this, `-am`, `-m"foo"` (shellwords already glued this to
-  # `-mfoo`), `--message=foo` and `--body-file=f` all sail past a scanner
-  # that only matches `-m`, `--message`, `-F`, `--body-file` etc. as whole
-  # tokens.
+  # in real OPTION position on the command line, and NEVER a `--name=value`
+  # token (the caller intercepts and resolves those itself, atomically,
+  # before ever reaching here -- see the call sites below) -- into the
+  # atomic forms the dispatch `case` statements below actually match, so
+  # option-name equality checks cannot be bypassed by an equivalent flag
+  # SPELLING. Without this, `-am` and `-m"foo"` (shellwords already glued
+  # this to `-mfoo`) sail past a scanner that only matches `-m`, `-F` etc.
+  # as whole tokens.
   #
   # CRITICAL correctness rule, and the reason this function is called on
   # ONE token at a time from inside the dispatch loop below rather than
@@ -130,9 +142,15 @@ expand_one_token() {
   # named inside the message text. A value, once claimed, is DATA, not
   # syntax, and must be taken verbatim -- see the call sites below, which
   # only ever call this on a token being read fresh (never on the token
-  # immediately following a value-taking flag).
+  # immediately following a value-taking flag, and never on a --name=value
+  # token's value half -- that pairing is atomic and is resolved entirely
+  # at the call site, one case-arm per recognized `name`, so an
+  # UNRECOGNIZED --name's value can never leak out and be re-dispatched by
+  # this function's generic per-character walk as if it were an
+  # independent flag of its own).
   #
-  # $1: the raw token to expand (must be in real, unclaimed option position).
+  # $1: the raw token to expand (must be in real, unclaimed option
+  #     position, and must not be a --name=value token).
   # $2: nameref to the array to fill with this one token's expansion.
   # $3: string of short-option letters (no dashes) that take a value in
   #     the current command context, e.g. "mF" for git or "tbFn" for gh.
@@ -141,19 +159,9 @@ expand_one_token() {
   local value_letters="$3"
   _out=()
 
-  local name value rest i ch
+  local rest i ch
 
   case "$tok" in
-    --*=*)
-      # --name=value -> two logical tokens: --name, value. Only the
-      # FIRST "=" is the separator; a value containing "=" survives
-      # intact (e.g. --body="a=b" -> --body, a=b). The value half is
-      # never re-expanded -- it is simply the second array element,
-      # already final.
-      name="${tok%%=*}"
-      value="${tok#*=}"
-      _out+=("$name" "$value")
-      ;;
     -[!-]?*)
       # A single-dash token with 2+ characters after the dash: either a
       # clustered run of short options (-am) or a short option glued
@@ -261,86 +269,137 @@ for boundary in "${boundaries[@]}"; do
       # treats as value-taking; see expand_one_token for why that is
       # sufficient (it only needs to know which letters end a cluster).
       while [ "$i" -le "$seg_end" ]; do
-        expand_one_token "${words[$i]}" expanded "mF"
-        j=0
-        while [ "$j" -lt "${#expanded[@]}" ]; do
-          etok="${expanded[$j]}"
-          case "$etok" in
-            -m | --message)
-              if [ "$((j + 1))" -lt "${#expanded[@]}" ]; then
-                messages+=("${expanded[$((j + 1))]}")
-                j=$((j + 2))
-              else
-                i=$((i + 1))
-                messages+=("${words[$i]:-}")
-                j=$((j + 1))
-              fi
-              ;;
-            -F | --file)
-              if [ "$((j + 1))" -lt "${#expanded[@]}" ]; then
-                messages+=("$(read_file_or_literal "${expanded[$((j + 1))]}")")
-                j=$((j + 2))
-              else
-                i=$((i + 1))
-                messages+=("$(read_file_or_literal "${words[$i]:-}")")
-                j=$((j + 1))
-              fi
-              ;;
-            --no-verify)
-              no_verify_seen=1
-              j=$((j + 1))
-              ;;
-            -n)
-              # Only a --no-verify synonym on commit/merge/push/tag (enforcement.md
-              # section 5); on other git subcommands -n has other meanings, so this
-              # branch is only reached when subcommand is one of those four anyway
-              # because that is what hooks.json's `if` pre-filter already scoped us
-              # to -- still gate explicitly for defense in depth.
-              case "$subcommand" in
-                commit | merge | push | tag) no_verify_seen=1 ;;
+        tok="${words[$i]}"
+        case "$tok" in
+          --*=*)
+            # A --name=value token is an atomic (name, value) PAIR on the
+            # real command line -- the value can NEVER be re-examined as a
+            # token in its own right, regardless of whether `name` happens
+            # to be a flag this guard tracks. Deciding that HERE, before
+            # any per-element walk, is what closes the bypass where an
+            # unrecognized --name (e.g. --label=-b) split off a value that
+            # merely LOOKED like a real flag spelling (-b) and then got
+            # independently re-dispatched as one by a generic per-element
+            # loop -- which went on to swallow whatever the actual next
+            # real flag's value was (see the guard.sh header comment /
+            # commit history for the concrete `gh pr create --label=-b -b
+            # "<contaminated>"` bypass this fixes). Every branch below
+            # consumes the value; the `*)` branch consumes it too, by
+            # simply discarding it -- it is never left for anything else
+            # to look at.
+            name="${tok%%=*}"
+            value="${tok#*=}"
+            case "$name" in
+              --message) messages+=("$value") ;;
+              --file) messages+=("$(read_file_or_literal "$value")") ;;
+              --no-verify)
+                case "$subcommand" in
+                  commit | merge | push | tag) no_verify_seen=1 ;;
+                esac
+                ;;
+              *) : ;; # not a flag this guard tracks -- value discarded, never re-examined
+            esac
+            ;;
+          *)
+            expand_one_token "$tok" expanded "mF"
+            j=0
+            while [ "$j" -lt "${#expanded[@]}" ]; do
+              etok="${expanded[$j]}"
+              case "$etok" in
+                -m | --message)
+                  if [ "$((j + 1))" -lt "${#expanded[@]}" ]; then
+                    messages+=("${expanded[$((j + 1))]}")
+                    j=$((j + 2))
+                  else
+                    i=$((i + 1))
+                    messages+=("${words[$i]:-}")
+                    j=$((j + 1))
+                  fi
+                  ;;
+                -F | --file)
+                  if [ "$((j + 1))" -lt "${#expanded[@]}" ]; then
+                    messages+=("$(read_file_or_literal "${expanded[$((j + 1))]}")")
+                    j=$((j + 2))
+                  else
+                    i=$((i + 1))
+                    messages+=("$(read_file_or_literal "${words[$i]:-}")")
+                    j=$((j + 1))
+                  fi
+                  ;;
+                --no-verify)
+                  no_verify_seen=1
+                  j=$((j + 1))
+                  ;;
+                -n)
+                  # Only a --no-verify synonym on commit/merge/push/tag (enforcement.md
+                  # section 5); on other git subcommands -n has other meanings, so this
+                  # branch is only reached when subcommand is one of those four anyway
+                  # because that is what hooks.json's `if` pre-filter already scoped us
+                  # to -- still gate explicitly for defense in depth.
+                  case "$subcommand" in
+                    commit | merge | push | tag) no_verify_seen=1 ;;
+                  esac
+                  j=$((j + 1))
+                  ;;
+                *)
+                  j=$((j + 1))
+                  ;;
               esac
-              j=$((j + 1))
-              ;;
-            *)
-              j=$((j + 1))
-              ;;
-          esac
-        done
+            done
+            ;;
+        esac
         i=$((i + 1))
       done
       ;;
     gh)
       while [ "$i" -le "$seg_end" ]; do
-        expand_one_token "${words[$i]}" expanded "tbFn"
-        j=0
-        while [ "$j" -lt "${#expanded[@]}" ]; do
-          etok="${expanded[$j]}"
-          case "$etok" in
-            -t | --title | -b | --body | -n | --notes)
-              if [ "$((j + 1))" -lt "${#expanded[@]}" ]; then
-                messages+=("${expanded[$((j + 1))]}")
-                j=$((j + 2))
-              else
-                i=$((i + 1))
-                messages+=("${words[$i]:-}")
-                j=$((j + 1))
-              fi
-              ;;
-            -F | --body-file | --notes-file)
-              if [ "$((j + 1))" -lt "${#expanded[@]}" ]; then
-                messages+=("$(read_file_or_literal "${expanded[$((j + 1))]}")")
-                j=$((j + 2))
-              else
-                i=$((i + 1))
-                messages+=("$(read_file_or_literal "${words[$i]:-}")")
-                j=$((j + 1))
-              fi
-              ;;
-            *)
-              j=$((j + 1))
-              ;;
-          esac
-        done
+        tok="${words[$i]}"
+        case "$tok" in
+          --*=*)
+            # See the git branch above for why this pairing must be
+            # resolved atomically, before any per-element walk can see the
+            # value half on its own.
+            name="${tok%%=*}"
+            value="${tok#*=}"
+            case "$name" in
+              --title | --body | --notes) messages+=("$value") ;;
+              --body-file | --notes-file) messages+=("$(read_file_or_literal "$value")") ;;
+              *) : ;; # not a flag this guard tracks -- value discarded, never re-examined
+            esac
+            ;;
+          *)
+            expand_one_token "$tok" expanded "tbFn"
+            j=0
+            while [ "$j" -lt "${#expanded[@]}" ]; do
+              etok="${expanded[$j]}"
+              case "$etok" in
+                -t | --title | -b | --body | -n | --notes)
+                  if [ "$((j + 1))" -lt "${#expanded[@]}" ]; then
+                    messages+=("${expanded[$((j + 1))]}")
+                    j=$((j + 2))
+                  else
+                    i=$((i + 1))
+                    messages+=("${words[$i]:-}")
+                    j=$((j + 1))
+                  fi
+                  ;;
+                -F | --body-file | --notes-file)
+                  if [ "$((j + 1))" -lt "${#expanded[@]}" ]; then
+                    messages+=("$(read_file_or_literal "${expanded[$((j + 1))]}")")
+                    j=$((j + 2))
+                  else
+                    i=$((i + 1))
+                    messages+=("$(read_file_or_literal "${words[$i]:-}")")
+                    j=$((j + 1))
+                  fi
+                  ;;
+                *)
+                  j=$((j + 1))
+                  ;;
+              esac
+            done
+            ;;
+        esac
         i=$((i + 1))
       done
       ;;
