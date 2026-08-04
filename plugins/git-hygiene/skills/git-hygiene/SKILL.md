@@ -128,7 +128,7 @@ nothing that was not true of the diff.
 Attribution audit, over every commit on the current branch:
 
 ```bash
-git log --format='%H%n%B' | plugins/git-hygiene/scripts/strip-attribution.sh --check \
+git log --format='%H%n%B' | "${CLAUDE_PLUGIN_ROOT}"/scripts/strip-attribution.sh --check \
   || echo "found: see stderr for matched commits"
 ```
 

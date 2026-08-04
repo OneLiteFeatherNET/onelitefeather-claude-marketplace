@@ -170,7 +170,7 @@ sub resolve_dashes {
     # happens to special-case -- is checked for its match position via
     # $-[0] and routed through the shared line-start guard below.
     $line =~ s{(\x{0020})?(\x{2014})(\x{0020})?}{
-        my $at_start = ($-[0] == 0);
+        my $at_start = _at_reparse_start($line, $-[0]);
         _dash_replacement('EM DASH', 'U+2014', $1, $2, $3,
             1, # always eligible, regardless of language
             $at_start,
@@ -183,14 +183,14 @@ sub resolve_dashes {
     # rather than a separate first pass (which is what let U+2014 slip
     # through the guard before this fix).
     $line =~ s{(\x{0020})?(\x{2015})(\x{0020})?}{
-        my $at_start = ($-[0] == 0);
+        my $at_start = _at_reparse_start($line, $-[0]);
         _dash_replacement('HORIZONTAL BAR', 'U+2015', $1, $2, $3,
             1, $at_start, $budget_ref, $findings_ref, $filename, $lineno);
     }gex;
 
     # U+2013 EN DASH.
     $line =~ s{(\x{0020})?(\x{2013})(\x{0020})?}{
-        my $at_start = ($-[0] == 0);
+        my $at_start = _at_reparse_start($line, $-[0]);
         my ($sb, $ch, $sa) = ($1, $2, $3);
         my $spaced = (defined $sb && defined $sa) ? 1 : 0;
         if ($spaced && $lang eq 'de') {
@@ -207,16 +207,37 @@ sub resolve_dashes {
     return $line;
 }
 
-# Never leave a bare "-" immediately followed by a space at column 0 -- that
-# reparses as CommonMark list syntax that did not exist in the source
-# (typography.md section 8, edge case 1). Applied to the output of any dash
-# conversion (or the bullet conversion, see process_prose_line) that could
-# land at line-start, not just the character that happened to be checked
-# first during development.
+# A dash/bullet's match position is "list-marker-shaped" when it starts at
+# column 0-3 AND every character on the line before that point is a plain
+# space -- CommonMark treats up to three leading spaces as still being
+# list-marker position, not just column 0 exactly. (Four or more leading
+# spaces is a different, already-protected zone: an indented code block,
+# handled entirely separately by process_file's block-level zone state
+# machine, which never even calls into per-line prose processing for such
+# lines -- see ZONE_INDENT.) $pos is the raw $-[0] of the triggering match,
+# which for the dash regexes above may itself point at the optionally-
+# captured leading space rather than at the dash character.
+sub _at_reparse_start {
+    my ($str, $pos) = @_;
+    return 0 if $pos > 3;
+    return substr($str, 0, $pos) =~ /^\x{0020}*$/;
+}
+
+# Never leave a bare "-" immediately followed by a space at a list-marker-
+# shaped position (see _at_reparse_start) -- that reparses as CommonMark
+# list syntax that did not exist in the source (typography.md section 8,
+# edge case 1). Applied to the output of any dash conversion (or the
+# bullet conversion, see process_prose_line) that could land at line-start,
+# not just the character that happened to be checked first during
+# development. The optional leading space in the pattern accounts for the
+# dash regexes' own optionally-captured space immediately before the dash:
+# when 1-3 spaces precede the dash on the line, only the LAST of them is
+# part of this match/replacement (the rest are untouched line prefix), so
+# $result itself may start with zero or one space before the hyphen.
 sub _apply_line_start_guard {
     my ($result, $at_line_start) = @_;
-    if ($at_line_start && $result =~ /^-(\x{0020})/) {
-        $result =~ s/^-(\x{0020})/\\-$1/;
+    if ($at_line_start && $result =~ /^(\x{0020}?)-(\x{0020})/) {
+        $result =~ s/^(\x{0020}?)-(\x{0020})/$1\\-$2/;
     }
     return $result;
 }
@@ -287,7 +308,7 @@ sub process_prose_line {
     $masked =~ s/($RE_SYMBOLS)/
         my $matched = $1;
         my $repl    = $SYMBOLS{$matched};
-        if ($matched eq "\x{2022}" && $-[0] == 0
+        if ($matched eq "\x{2022}" && _at_reparse_start($masked, $-[0])
             && substr($masked, $+[0], 1) eq "\x{0020}") {
             $repl = "\\-";
         }
@@ -314,13 +335,20 @@ sub scan_prose_line {
     while ($masked =~ /$RE_SIMPLE_DASH/g) {
         push @$findings_ref, "$filename:$lineno: dash-family character -- would become '-'";
     }
-    while ($masked =~ /(\x{2018}|\x{2019}|\x{201C}|\x{201D}|\x{201A})/g) {
+    # U+201E is included here unconditionally, in German mode too. mask_line
+    # (called above, identically in both rewrite and check mode) already
+    # hides a genuinely INTACT German pair (U+201E ... U+201C) behind a
+    # sentinel before this scan ever runs, so any U+201E still visible in
+    # $masked at this point is -- in either language -- an unpaired/dangling
+    # low quote that rewrite mode's unconditional %LOW_QUOTES substitution
+    # (see process_prose_line) would convert regardless of --lang. A
+    # previous version of this check exempted ALL U+201E whenever
+    # --lang=de, independent of whether it was actually paired, which made
+    # `--check --lang=de` silently report clean on exactly the input
+    # rewrite mode would still change -- a real false negative, since both
+    # guard.sh and commit-msg only ever call --check.
+    while ($masked =~ /(\x{2018}|\x{2019}|\x{201C}|\x{201D}|\x{201A}|\x{201E})/g) {
         push @$findings_ref, "$filename:$lineno: typographic quote -- would become a straight quote";
-    }
-    if ($lang ne 'de') {
-        while ($masked =~ /\x{201E}/g) {
-            push @$findings_ref, "$filename:$lineno: typographic quote -- would become a straight quote";
-        }
     }
     while ($masked =~ /$RE_ELLIPSIS/g) {
         push @$findings_ref, "$filename:$lineno: ellipsis character -- would become '...'";

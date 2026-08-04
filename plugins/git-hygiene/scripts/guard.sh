@@ -56,6 +56,18 @@ if ! command -v jq >/dev/null 2>&1 || ! command -v perl >/dev/null 2>&1; then
   exit 0
 fi
 
+# Same fail-open treatment for the sibling script the deny check delegates
+# to. Without this precheck, a missing or non-executable strip-attribution.sh
+# makes `"$strip_attribution" --check` exit 126/127 -- indistinguishable, to
+# a bare `if ! ...`, from exit 1 ("attribution found") -- so a broken install
+# would silently deny EVERY commit, including completely clean ones, with
+# the misleading "contains an AI tool attribution trailer" message. A broken
+# dependency must fail open here exactly like the jq/perl case above.
+if [ ! -x "$strip_attribution" ]; then
+  echo "git-hygiene guard.sh: strip-attribution.sh not found or not executable at ${strip_attribution}; skipping checks for this call." >&2
+  exit 0
+fi
+
 raw_input="$(cat)"
 
 command_line="$(printf '%s' "$raw_input" | jq -r '.tool_input.command // empty' 2>/dev/null || true)"
@@ -89,6 +101,71 @@ read_file_or_literal() {
   else
     printf '%s' "$val"
   fi
+}
+
+normalize_tokens() {
+  # Normalize one segment's argument tokens (i.e. everything after the
+  # `git`/`gh` subcommand) into the atomic forms the dispatch `case`
+  # statements below actually match, so option-name equality checks cannot
+  # be bypassed by an equivalent flag SPELLING. Without this, `-am`,
+  # `-m"foo"` (shellwords already glued this to `-mfoo`), `--message=foo`
+  # and `--body-file=f` all sail past a scanner that only matches `-m`,
+  # `--message`, `-F`, `--body-file` etc. as whole tokens -- see the
+  # bypass this closes, documented at the guard.sh call site.
+  #
+  # $1: nameref to the source token array (args only, no base/subcommand).
+  # $2: nameref to the array to fill with normalized tokens.
+  # $3: string of short-option letters (no dashes) that take a value in
+  #     the current command context, e.g. "mF" for git or "tbFn" for gh.
+  local -n _src="$1"
+  local -n _out="$2"
+  local value_letters="$3"
+  _out=()
+
+  local tok name value rest i ch
+
+  for tok in "${_src[@]}"; do
+    case "$tok" in
+      --*=*)
+        # --name=value -> two logical tokens: --name, value. Only the
+        # FIRST "=" is the separator; a value containing "=" survives
+        # intact (e.g. --body="a=b" -> --body, a=b).
+        name="${tok%%=*}"
+        value="${tok#*=}"
+        _out+=("$name" "$value")
+        ;;
+      -[!-]?*)
+        # A single-dash token with 2+ characters after the dash: either a
+        # clustered run of short options (-am) or a short option glued
+        # directly to its value with no space (-m"foo" -> already -mfoo
+        # after shellwords quote-removal). Walk it letter by letter,
+        # POSIX-getopt style: a boolean letter just expands to its own
+        # `-x` token; a value-taking letter consumes everything still
+        # left in THIS token as its glued value (nothing, if it was the
+        # last character -- in that case the value is the NEXT real
+        # token in the stream, which the unmodified `*)` branch below
+        # will pass through untouched on the following loop iteration),
+        # and expansion of this token stops there, matching how real
+        # getopt parsing never treats characters after a value-taking
+        # short option as further flags.
+        rest="${tok:1}"
+        for ((i = 0; i < ${#rest}; i++)); do
+          ch="${rest:$i:1}"
+          if [ "${value_letters/$ch/}" != "$value_letters" ]; then
+            _out+=("-$ch")
+            if [ "$((i + 1))" -lt "${#rest}" ]; then
+              _out+=("${rest:$((i + 1))}")
+            fi
+            break
+          fi
+          _out+=("-$ch")
+        done
+        ;;
+      *)
+        _out+=("$tok")
+        ;;
+    esac
+  done
 }
 
 # Split the token stream into per-invocation segments at unquoted shell
@@ -147,19 +224,33 @@ for boundary in "${boundaries[@]}"; do
   messages=()
   no_verify_seen=0
 
+  # Slice out just this invocation's argument tokens (everything after
+  # `git`/`gh` <subcommand>) so normalize_tokens sees only real option/
+  # value tokens, never the base command or an adjacent segment's tokens.
+  arg_start=$((base_idx + 2))
+  if [ "$arg_start" -le "$seg_end" ]; then
+    args=("${words[@]:$arg_start:$((seg_end - arg_start + 1))}")
+  else
+    args=()
+  fi
+
   case "$base" in
     git)
-      i=$((base_idx + 2))
-      while [ "$i" -le "$seg_end" ]; do
-        tok="${words[$i]}"
+      # -m/-F are the only short options this guard's dispatch below
+      # treats as value-taking; see normalize_tokens for why that is
+      # sufficient (it only needs to know which letters end a cluster).
+      normalize_tokens args norm_words "mF"
+      i=0
+      while [ "$i" -lt "${#norm_words[@]}" ]; do
+        tok="${norm_words[$i]}"
         case "$tok" in
           -m | --message)
             i=$((i + 1))
-            messages+=("${words[$i]:-}")
+            messages+=("${norm_words[$i]:-}")
             ;;
           -F | --file)
             i=$((i + 1))
-            messages+=("$(read_file_or_literal "${words[$i]:-}")")
+            messages+=("$(read_file_or_literal "${norm_words[$i]:-}")")
             ;;
           --no-verify)
             no_verify_seen=1
@@ -179,17 +270,18 @@ for boundary in "${boundaries[@]}"; do
       done
       ;;
     gh)
-      i=$((base_idx + 2))
-      while [ "$i" -le "$seg_end" ]; do
-        tok="${words[$i]}"
+      normalize_tokens args norm_words "tbFn"
+      i=0
+      while [ "$i" -lt "${#norm_words[@]}" ]; do
+        tok="${norm_words[$i]}"
         case "$tok" in
           -t | --title | -b | --body | -n | --notes)
             i=$((i + 1))
-            messages+=("${words[$i]:-}")
+            messages+=("${norm_words[$i]:-}")
             ;;
           -F | --body-file | --notes-file)
             i=$((i + 1))
-            messages+=("$(read_file_or_literal "${words[$i]:-}")")
+            messages+=("$(read_file_or_literal "${norm_words[$i]:-}")")
             ;;
         esac
         i=$((i + 1))

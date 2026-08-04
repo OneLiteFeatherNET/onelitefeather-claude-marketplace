@@ -62,7 +62,7 @@ concrete shape `hooks/hooks.json` (Task 8) must match byte-for-byte in structure
     "PreToolUse": [
       {
         "matcher": "Bash",
-        "if": "Bash(git commit:*) || Bash(git merge:*) || Bash(git push:*) || Bash(git tag:*) || Bash(gh pr create:*) || Bash(gh pr edit:*) || Bash(gh release create:*) || Bash(gh release edit:*)",
+        "if": "Bash(git commit:*) || Bash(git merge:*) || Bash(git push:*) || Bash(git tag:*) || Bash(gh pr create:*) || Bash(gh pr edit:*) || Bash(gh pr comment:*) || Bash(gh pr review:*) || Bash(gh issue create:*) || Bash(gh issue comment:*) || Bash(gh release create:*) || Bash(gh release edit:*)",
         "hooks": [
           {
             "type": "command",
@@ -223,10 +223,10 @@ commit_bodies=$(gh pr view "$PR_NUMBER" --json commits --jq '.commits[].messageB
 
 status=0
 printf '%s\n' "$title" "$body" "$commit_bodies" \
-  | plugins/git-hygiene/scripts/strip-attribution.sh --check || status=1
+  | "${CLAUDE_PLUGIN_ROOT}"/scripts/strip-attribution.sh --check || status=1
 
 printf '%s\n' "$title" "$body" \
-  | perl plugins/git-hygiene/scripts/detypo.pl --check || status=1
+  | perl "${CLAUDE_PLUGIN_ROOT}"/scripts/detypo.pl --check || status=1
 
 exit "$status"
 ```
@@ -261,14 +261,14 @@ not active in this clone — expected for every fresh clone per §7, not a fault
 **How many existing commits on the current branch carry attribution?**
 
 ```bash
-git log --format='%H%n%B' | plugins/git-hygiene/scripts/strip-attribution.sh --check \
+git log --format='%H%n%B' | "${CLAUDE_PLUGIN_ROOT}"/scripts/strip-attribution.sh --check \
   || echo "found: see stderr for matched commits"
 ```
 
 **How many em dashes and other flagged codepoints exist outside protected zones?**
 
 ```bash
-perl plugins/git-hygiene/scripts/detypo.pl --check $(git ls-files)
+perl "${CLAUDE_PLUGIN_ROOT}"/scripts/detypo.pl --check $(git ls-files)
 ```
 
 None of the three audits above modifies history, working-tree files, or git config. Remediation —

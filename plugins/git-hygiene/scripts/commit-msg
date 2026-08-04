@@ -85,15 +85,40 @@ stripped="$("$strip_attribution" "$msg_file")"
 printf '%s' "$stripped" > "$msg_file"
 
 # --- Step 2: typography check on the stripped message, skipping "#"
-# comment lines, FAILING the commit rather than rewriting prose. ---
+# comment lines and any commit.verbose scissors section, FAILING the
+# commit rather than rewriting prose. ---
 tmp_check="$(mktemp)"
 trap 'rm -f "$tmp_check"' EXIT
+
+# commit.verbose (a common, non-exotic git setting) makes git append the
+# raw diff below a scissors line ("# ---... >8 ...---") when the message
+# is edited interactively. Everything below that marker is NOT "#"-comment
+# -prefixed -- git slices the whole section off wholesale when finalizing
+# the message, it does not comment it out line-by-line -- so without this
+# truncation the typography scan below would read diff content as if it
+# were the authored message and could false-block a purely-ASCII commit
+# message purely because of characters that only appear in the diff.
+# Respect a custom core.commentChar if one is configured; "auto" is git's
+# own not-a-literal-character sentinel (git picks a char absent from the
+# message body at commit time), which this hook cannot resolve without
+# reimplementing that picking logic, so it falls back to the default '#'
+# rather than skipping scissors detection altogether.
+comment_char="$(git config --get core.commentChar 2>/dev/null || true)"
+case "$comment_char" in
+  '' | auto) comment_char='#' ;;
+esac
+comment_char_re="$(printf '%s' "$comment_char" | sed 's/[.[\*^$/]/\\&/g')"
+scissors_re="^${comment_char_re}[[:space:]]*-+[[:space:]]*>8[[:space:]]*-+[[:space:]]*\$"
 
 # Blank out (not remove) "#" comment lines so every other line keeps its
 # original line number -- detypo.pl numbers lines within $tmp_check, and a
 # grep -v would shift every line after a removed comment line upward,
 # making the reported line number point at the wrong line in $msg_file.
-sed 's/^#.*//' -- "$msg_file" > "$tmp_check"
+# The scissors line and everything after it is dropped entirely first (not
+# blanked): none of it is authored message text, so there is no line
+# number worth preserving for it.
+awk -v re="$scissors_re" -- '$0 ~ re { exit } { print }' "$msg_file" \
+  | sed "s/^${comment_char_re}.*//" > "$tmp_check"
 
 if ! findings="$(perl "$detypo" --check "$tmp_check" 2>&1)"; then
   echo "git-hygiene commit-msg hook: typography findings block this commit (attribution, if any, was already stripped above; the message text itself was left untouched):" >&2
