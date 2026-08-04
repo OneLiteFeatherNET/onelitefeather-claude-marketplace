@@ -6,7 +6,7 @@ OneLiteFeather's Claude Code marketplace — the team's developer framework.
 
 | Plugin | Purpose |
 |--------|---------|
-| **framework** | Team framework: knowledge graph in our Outline "Vault" collection (research material, project knowledge, targeted context recall instead of dumping whole docs), plus `superpowers` (from `claude-plugins-official`) for shared team workflows. |
+| **framework** | Team framework: knowledge graph in our Outline "Vault" collection (research material, project knowledge, targeted context recall instead of dumping whole docs), plus `superpowers` (from `claude-plugins-official`) for shared team workflows and `git-hygiene` for commit/PR hygiene. |
 | **framework-code-navigation** | Optional companion to `framework`: Serena (LSP symbol search) for JVM/Java-Kotlin projects, so the agent navigates code on purpose instead of spamming grep/find/read. Install only on projects where it fits. |
 | **minestom-knowledge** | Accurate knowledge of our internal Minestom libraries (Cyano, Aves, Xerus, Guira, Pica, Coris) and tooling (Gradle conventions, BOM hierarchy) — too internal/new to be in general training data. No MCP servers, pure skill content. |
 | **release-engineering** | OneLiteFeather's CI/CD standard: Release Please, the central Renovate preset plus general Renovate config help, and the reusable GitHub Actions workflows (build, publish, Docker, Gradle specifics). No MCP servers, pure skill content. |
@@ -48,6 +48,15 @@ directly as part of this framework instead of as separate plugins.
 # Clean commits and PRs: no tool branding, no session URLs, ASCII typography
 /plugin install git-hygiene@onelitefeather-claude-marketplace
 ```
+
+`git-hygiene` is now bundled as a `framework` dependency, so installing
+`framework` fresh installs and enables it automatically — the explicit
+`/plugin install git-hygiene@...` step above is only needed to install it
+standalone. If you *already* have `framework` installed, you will **not**
+get `git-hygiene` automatically: auto-update is off by default for
+non-Anthropic marketplaces. Either enable auto-update for this marketplace
+in `/plugin`, or run `claude plugin update framework` followed by
+`/reload-plugins`.
 
 Run `/framework:setup` once afterwards to create the "Vault" collection and
 its five categories.

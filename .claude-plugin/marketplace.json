@@ -8,7 +8,7 @@
       "name": "framework",
       "displayName": "Framework",
       "source": "./plugins/framework",
-      "description": "OneLiteFeather's developer framework: bundles standardized tools for how the team builds software, including a knowledge graph in Outline's \"Vault\" collection.",
+      "description": "OneLiteFeather's developer framework: bundles standardized tools for how the team builds software, including a knowledge graph in Outline's \"Vault\" collection and git hygiene for commit and PR messages.",
       "category": "productivity",
       "keywords": ["outline", "wiki", "knowledge-graph", "vault", "context", "retrieval"]
     },
