@@ -62,7 +62,7 @@ concrete shape `hooks/hooks.json` (Task 8) must match byte-for-byte in structure
     "PreToolUse": [
       {
         "matcher": "Bash",
-        "if": "Bash(git commit:*) || Bash(git merge:*) || Bash(git push:*) || Bash(git tag:*) || Bash(gh pr create:*) || Bash(gh pr edit:*) || Bash(gh pr comment:*) || Bash(gh pr review:*) || Bash(gh issue create:*) || Bash(gh issue comment:*) || Bash(gh release create:*) || Bash(gh release edit:*)",
+        "if": "Bash(git commit:*) || Bash(git merge:*) || Bash(git push:*) || Bash(git tag:*) || Bash(gh pr create:*) || Bash(gh pr edit:*) || Bash(gh pr comment:*) || Bash(gh pr review:*) || Bash(gh pr merge:*) || Bash(gh issue create:*) || Bash(gh issue comment:*) || Bash(gh release create:*) || Bash(gh release edit:*)",
         "hooks": [
           {
             "type": "command",
