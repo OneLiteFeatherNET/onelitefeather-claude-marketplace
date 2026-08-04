@@ -51,16 +51,36 @@ and no `if` fires on *every* Bash invocation in the session, including ones that
 with git or GitHub — `ls`, `npm test`, `curl`, all of it.
 
 `if` is a second, optional filter evaluated after the matcher, written against the same
-tool-name-plus-pattern syntax used in `permissions.allow`/`deny`:
+tool-name-plus-pattern syntax used in `permissions.allow`/`deny`. This is also the full,
+concrete shape `hooks/hooks.json` (Task 8) must match byte-for-byte in structure — `matcher` and
+`if` as sibling string keys on the entry, `hooks` as an array of `{"type": "command", "command":
+...}` objects:
 
 ```json
-"if": "Bash(git commit:*) || Bash(git merge:*) || Bash(git push:*) || Bash(git tag:*) || Bash(gh pr create:*) || Bash(gh pr edit:*) || Bash(gh release create:*) || Bash(gh release edit:*)"
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "if": "Bash(git commit:*) || Bash(git merge:*) || Bash(git push:*) || Bash(git tag:*) || Bash(gh pr create:*) || Bash(gh pr edit:*) || Bash(gh release create:*) || Bash(gh release edit:*)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/scripts/guard.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
 ```
 
-Only Bash invocations whose command line matches one of these prefixes actually invoke
+Only Bash invocations whose command line matches one of the `if` prefixes actually invoke
 `guard.sh`. This is not just an optimization: without it, every unrelated Bash call pays the cost of
 spawning the guard script, and the guard's own command-parsing logic has to defensively ignore
-input it was never meant to see.
+input it was never meant to see. `${CLAUDE_PLUGIN_ROOT}` is the plugin's own installed root,
+substituted by Claude Code at hook-invocation time — it must be quoted, since the root path can
+contain spaces.
 
 ## 3. Hook merging across user, project and plugin scope
 
