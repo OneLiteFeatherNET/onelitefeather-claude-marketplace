@@ -130,7 +130,15 @@ sub mask_line {
     # German quote pairs: protect only the two marks, not the content
     # between them, so the content itself still gets typographic cleanup.
     if ($lang eq 'de') {
+        # Double pair: U+201E opens, U+201C closes (e.g. „Hallo“).
         $line =~ s{(\x{201E})([^\x{201E}\x{201C}\x{F8FF}]*)(\x{201C})}{
+            $stash_and_mark->($1) . $2 . $stash_and_mark->($3)
+        }ge;
+        # Single pair: U+201A opens, U+2018 closes (e.g. ‚klein'). The
+        # typography.md codepoint table calls this out explicitly --
+        # U+201A gets "Same protection as U+201E" -- so it needs the same
+        # intact-pair masking, not just the double-quote pair.
+        $line =~ s{(\x{201A})([^\x{201A}\x{2018}\x{F8FF}]*)(\x{2018})}{
             $stash_and_mark->($1) . $2 . $stash_and_mark->($3)
         }ge;
     }
@@ -155,29 +163,34 @@ sub resolve_dashes {
     my ($line, $lang, $budget_ref, $findings_ref, $filename, $lineno) = @_;
 
     # U+2014 EM DASH -- always corrected, in German too (never an exception).
+    # This is the exact worked example in typography.md section 8, edge case
+    # 1: a line-opening "— And another thing." must never become a bare
+    # "- And another thing." (that reparses as a Markdown list marker), so
+    # every occurrence -- not just the ones some other codepoint's regex
+    # happens to special-case -- is checked for its match position via
+    # $-[0] and routed through the shared line-start guard below.
     $line =~ s{(\x{0020})?(\x{2014})(\x{0020})?}{
+        my $at_start = ($-[0] == 0);
         _dash_replacement('EM DASH', 'U+2014', $1, $2, $3,
             1, # always eligible, regardless of language
+            $at_start,
             $budget_ref, $findings_ref, $filename, $lineno);
     }gex;
 
     # U+2015 HORIZONTAL BAR -- like em dash when it opens a line, like en
-    # dash otherwise. Only the line-start case is distinguished here.
-    $line =~ s{^(\x{2015})(\x{0020})?}{
-        my $out = _dash_replacement('HORIZONTAL BAR', 'U+2015', undef, $1, $2,
-            1, $budget_ref, $findings_ref, $filename, $lineno);
-        # Edge case: never leave a bare "- " at column 0 -- that reparses as
-        # a Markdown list marker. Escape the hyphen instead when it happened.
-        $out =~ s/^-(\x{0020})/\\-$1/;
-        $out;
-    }gex;
+    # dash otherwise; here both routes are budget-gated the same way as the
+    # em dash, and the line-start guard is applied uniformly via $at_start
+    # rather than a separate first pass (which is what let U+2014 slip
+    # through the guard before this fix).
     $line =~ s{(\x{0020})?(\x{2015})(\x{0020})?}{
+        my $at_start = ($-[0] == 0);
         _dash_replacement('HORIZONTAL BAR', 'U+2015', $1, $2, $3,
-            1, $budget_ref, $findings_ref, $filename, $lineno);
+            1, $at_start, $budget_ref, $findings_ref, $filename, $lineno);
     }gex;
 
     # U+2013 EN DASH.
     $line =~ s{(\x{0020})?(\x{2013})(\x{0020})?}{
+        my $at_start = ($-[0] == 0);
         my ($sb, $ch, $sa) = ($1, $2, $3);
         my $spaced = (defined $sb && defined $sa) ? 1 : 0;
         if ($spaced && $lang eq 'de') {
@@ -186,6 +199,7 @@ sub resolve_dashes {
         } else {
             _dash_replacement('EN DASH', 'U+2013', $sb, $ch, $sa,
                 $spaced, # only budget-gated when spaced; tight is a direct swap
+                $at_start,
                 $budget_ref, $findings_ref, $filename, $lineno);
         }
     }gex;
@@ -193,9 +207,23 @@ sub resolve_dashes {
     return $line;
 }
 
+# Never leave a bare "-" immediately followed by a space at column 0 -- that
+# reparses as CommonMark list syntax that did not exist in the source
+# (typography.md section 8, edge case 1). Applied to the output of any dash
+# conversion (or the bullet conversion, see process_prose_line) that could
+# land at line-start, not just the character that happened to be checked
+# first during development.
+sub _apply_line_start_guard {
+    my ($result, $at_line_start) = @_;
+    if ($at_line_start && $result =~ /^-(\x{0020})/) {
+        $result =~ s/^-(\x{0020})/\\-$1/;
+    }
+    return $result;
+}
+
 # Shared logic for em dash / horizontal bar / (non-German) spaced en dash.
 sub _dash_replacement {
-    my ($name, $code, $sb, $ch, $sa, $budget_gated,
+    my ($name, $code, $sb, $ch, $sa, $budget_gated, $at_line_start,
         $budget_ref, $findings_ref, $filename, $lineno) = @_;
 
     my $spaced = (defined $sb && defined $sa) ? 1 : 0;
@@ -203,18 +231,20 @@ sub _dash_replacement {
     if ($spaced && $budget_gated) {
         if ($$budget_ref < 1) {
             $$budget_ref++;
-            return ($sb // '') . '-' . ($sa // '');
+            return _apply_line_start_guard(($sb // '') . '-' . ($sa // ''), $at_line_start);
         } else {
             push @$findings_ref,
                 "$filename:$lineno: $code $name -- more than one mechanical"
               . " ' - ' fallback in this paragraph; left as-is, needs"
               . " function-appropriate resolution (or a human/model pass)";
+            # Original character restored, not a hyphen -- no list-marker
+            # risk, so no guard needed on this branch.
             return ($sb // '') . $ch . ($sa // '');
         }
     }
 
     # Tight (unspaced), or not budget-gated: direct 1:1 swap, no budget use.
-    return ($sb // '') . '-' . ($sa // '');
+    return _apply_line_start_guard(($sb // '') . '-' . ($sa // ''), $at_line_start);
 }
 
 # ---------------------------------------------------------------------------
@@ -245,8 +275,24 @@ sub process_prose_line {
     # Ellipsis.
     $masked =~ s/$RE_ELLIPSIS/.../g;
 
-    # Symbols.
-    $masked =~ s/($RE_SYMBOLS)/$SYMBOLS{$1}/ge;
+    # Symbols. U+2022 BULLET is the one entry whose ASCII form ('-') has the
+    # identical line-start Markdown-list-marker reparse risk as the dashes
+    # above (typography.md's own note on this row: "a converted bullet at
+    # line start can itself be misread as a Markdown list marker"), so it
+    # goes through the same guard; the rest of the table never produces a
+    # bare leading '-' and needs no such check. Unlike the dash regexes, the
+    # trailing space after a bullet is not part of the match, so the guard
+    # is checked against the character immediately following the match
+    # (via $+[0]) rather than against the replacement text itself.
+    $masked =~ s/($RE_SYMBOLS)/
+        my $matched = $1;
+        my $repl    = $SYMBOLS{$matched};
+        if ($matched eq "\x{2022}" && $-[0] == 0
+            && substr($masked, $+[0], 1) eq "\x{0020}") {
+            $repl = "\\-";
+        }
+        $repl;
+    /ge;
 
     return unmask_line($masked, $stash);
 }
