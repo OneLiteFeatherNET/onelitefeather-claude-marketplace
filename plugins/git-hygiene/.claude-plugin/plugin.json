@@ -1,0 +1,9 @@
+{
+  "name": "git-hygiene",
+  "displayName": "Git Hygiene",
+  "version": "0.1.0",
+  "description": "Keeps commit messages, branch names, PR titles and bodies, issue comments and release notes free of AI tool branding, session URLs, machine typography and machine phrasing. Ships the attribution settings, a PreToolUse safety net, and an optional commit-msg hook.",
+  "author": { "name": "OneLiteFeather", "url": "https://github.com/OneLiteFeatherNET" },
+  "license": "MIT",
+  "keywords": ["git", "github", "commit-messages", "pull-requests", "attribution", "typography", "conventional-commits"]
+}
