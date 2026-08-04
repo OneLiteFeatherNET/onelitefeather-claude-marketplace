@@ -1,0 +1,138 @@
+#!/usr/bin/env bash
+# commit-msg - opt-in git `commit-msg` hook for git-hygiene.
+#
+# Standard git commit-msg hook contract: git invokes this with the path to
+# the commit-message file as $1 and aborts the commit if it exits non-zero.
+# This hook is never wired up automatically -- it is installed only by
+# `/git-hygiene:setup`, into a repository's local (untracked) `core.hooksPath`,
+# on the user's explicit confirmation. See
+# skills/git-hygiene/references/enforcement.md section 7 for the full
+# opt-in rationale, including why `git commit --no-verify` bypasses this
+# hook entirely -- that is git's own design, not a gap in this script, and
+# is documented there as a known limitation rather than worked around.
+#
+# Behaviour:
+#   1. Strip AI-attribution trailers from the message file IN PLACE,
+#      silently, by delegating to strip-attribution.sh (rewrite mode, run
+#      directly on the message file). This is the one thing this hook is
+#      allowed to rewrite without asking: attribution removal is normally
+#      the settings-block's job (references/attribution.md); this hook is
+#      just a backstop for whatever slips through.
+#   2. Report typography findings (detypo.pl --check) against the
+#      already-stripped message and FAIL the commit (non-zero exit) if any
+#      are found, instead of rewriting the author's prose. An author must
+#      never discover their message was altered behind their back for
+#      typography/phrasing reasons -- see the skill's "Never touch these"
+#      design decision.
+#   3. Lines starting with "#" -- git's own instructional comment lines in
+#      the message file (e.g. "# Please enter the commit message...") --
+#      are skipped by the typography check. (strip-attribution.sh's four
+#      patterns are all anchored past leading whitespace only, so a "#"
+#      line can never match them either -- comments survive step 1
+#      untouched for the same structural reason, not a special case here.)
+#      Comment lines are blanked out, not removed, before the typography
+#      check: removing lines would shift every later line's line number in
+#      detypo.pl's output relative to the original message file, pointing
+#      the author at the wrong line. Blanking preserves line count and
+#      position 1:1; a blanked line is empty and detypo.pl never flags it.
+#
+# Locating strip-attribution.sh and detypo.pl: this hook looks first next
+# to itself (works whenever the two scripts are installed alongside it --
+# e.g. this plugin's own tracked plugins/git-hygiene/scripts/ directory),
+# then falls back to $CLAUDE_PLUGIN_ROOT/scripts (set when this hook
+# happens to run inside a Claude Code Bash tool call). If neither
+# resolves, the hook fails loudly rather than silently skipping
+# enforcement -- see resolve_script below.
+
+set -euo pipefail
+
+msg_file="${1:-}"
+
+if [ -z "$msg_file" ] || [ ! -f "$msg_file" ]; then
+  echo "git-hygiene commit-msg hook: no commit message file given (expected \$1 per git's commit-msg contract)." >&2
+  exit 1
+fi
+
+script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
+
+resolve_script() {
+  # $1: script filename to find next to this hook, or under
+  # $CLAUDE_PLUGIN_ROOT/scripts. Prints the resolved path and returns 0, or
+  # returns 1 if neither location has it.
+  local name="$1"
+  if [ -f "${script_dir}/${name}" ]; then
+    printf '%s' "${script_dir}/${name}"
+    return 0
+  fi
+  if [ -n "${CLAUDE_PLUGIN_ROOT:-}" ] && [ -f "${CLAUDE_PLUGIN_ROOT}/scripts/${name}" ]; then
+    printf '%s' "${CLAUDE_PLUGIN_ROOT}/scripts/${name}"
+    return 0
+  fi
+  return 1
+}
+
+strip_attribution="$(resolve_script strip-attribution.sh)" || {
+  echo "git-hygiene commit-msg hook: cannot find strip-attribution.sh (looked next to this hook and under \$CLAUDE_PLUGIN_ROOT/scripts). Commit aborted rather than skipping enforcement silently." >&2
+  exit 1
+}
+detypo="$(resolve_script detypo.pl)" || {
+  echo "git-hygiene commit-msg hook: cannot find detypo.pl (looked next to this hook and under \$CLAUDE_PLUGIN_ROOT/scripts). Commit aborted rather than skipping enforcement silently." >&2
+  exit 1
+}
+
+# --- Step 1: strip attribution trailers in place, silently. ---
+stripped="$("$strip_attribution" "$msg_file")"
+printf '%s' "$stripped" > "$msg_file"
+
+# --- Step 2: typography check on the stripped message, skipping "#"
+# comment lines and any commit.verbose scissors section, FAILING the
+# commit rather than rewriting prose. ---
+tmp_check="$(mktemp)"
+trap 'rm -f "$tmp_check"' EXIT
+
+# commit.verbose (a common, non-exotic git setting) makes git append the
+# raw diff below a scissors line ("# ---... >8 ...---") when the message
+# is edited interactively. Everything below that marker is NOT "#"-comment
+# -prefixed -- git slices the whole section off wholesale when finalizing
+# the message, it does not comment it out line-by-line -- so without this
+# truncation the typography scan below would read diff content as if it
+# were the authored message and could false-block a purely-ASCII commit
+# message purely because of characters that only appear in the diff.
+# Respect a custom core.commentChar if one is configured; "auto" is git's
+# own not-a-literal-character sentinel (git picks a char absent from the
+# message body at commit time), which this hook cannot resolve without
+# reimplementing that picking logic, so it falls back to the default '#'
+# rather than skipping scissors detection altogether.
+comment_char="$(git config --get core.commentChar 2>/dev/null || true)"
+case "$comment_char" in
+  '' | auto) comment_char='#' ;;
+esac
+comment_char_re="$(printf '%s' "$comment_char" | sed 's/[.[\*^$/]/\\&/g')"
+scissors_re="^${comment_char_re}[[:space:]]*-+[[:space:]]*>8[[:space:]]*-+[[:space:]]*\$"
+
+# Blank out (not remove) "#" comment lines so every other line keeps its
+# original line number -- detypo.pl numbers lines within $tmp_check, and a
+# grep -v would shift every line after a removed comment line upward,
+# making the reported line number point at the wrong line in $msg_file.
+# The scissors line and everything after it is dropped entirely first (not
+# blanked): none of it is authored message text, so there is no line
+# number worth preserving for it.
+#
+# The pattern is passed via ENVIRON, not `awk -v re=...`: gawk's `-v`
+# assignment processes backslash escape sequences in its value exactly
+# like a string literal, so a regex-metacharacter core.commentChar (e.g.
+# `*`) that comment_char_re carefully backslash-escaped above would have
+# that backslash silently stripped again by `-v` itself, quietly
+# loosening the match. ENVIRON reads the raw environment string with no
+# such reprocessing.
+RE="$scissors_re" awk -- '$0 ~ ENVIRON["RE"] { exit } { print }' "$msg_file" \
+  | sed "s/^${comment_char_re}.*//" > "$tmp_check"
+
+if ! findings="$(perl "$detypo" --check "$tmp_check" 2>&1)"; then
+  echo "git-hygiene commit-msg hook: typography findings block this commit (attribution, if any, was already stripped above; the message text itself was left untouched):" >&2
+  echo "$findings" >&2
+  echo "Fix the flagged characters by hand and retry, or bypass this opt-in check with 'git commit --no-verify' (see references/enforcement.md section 7 -- this hook is a courtesy check, not an enforcement boundary)." >&2
+  exit 1
+fi
+
+exit 0

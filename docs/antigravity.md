@@ -20,6 +20,10 @@ not just best-effort.
 | `framework` | `vault-knowledge-graph` | The 9-plugin `claude-plugins-official` dependency bundle, `/framework:setup`, `/framework:doctor`, the Outline MCP server declaration |
 | `framework-code-navigation` | `code-navigation` | The Serena MCP server declaration |
 | `minestom-knowledge` | `cyano`, `gradle`, `boms`, `guira`, `aves`, `xerus`, `pica`, `coris` | Nothing — this plugin has no MCP servers or commands, it's pure skill content |
+| `release-engineering` | `release-please`, `renovate`, `workflows` | Nothing — this plugin has no MCP servers or commands, it's pure skill content |
+| `requirement-engineering` | `requirement-engineering` | Nothing — this plugin has no MCP servers or commands, it's pure skill content |
+| `micronaut-standards` | `dependency-management`, `observability`, `service-layer`, `entity-design`, `configuration`, `dto`, `response-modeling`, `openapi`, `routing`, `exception-handling`, `security`, `liquibase`, `testcontainers`, `logging` | Nothing — this plugin has no MCP servers or commands, it's pure skill content |
+| `git-hygiene` | `git-hygiene` | The `/git-hygiene:setup` command and the `PreToolUse` guard hook — `hooks/` and `commands/` do not carry over |
 
 The skill files describe actions, not Claude-Code-specific tool names, so
 they don't need edits to run under Antigravity. What definitely doesn't

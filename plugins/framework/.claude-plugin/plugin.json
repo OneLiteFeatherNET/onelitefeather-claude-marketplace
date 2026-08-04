@@ -1,8 +1,8 @@
 {
   "name": "framework",
   "displayName": "Framework",
-  "version": "0.1.0",
-  "description": "OneLiteFeather's developer framework: bundles standardized tools for how the team builds software — a knowledge graph in Outline's \"Vault\" collection, a curated set of default Claude Code skills (superpowers, skill-creator, CLAUDE.md management, code review/simplification, security guidance, frontend design, docs lookup, iterative loops), and guided /framework:setup and /framework:doctor commands to onboard and verify the whole bundle.",
+  "version": "0.2.0",
+  "description": "OneLiteFeather's developer framework: bundles standardized tools for how the team builds software — a knowledge graph in Outline's \"Vault\" collection, a curated set of default Claude Code skills (superpowers, skill-creator, CLAUDE.md management, code review/simplification, security guidance, frontend design, docs lookup, iterative loops, git hygiene), and guided /framework:setup and /framework:doctor commands to onboard and verify the whole bundle.",
   "author": { "name": "OneLiteFeather", "url": "https://github.com/OneLiteFeatherNET" },
   "license": "MIT",
   "keywords": ["outline", "wiki", "knowledge-graph", "vault", "context", "retrieval"],
@@ -15,7 +15,8 @@
     { "name": "security-guidance", "marketplace": "claude-plugins-official" },
     { "name": "frontend-design", "marketplace": "claude-plugins-official" },
     { "name": "context7", "marketplace": "claude-plugins-official" },
-    { "name": "ralph-loop", "marketplace": "claude-plugins-official" }
+    { "name": "ralph-loop", "marketplace": "claude-plugins-official" },
+    "git-hygiene"
   ],
   "mcpServers": {
     "outline": {

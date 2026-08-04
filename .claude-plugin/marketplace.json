@@ -8,7 +8,7 @@
       "name": "framework",
       "displayName": "Framework",
       "source": "./plugins/framework",
-      "description": "OneLiteFeather's developer framework: bundles standardized tools for how the team builds software, including a knowledge graph in Outline's \"Vault\" collection.",
+      "description": "OneLiteFeather's developer framework: bundles standardized tools for how the team builds software, including a knowledge graph in Outline's \"Vault\" collection and git hygiene for commit and PR messages.",
       "category": "productivity",
       "keywords": ["outline", "wiki", "knowledge-graph", "vault", "context", "retrieval"]
     },
@@ -59,6 +59,14 @@
       "description": "OneLiteFeather's standard for Micronaut REST APIs: dependency management, observability, service layer, entity design, configuration, DTO/response modeling, OpenAPI docs, HTTP routing, exception handling, security baseline, Liquibase migrations, Testcontainers, and logging.",
       "category": "productivity",
       "keywords": ["micronaut", "java", "rest-api", "openapi", "liquibase", "testcontainers", "dto", "architecture", "dependency-management"]
+    },
+    {
+      "name": "git-hygiene",
+      "displayName": "Git Hygiene",
+      "source": "./plugins/git-hygiene",
+      "description": "Keeps commit messages, branch names, PR titles and bodies, issue comments and release notes free of AI tool branding, session URLs, machine typography and machine phrasing. Ships the attribution settings, a PreToolUse safety net, and an optional commit-msg hook.",
+      "category": "productivity",
+      "keywords": ["git", "github", "commit-messages", "pull-requests", "attribution", "typography", "conventional-commits"]
     }
   ]
 }
