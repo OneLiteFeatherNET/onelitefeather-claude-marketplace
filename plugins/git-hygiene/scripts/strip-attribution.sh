@@ -89,7 +89,13 @@ else
 fi
 
 # 1. Co-Authored-By trailer with a structurally bot-shaped address.
-bot_coauthor_re='^[[:space:]]*co-authored-by:.*<[^>]*(no-?reply@[a-z0-9.-]+|\[bot\]@[a-z0-9.-]+)>[[:space:]]*$'
+#    - noreply/no-reply must be the ENTIRE local-part (anchored right after
+#      "<", no arbitrary prefix allowed), so "jane.noreply@example.com" does
+#      NOT match - only a bare "noreply@..."/"no-reply@..." does.
+#    - "[bot]@" is a suffix marker and may have an arbitrary prefix before
+#      it (GitHub App accounts are "<id>+<name>[bot]@users.noreply.github.com"),
+#      so that shape intentionally keeps the "[^>]*" prefix.
+bot_coauthor_re='^[[:space:]]*co-authored-by:.*<(no-?reply@[a-z0-9.-]+|[^>]*\[bot\]@[a-z0-9.-]+)>[[:space:]]*$'
 
 # 2. Session trailer: "<Word>-Session:" (Claude-Session:, Codex-Session:, ...)
 session_trailer_re='^[[:space:]]*[a-z][a-z0-9]*-session:'
