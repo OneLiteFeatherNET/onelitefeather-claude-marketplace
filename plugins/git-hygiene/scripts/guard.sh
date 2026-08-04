@@ -692,7 +692,17 @@ while [ "$i" -lt "$n" ]; do
     esac
   done
 
-  if { [ "$base_probe" = "git" ] || [ "$base_probe" = "gh" ]; } && [ "$seg_no_more_options" -eq 0 ]; then
+  # Deliberately NOT gated on `seg_no_more_options`. `--` ends option parsing for
+  # the command it appears in, but newlines are erased by the tokenizer, so the
+  # only signal that the NEXT line is a new command is its `git`/`gh` token. An
+  # earlier version required `seg_no_more_options -eq 0` here, which meant a
+  # single `--` anywhere (`git checkout -- .`) suppressed new-invocation
+  # detection for every following line until an explicit `&&`/`;`/`||`/`|` turned
+  # up -- and an ordinary multi-line block has none, so the guard silently went
+  # dark for the rest of it. The cost of not gating is a harmless spurious empty
+  # segment when a pathspec is literally named `git` (`... -- git src/`), which
+  # produces no messages and therefore no decision.
+  if [ "$base_probe" = "git" ] || [ "$base_probe" = "gh" ]; then
     if [ -n "$seg_base" ]; then
       end_segment
     fi

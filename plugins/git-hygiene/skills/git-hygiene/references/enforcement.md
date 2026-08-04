@@ -275,3 +275,44 @@ None of the three audits above modifies history, working-tree files, or git conf
 rewriting a message before it is committed, or fixing typography in a file you are actively
 authoring — is always a manual, reviewed edit; this plugin does not silently rewrite anyone's prose
 (see the skill's "Never touch these" section and the design decision against silent rewriting).
+
+## 10. Known limitations of `guard.sh`'s command parsing
+
+`guard.sh` reads the command line as a token stream produced by `Text::ParseWords::shellwords`,
+which removes quoting but is not a shell. That is a deliberate trade — evaluating the command line
+for real would mean executing `$(...)` inside a `PreToolUse` hook — and it is also the source of the
+three gaps below. All three are architectural consequences of one root cause, stated once here so
+nobody has to rediscover it: **newlines are erased during tokenization**, so line boundaries are
+recovered only heuristically (by spotting a bare `git`/`gh` token). Making line boundaries an
+explicit token the parser can see would retire this whole family of bugs; that is a larger change
+than any of these individually justify, so they are documented rather than patched around.
+
+**A dangling value-taking flag at the end of a line consumes the next line's command name.** A
+malformed line such as `gh pr create --label` with nothing after it leaves `--label` waiting for a
+value; the next line's `gh`/`git` token is the next thing the walker sees, and (correctly, by the
+walker's own rule that a claimed value is data and never syntax) it is consumed as that value. The
+second command is then parsed under the first one's option table and its message may go unscanned.
+Severity is limited: the first line is itself malformed and would error out — but the second line
+still runs, so this is a real if narrow miss. Note the failure needs the *wrong* table to also
+mis-handle the second command; `git commit --author` followed by a contaminated `git commit -m`
+still denies, because `-m` means the same thing in both tables.
+
+**The anti-timeout size caps are per segment, not per hook invocation.** A hook that overruns Claude
+Code's timeout is killed, and a killed hook is non-blocking (§1) — so an unbounded read is a
+fail-open, not just a slow one. Each message is therefore bounded twice: a `-F`/`--body-file` target
+larger than 1 MiB (1048576 bytes) is read as its first and last 512 KiB (524288 bytes each), and any
+resulting message text of more than 400 lines is checked as its first 200 and last 200 lines, with
+the middle replaced by a marker. Both caps are applied per invocation segment. A single compound
+command chaining many message-bearing segments can therefore still exceed the overall timeout budget
+even though no individual segment does. A correct fix tracks one budget across the whole hook call
+rather than per segment.
+
+**A tokenization failure is a silent allow.** If `shellwords` cannot tokenize the command line it
+returns nothing, and `guard.sh` exits `0` with no output and no warning — the call proceeds
+unchecked. The usual trigger is an unbalanced quote character, including an apostrophe that bash
+itself ignores because it sits inside a trailing `#` comment (`git commit -m "..." # don't forget`).
+Failing open is the right default for a broken dependency (§1 and the jq/perl prechecks follow the
+same rule), but doing it silently is not: there is currently no signal distinguishing "nothing to
+check" from "could not check". A future pass should at minimum emit a transcript warning, and could
+reasonably fall back to running the attribution check against the raw, untokenized command line when
+tokenization yields zero words.

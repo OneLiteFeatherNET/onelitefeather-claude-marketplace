@@ -360,6 +360,26 @@ allow "5000-line clean -F file"            "git commit -F ${tmpdir}/long-clean.t
 deny "5000-line -F, trailer at the END"    "git commit -F ${tmpdir}/long-tail.txt"
 deny "5000-line -F, trailer at the START"  "git commit -F ${tmpdir}/long-head.txt"
 
+echo "== 14. newline after a \`--\` token must not switch the guard off =="
+# `--` ends option parsing for ITS command only. Newlines are erased by the
+# tokenizer, so a bare git/gh token is the only marker that the next line is a
+# new command -- gating that marker on "no -- seen yet" silently disabled the
+# guard for the remainder of any multi-line block containing a `--`.
+deny "checkout -- . then dirty commit"     "git checkout -- .
+git commit -m \"${BOT}\""
+deny "diff -- / add / dirty commit"        "git diff -- src/
+git add -A
+git commit -m \"${BOT}\""
+deny "restore --staged -- . then gh pr"    "git restore --staged -- .
+gh pr create -t t -b \"${BOT}\""
+deny "clean commit -- path, then dirty -F" "git commit -m clean -- src/
+git commit -F ${dirty_file}"
+deny "-- then dirty on the same line"      "git commit -m \"${BOT}\" -- git"
+allow "pathspec literally named 'git'"     "git commit -m clean -- git src/"
+allow "clean multi-line block with --"     "git checkout -- .
+git add -A
+git commit -m \"fix: a clean subject\""
+
 echo
 if [ "$failed" -eq 0 ]; then
   printf 'guard-selftest: %d/%d assertions passed.\n' "$total" "$total"
