@@ -51,6 +51,14 @@
       "description": "OneLiteFeather's Requirement-Engineering standard for Outline project docs: User Stories + EARS acceptance-criteria syntax + MoSCoW prioritization, for game concepts and technical projects alike. Creates new requirements docs and restructures superficial prose-only concept docs.",
       "category": "productivity",
       "keywords": ["requirements", "user-stories", "ears", "moscow", "requirement-engineering", "outline", "game-design", "documentation"]
+    },
+    {
+      "name": "git-hygiene",
+      "displayName": "Git Hygiene",
+      "source": "./plugins/git-hygiene",
+      "description": "Keeps commit messages, branch names, PR titles and bodies, issue comments and release notes free of AI tool branding, session URLs, machine typography and machine phrasing. Ships the attribution settings, a PreToolUse safety net, and an optional commit-msg hook.",
+      "category": "productivity",
+      "keywords": ["git", "github", "commit-messages", "pull-requests", "attribution", "typography", "conventional-commits"]
     }
   ]
 }
