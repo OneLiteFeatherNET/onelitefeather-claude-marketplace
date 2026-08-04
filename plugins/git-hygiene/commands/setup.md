@@ -114,14 +114,19 @@ each teammate still has to run this step (or the
 for it to take effect — installing it here protects only this clone, not the
 team. Also mention that `git commit --no-verify` bypasses this hook
 entirely, by git's own design — it is a courtesy check for cooperative
-authors, not an enforcement boundary. Only once the user has this
-information, ask whether they want it installed in this clone. **Only on
-explicit confirmation**, run:
+authors, not an enforcement boundary. Also mention that the hook needs two
+sibling scripts, `strip-attribution.sh` and `detypo.pl`, to run at all — they
+are copied into `.githooks/` alongside it so the hook can find them next to
+itself even outside a Claude Code session, where `$CLAUDE_PLUGIN_ROOT` is
+unset. Only once the user has this information, ask whether they want it
+installed in this clone. **Only on explicit confirmation**, run:
 
 ```bash
 mkdir -p .githooks
 cp "${CLAUDE_PLUGIN_ROOT}/scripts/commit-msg" .githooks/commit-msg
-chmod +x .githooks/commit-msg
+cp "${CLAUDE_PLUGIN_ROOT}/scripts/strip-attribution.sh" .githooks/strip-attribution.sh
+cp "${CLAUDE_PLUGIN_ROOT}/scripts/detypo.pl" .githooks/detypo.pl
+chmod +x .githooks/commit-msg .githooks/strip-attribution.sh
 git config core.hooksPath .githooks
 ```
 
