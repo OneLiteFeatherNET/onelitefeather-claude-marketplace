@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "if": "Bash(git commit:*) || Bash(git merge:*) || Bash(git push:*) || Bash(git tag:*) || Bash(gh pr create:*) || Bash(gh pr edit:*) || Bash(gh release create:*) || Bash(gh release edit:*)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/scripts/guard.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
