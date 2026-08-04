@@ -117,7 +117,15 @@ scissors_re="^${comment_char_re}[[:space:]]*-+[[:space:]]*>8[[:space:]]*-+[[:spa
 # The scissors line and everything after it is dropped entirely first (not
 # blanked): none of it is authored message text, so there is no line
 # number worth preserving for it.
-awk -v re="$scissors_re" -- '$0 ~ re { exit } { print }' "$msg_file" \
+#
+# The pattern is passed via ENVIRON, not `awk -v re=...`: gawk's `-v`
+# assignment processes backslash escape sequences in its value exactly
+# like a string literal, so a regex-metacharacter core.commentChar (e.g.
+# `*`) that comment_char_re carefully backslash-escaped above would have
+# that backslash silently stripped again by `-v` itself, quietly
+# loosening the match. ENVIRON reads the raw environment string with no
+# such reprocessing.
+RE="$scissors_re" awk -- '$0 ~ ENVIRON["RE"] { exit } { print }' "$msg_file" \
   | sed "s/^${comment_char_re}.*//" > "$tmp_check"
 
 if ! findings="$(perl "$detypo" --check "$tmp_check" 2>&1)"; then

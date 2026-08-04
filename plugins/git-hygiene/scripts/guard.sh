@@ -103,69 +103,87 @@ read_file_or_literal() {
   fi
 }
 
-normalize_tokens() {
-  # Normalize one segment's argument tokens (i.e. everything after the
-  # `git`/`gh` subcommand) into the atomic forms the dispatch `case`
-  # statements below actually match, so option-name equality checks cannot
-  # be bypassed by an equivalent flag SPELLING. Without this, `-am`,
-  # `-m"foo"` (shellwords already glued this to `-mfoo`), `--message=foo`
-  # and `--body-file=f` all sail past a scanner that only matches `-m`,
-  # `--message`, `-F`, `--body-file` etc. as whole tokens -- see the
-  # bypass this closes, documented at the guard.sh call site.
+expand_one_token() {
+  # Expand exactly ONE raw token -- and only a token currently being read
+  # in real OPTION position on the command line -- into the atomic forms
+  # the dispatch `case` statements below actually match, so option-name
+  # equality checks cannot be bypassed by an equivalent flag SPELLING.
+  # Without this, `-am`, `-m"foo"` (shellwords already glued this to
+  # `-mfoo`), `--message=foo` and `--body-file=f` all sail past a scanner
+  # that only matches `-m`, `--message`, `-F`, `--body-file` etc. as whole
+  # tokens.
   #
-  # $1: nameref to the source token array (args only, no base/subcommand).
-  # $2: nameref to the array to fill with normalized tokens.
+  # CRITICAL correctness rule, and the reason this function is called on
+  # ONE token at a time from inside the dispatch loop below rather than
+  # pre-normalizing the whole argument array up front: this must NEVER be
+  # called on a token that a value-taking flag has already claimed as its
+  # value. An earlier version of this guard ran the equivalent of this
+  # expansion over the entire argument array before dispatch, which meant
+  # an entirely ordinary commit message that happens to start with `-`
+  # (e.g. `-m "- fix: tidy up\n\nCo-Authored-By: ..."`, or one that merely
+  # *mentions* a flag, e.g. `-m "-n is now supported\n\n..."`) got shredded
+  # into fake option tokens by this same expansion, and only the fragment
+  # up to the first embedded `-` ever reached the attribution scanner --
+  # the trailer silently vanished from the scanned text. Worse, a message
+  # value like `-m "-xF/path/to/file"` synthesized a `-F` flag the
+  # dispatcher then obediently acted on, reading an arbitrary local file
+  # named inside the message text. A value, once claimed, is DATA, not
+  # syntax, and must be taken verbatim -- see the call sites below, which
+  # only ever call this on a token being read fresh (never on the token
+  # immediately following a value-taking flag).
+  #
+  # $1: the raw token to expand (must be in real, unclaimed option position).
+  # $2: nameref to the array to fill with this one token's expansion.
   # $3: string of short-option letters (no dashes) that take a value in
   #     the current command context, e.g. "mF" for git or "tbFn" for gh.
-  local -n _src="$1"
+  local tok="$1"
   local -n _out="$2"
   local value_letters="$3"
   _out=()
 
-  local tok name value rest i ch
+  local name value rest i ch
 
-  for tok in "${_src[@]}"; do
-    case "$tok" in
-      --*=*)
-        # --name=value -> two logical tokens: --name, value. Only the
-        # FIRST "=" is the separator; a value containing "=" survives
-        # intact (e.g. --body="a=b" -> --body, a=b).
-        name="${tok%%=*}"
-        value="${tok#*=}"
-        _out+=("$name" "$value")
-        ;;
-      -[!-]?*)
-        # A single-dash token with 2+ characters after the dash: either a
-        # clustered run of short options (-am) or a short option glued
-        # directly to its value with no space (-m"foo" -> already -mfoo
-        # after shellwords quote-removal). Walk it letter by letter,
-        # POSIX-getopt style: a boolean letter just expands to its own
-        # `-x` token; a value-taking letter consumes everything still
-        # left in THIS token as its glued value (nothing, if it was the
-        # last character -- in that case the value is the NEXT real
-        # token in the stream, which the unmodified `*)` branch below
-        # will pass through untouched on the following loop iteration),
-        # and expansion of this token stops there, matching how real
-        # getopt parsing never treats characters after a value-taking
-        # short option as further flags.
-        rest="${tok:1}"
-        for ((i = 0; i < ${#rest}; i++)); do
-          ch="${rest:$i:1}"
-          if [ "${value_letters/$ch/}" != "$value_letters" ]; then
-            _out+=("-$ch")
-            if [ "$((i + 1))" -lt "${#rest}" ]; then
-              _out+=("${rest:$((i + 1))}")
-            fi
-            break
-          fi
+  case "$tok" in
+    --*=*)
+      # --name=value -> two logical tokens: --name, value. Only the
+      # FIRST "=" is the separator; a value containing "=" survives
+      # intact (e.g. --body="a=b" -> --body, a=b). The value half is
+      # never re-expanded -- it is simply the second array element,
+      # already final.
+      name="${tok%%=*}"
+      value="${tok#*=}"
+      _out+=("$name" "$value")
+      ;;
+    -[!-]?*)
+      # A single-dash token with 2+ characters after the dash: either a
+      # clustered run of short options (-am) or a short option glued
+      # directly to its value with no space (-m"foo" -> already -mfoo
+      # after shellwords quote-removal). Walk it letter by letter,
+      # POSIX-getopt style: a boolean letter just expands to its own
+      # `-x` token; a value-taking letter consumes everything still left
+      # in THIS token as its glued value (nothing, if it was the last
+      # character -- in that case the caller must pull the NEXT raw
+      # token as the value, verbatim, never through this function again),
+      # and expansion of this token stops there, matching how real getopt
+      # parsing never treats characters after a value-taking short option
+      # as further flags.
+      rest="${tok:1}"
+      for ((i = 0; i < ${#rest}; i++)); do
+        ch="${rest:$i:1}"
+        if [ "${value_letters/$ch/}" != "$value_letters" ]; then
           _out+=("-$ch")
-        done
-        ;;
-      *)
-        _out+=("$tok")
-        ;;
-    esac
-  done
+          if [ "$((i + 1))" -lt "${#rest}" ]; then
+            _out+=("${rest:$((i + 1))}")
+          fi
+          break
+        fi
+        _out+=("-$ch")
+      done
+      ;;
+    *)
+      _out+=("$tok")
+      ;;
+  esac
 }
 
 # Split the token stream into per-invocation segments at unquoted shell
@@ -224,68 +242,111 @@ for boundary in "${boundaries[@]}"; do
   messages=()
   no_verify_seen=0
 
-  # Slice out just this invocation's argument tokens (everything after
-  # `git`/`gh` <subcommand>) so normalize_tokens sees only real option/
-  # value tokens, never the base command or an adjacent segment's tokens.
-  arg_start=$((base_idx + 2))
-  if [ "$arg_start" -le "$seg_end" ]; then
-    args=("${words[@]:$arg_start:$((seg_end - arg_start + 1))}")
-  else
-    args=()
-  fi
+  # Walk this invocation's argument tokens (everything after `git`/`gh`
+  # <subcommand>) one RAW token at a time. Each token freshly read here is
+  # in real option position, so it is run through expand_one_token; but
+  # the moment a value-taking flag claims a value -- whether glued into
+  # the same original token (handled entirely inside the expansion below)
+  # or taken from the NEXT raw token (the `i=$((i + 1)); ...="${words[$i]}"`
+  # lines below) -- that value is used completely verbatim and is never
+  # itself passed through expand_one_token. This is what keeps an ordinary
+  # message that happens to start with `-`/`--` from being misread as more
+  # flags; see expand_one_token's own comment for the full bypass this
+  # closes.
+  i=$((base_idx + 2))
 
   case "$base" in
     git)
       # -m/-F are the only short options this guard's dispatch below
-      # treats as value-taking; see normalize_tokens for why that is
+      # treats as value-taking; see expand_one_token for why that is
       # sufficient (it only needs to know which letters end a cluster).
-      normalize_tokens args norm_words "mF"
-      i=0
-      while [ "$i" -lt "${#norm_words[@]}" ]; do
-        tok="${norm_words[$i]}"
-        case "$tok" in
-          -m | --message)
-            i=$((i + 1))
-            messages+=("${norm_words[$i]:-}")
-            ;;
-          -F | --file)
-            i=$((i + 1))
-            messages+=("$(read_file_or_literal "${norm_words[$i]:-}")")
-            ;;
-          --no-verify)
-            no_verify_seen=1
-            ;;
-          -n)
-            # Only a --no-verify synonym on commit/merge/push/tag (enforcement.md
-            # section 5); on other git subcommands -n has other meanings, so this
-            # branch is only reached when subcommand is one of those four anyway
-            # because that is what hooks.json's `if` pre-filter already scoped us
-            # to -- still gate explicitly for defense in depth.
-            case "$subcommand" in
-              commit | merge | push | tag) no_verify_seen=1 ;;
-            esac
-            ;;
-        esac
+      while [ "$i" -le "$seg_end" ]; do
+        expand_one_token "${words[$i]}" expanded "mF"
+        j=0
+        while [ "$j" -lt "${#expanded[@]}" ]; do
+          etok="${expanded[$j]}"
+          case "$etok" in
+            -m | --message)
+              if [ "$((j + 1))" -lt "${#expanded[@]}" ]; then
+                messages+=("${expanded[$((j + 1))]}")
+                j=$((j + 2))
+              else
+                i=$((i + 1))
+                messages+=("${words[$i]:-}")
+                j=$((j + 1))
+              fi
+              ;;
+            -F | --file)
+              if [ "$((j + 1))" -lt "${#expanded[@]}" ]; then
+                messages+=("$(read_file_or_literal "${expanded[$((j + 1))]}")")
+                j=$((j + 2))
+              else
+                i=$((i + 1))
+                messages+=("$(read_file_or_literal "${words[$i]:-}")")
+                j=$((j + 1))
+              fi
+              ;;
+            --no-verify)
+              no_verify_seen=1
+              j=$((j + 1))
+              ;;
+            -n)
+              # Only a --no-verify synonym on commit/merge/push/tag (enforcement.md
+              # section 5); on other git subcommands -n has other meanings, so this
+              # branch is only reached when subcommand is one of those four anyway
+              # because that is what hooks.json's `if` pre-filter already scoped us
+              # to -- still gate explicitly for defense in depth.
+              case "$subcommand" in
+                commit | merge | push | tag) no_verify_seen=1 ;;
+              esac
+              j=$((j + 1))
+              ;;
+            *)
+              j=$((j + 1))
+              ;;
+          esac
+        done
         i=$((i + 1))
       done
       ;;
     gh)
-      normalize_tokens args norm_words "tbFn"
-      i=0
-      while [ "$i" -lt "${#norm_words[@]}" ]; do
-        tok="${norm_words[$i]}"
-        case "$tok" in
-          -t | --title | -b | --body | -n | --notes)
-            i=$((i + 1))
-            messages+=("${norm_words[$i]:-}")
-            ;;
-          -F | --body-file | --notes-file)
-            i=$((i + 1))
-            messages+=("$(read_file_or_literal "${norm_words[$i]:-}")")
-            ;;
-        esac
+      while [ "$i" -le "$seg_end" ]; do
+        expand_one_token "${words[$i]}" expanded "tbFn"
+        j=0
+        while [ "$j" -lt "${#expanded[@]}" ]; do
+          etok="${expanded[$j]}"
+          case "$etok" in
+            -t | --title | -b | --body | -n | --notes)
+              if [ "$((j + 1))" -lt "${#expanded[@]}" ]; then
+                messages+=("${expanded[$((j + 1))]}")
+                j=$((j + 2))
+              else
+                i=$((i + 1))
+                messages+=("${words[$i]:-}")
+                j=$((j + 1))
+              fi
+              ;;
+            -F | --body-file | --notes-file)
+              if [ "$((j + 1))" -lt "${#expanded[@]}" ]; then
+                messages+=("$(read_file_or_literal "${expanded[$((j + 1))]}")")
+                j=$((j + 2))
+              else
+                i=$((i + 1))
+                messages+=("$(read_file_or_literal "${words[$i]:-}")")
+                j=$((j + 1))
+              fi
+              ;;
+            *)
+              j=$((j + 1))
+              ;;
+          esac
+        done
         i=$((i + 1))
       done
+      ;;
+    *)
+      : # base is neither git nor gh -- nothing to walk (should not
+        # happen given how base_idx is found above, kept for safety).
       ;;
   esac
 
@@ -299,7 +360,21 @@ for boundary in "${boundaries[@]}"; do
   # --- Deny check: the four deterministic attribution patterns. Any single
   # contaminated invocation anywhere in the chain denies the whole call. ---
   if [ -n "$combined" ]; then
-    if ! printf '%s' "$combined" | "$strip_attribution" --check >/dev/null 2>&1; then
+    # The precheck above only catches strip-attribution.sh being missing or
+    # non-executable BEFORE we ever try to run it. It cannot catch the
+    # script existing, being executable, and then crashing partway through
+    # (interpreter error, corrupted file swapped in mid-session, etc.) --
+    # that failure mode still needs distinguishing from "exit 1: attribution
+    # found" here, or an executable-but-broken script would deny every
+    # clean commit exactly like the missing-file case the precheck already
+    # fixed. Capture the real exit code with the `cmd || rc=$?` idiom
+    # (enforcement.md section 6) so a failing pipeline under `set -e` does
+    # not abort the whole script.
+    strip_check_rc=0
+    printf '%s' "$combined" | "$strip_attribution" --check >/dev/null 2>&1 || strip_check_rc=$?
+    if [ "$strip_check_rc" -eq 126 ] || [ "$strip_check_rc" -eq 127 ]; then
+      warnings+=("git-hygiene: strip-attribution.sh exited unexpectedly (code ${strip_check_rc}) while checking 'git ${subcommand}'/'gh ...'; skipping the attribution check for this call rather than denying it -- see references/enforcement.md.")
+    elif [ "$strip_check_rc" -ne 0 ]; then
       deny "Commit/PR message contains an AI tool attribution trailer (Co-Authored-By bot address, a <Tool>-Session: trailer, the 'Generated with [...]' footer, or a bare harness session URL). Remove it before proceeding -- see references/attribution.md."
     fi
   fi
