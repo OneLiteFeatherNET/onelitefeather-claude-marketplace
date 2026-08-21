@@ -1,11 +1,26 @@
 name: release-please
 
+# release-please collects Conventional Commits into a release PR; merging it tags
+# the version and cuts the GitHub release.
+#
+# Each plugin under plugins/ is its own release-please package, so a commit is
+# attributed to a plugin by the files it touches, not by its commit scope, and a
+# release PR bumps only the plugins that actually changed. Merging it tags each of
+# them (e.g. diataxis-docs-v0.2.0) and cuts one GitHub release per tag.
+#
+# Anything a release needs must be chained into this same run: release-please tags
+# with GITHUB_TOKEN, and a tag pushed that way does NOT start a separate
+# `on: push: tags` workflow. Gate such a job on the `releases_created` output --
+# NOT on `release_created`, which the action only sets for a root package. This
+# manifest has no root package, so `release_created` is never true here.
+
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 # No permissions by default, so any job added later starts with none and has to
-# ask for what it needs explicitly.
+# ask for what it needs explicitly. The reusable workflow declares its own.
 permissions: {}
 
 concurrency:
@@ -14,25 +29,8 @@ concurrency:
 
 jobs:
   release-please:
-    runs-on: ubuntu-latest
+    uses: OneLiteFeatherNET/workflows/.github/workflows/release-please.yml@v2.8.1
     permissions:
       contents: write      # create tags and GitHub releases
       pull-requests: write # open and update the release PR
-    steps:
-      # Pinned to a commit SHA, not a mutable tag: this job holds contents:write
-      # and pull-requests:write, so a retagged v5 would run with them.
-      - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
-        with:
-          config-file: release-please-config.json
-          manifest-file: .release-please-manifest.json
-
-# Each plugin is its own release-please package, so a commit is attributed to a
-# plugin by the files it touches, not by its commit scope. Merging the release PR
-# tags every plugin it bumped (e.g. diataxis-docs-v0.2.0) and cuts a GitHub release
-# per tag.
-#
-# There is no publish job: plugins are consumed straight from this repository, so
-# tagging and the changelog are the whole release. If a publish step is ever added,
-# chain it here with needs/if on the action's `releases_created` output rather than
-# with an `on: push: tags:` trigger — tags pushed by GITHUB_TOKEN do not re-trigger
-# workflows in the same repository.
+    secrets: inherit
