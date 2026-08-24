@@ -1,0 +1,10 @@
+{
+  "name": "decision-sparring",
+  "version": "0.1.0",
+  "description": "Stress-tests a technical or business decision against a structured questionnaire (framing, assumptions, alternatives, evidence, motives, consequences, reversibility) and delivers a reasoned verdict with a stated tipping condition, instead of only asking questions. Draws on the Kahneman/Lovallo/Sibony decision quality checklist, Structured Analytic Techniques, ATAM and the one-way/two-way door principle.",
+  "author": { "name": "OneLiteFeather", "url": "https://github.com/OneLiteFeatherNET" },
+  "license": "MIT",
+  "keywords": ["decision-making", "review", "devils-advocate", "premortem", "architecture", "risk", "adr", "tradeoffs", "critique"],
+  "skills": "./skills/",
+  "hooks": {}
+}
