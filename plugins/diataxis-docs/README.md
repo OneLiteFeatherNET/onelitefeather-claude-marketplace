@@ -30,8 +30,12 @@ unsupported: every paragraph correct, the whole thing unusable.
 - `references/auditing.md` — splitting an overloaded README or wiki, drift
   detection, the review checklist for an existing docs set.
 - `references/publishing/` — one file per publishing target
-  (`github-wiki.md`, `outline.md`, `gitbook.md`): structure, naming, how
+  (`outline.md`, `github-wiki.md`, `gitbook.md`): structure, naming, how
   generated pages get published, and when that target is the wrong choice.
+  `outline.md` is written against our actual Outline instance: which
+  collection a subject belongs in, the hub-document-per-subject layout
+  with quadrants as title prefixes, and where the operational record
+  (design docs, incidents, runbooks, ADRs) sits instead.
 - `assets/page-templates.md` — copy-ready skeletons for all four page
   types plus the index page.
 - `assets/nav-templates/` — `_Sidebar.md` for a wiki, `SUMMARY.md` for
@@ -78,6 +82,12 @@ Two defaults are opinionated and may need changing per project:
   refill with unsorted content as fast as they are emptied. Projects that
   want to keep a troubleshooting page have to relax that rule in
   `SKILL.md`.
-- **Publication language.** Set to English with translation via Crowdin,
-  matching the OLF code and commit convention. Change the "Language"
-  section for projects with a different convention.
+- **Publication language.** German in Outline (internal), English with
+  translation via Crowdin for anything published from a repository.
+  Change the "Language" section for projects with a different convention.
+- **Outline as the default target.** The skill follows the OLF convention
+  that prose lives in Outline and a repository carries code plus a link.
+  Projects that genuinely need a `docs/` directory — public open-source
+  docs shipping with the code — are covered as the documented exception,
+  but a project with a different baseline needs the "Publishing targets"
+  section adjusted.
