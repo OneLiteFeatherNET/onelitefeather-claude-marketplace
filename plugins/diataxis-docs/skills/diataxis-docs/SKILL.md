@@ -59,7 +59,7 @@ Produce two artefacts, in this order.
 
 For every reference page, decide immediately whether it is hand-written or generated, and mark it. See "Generate the reference".
 
-**The layout.** A flat directory per quadrant. The quadrant names are the directory names, because the structure is itself the signpost:
+**The layout.** Decide the publishing target first, because it decides what the layout is made of — on Outline it is one hub document with title-prefixed children, and the tree below does not apply. For the repository target, a flat directory per quadrant. The quadrant names are the directory names, because the structure is itself the signpost:
 
 ```
 docs/
@@ -71,6 +71,8 @@ docs/
 ```
 
 Do not invent a fifth directory. FAQ, troubleshooting, "advanced usage" and "getting started" are the usual smuggling routes for unsorted content, and they refill as fast as they are emptied. An FAQ entry is always a how-to or an explanation in disguise; route it and delete the FAQ.
+
+That rule is about documentation *for someone using the subject*. It is not a claim that the operational record — design documents, implementation plans, incident writeups, runbooks, ADRs — belongs in the quadrants; that record has its own home and its own naming, and forcing it into four quadrants is how the quadrants stop meaning anything. On Outline see `references/publishing/outline.md`.
 
 `index.md` names the four entry points in the reader's language, not the framework's: learn, do a task, look something up, understand the background. Never make the reader learn the word Diátaxis to find a page.
 
@@ -103,7 +105,10 @@ What stays hand-written in reference: the one-sentence effect of each item, beca
 
 ## Language
 
-Match the user's working language when discussing structure. For the documents themselves, follow the project's convention: for OLF projects that means English for all published documentation, with translation handled through Crowdin, matching the code and commit convention.
+Match the user's working language when discussing structure. For the documents themselves, the language follows the target, not the project:
+
+- **Outline is internal and German.** Documents are written in German, including the ones a Diátaxis task produces. Only the four quadrant title prefixes stay English, because they are the established convention there.
+- **Published documentation is English**, with translation through Crowdin, matching the code and commit convention. That covers the repository, wiki and GitBook targets.
 
 ## Publishing targets
 
@@ -111,12 +116,14 @@ The quadrants stay the same everywhere; only how they are encoded changes. Decid
 
 | Target | Quadrants encoded as | Read |
 |---|---|---|
-| Repository Markdown | directories under `docs/` | nothing extra, this is the default |
+| Outline | title-prefixed children under one hub document per subject | `references/publishing/outline.md` |
+| Repository Markdown | directories under `docs/` | nothing extra |
 | GitHub wiki | title prefixes plus `_Sidebar.md` | `references/publishing/github-wiki.md` |
-| Outline | nested documents under four hub pages | `references/publishing/outline.md` |
 | GitBook | page groups in `SUMMARY.md` | `references/publishing/gitbook.md` |
 
-Two rules hold across all four. The repository is the source of truth for anything generated, and every other target is a publication of it, never a place where it is typed. And the reader never has to learn the word Diátaxis: hub and group names are "getting started", "how-to guides", "reference", "background".
+**For OLF projects the default is Outline, not the repository.** Prose lives in the wiki and a repository carries code plus a link; creating a `docs/` directory is the usual misfire. The repository target wins only where documentation has to ship with the software, be readable offline, be diffed in review, or reach people without an Outline account — which is every user-facing docs set of a public open-source project. Both at once is fine when they are split by audience rather than duplicated.
+
+Two rules hold across all four targets. The repository is the source of truth for anything generated, and every other target is a publication of it, never a place where it is typed. And the reader never has to learn the word Diátaxis: hub and group names are "getting started", "how-to guides", "reference", "background".
 
 Navigation file templates for all targets are in `assets/nav-templates/`.
 
@@ -131,5 +138,5 @@ Navigation file templates for all targets are in `assets/nav-templates/`.
 - `references/auditing.md` — splitting an overloaded README or wiki, drift detection, the review checklist for an existing docs set. Read in Auditing mode.
 - `references/publishing/github-wiki.md`, `outline.md`, `gitbook.md` — one per target: structure, naming, how generated pages get published, and when that target is the wrong choice. Read the one that applies.
 - `assets/page-templates.md` — copy-ready skeletons for all four page types plus the index page.
-- `assets/nav-templates/` — `_Sidebar.md` for a wiki, `SUMMARY.md` for GitBook, `outline-structure.md` for an Outline collection including the page-ID mapping file.
+- `assets/nav-templates/` — `_Sidebar.md` for a wiki, `SUMMARY.md` for GitBook, `outline-structure.md` for an Outline hub and its children, including the page-ID mapping file.
 - `examples/minecraft-plugin/` — a full worked set with the audit table that produced it.
