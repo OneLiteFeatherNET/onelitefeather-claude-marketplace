@@ -8,7 +8,7 @@
       "name": "framework",
       "displayName": "Framework",
       "source": "./plugins/framework",
-      "description": "OneLiteFeather's developer framework: bundles standardized tools for how the team builds software, including a knowledge graph in Outline's \"Vault\" collection, git hygiene for commit and PR messages, and the Diátaxis documentation standard.",
+      "description": "OneLiteFeather's developer framework: bundles standardized tools for how the team builds software, including a knowledge graph in Outline's \"Vault\" collection, git hygiene for commit and PR messages, the Diátaxis documentation standard, and problem framing plus decision sparring.",
       "category": "productivity",
       "keywords": ["outline", "wiki", "knowledge-graph", "vault", "context", "retrieval"]
     },
@@ -75,6 +75,22 @@
       "description": "OneLiteFeather's documentation standard: Diátaxis (tutorial, how-to, reference, explanation) for planning a docs set, routing content into the right quadrant, writing each page in the voice its quadrant demands, auditing an overloaded README or wiki, and generating the reference quadrant from source with a CI drift gate.",
       "category": "productivity",
       "keywords": ["documentation", "diataxis", "technical-writing", "docs", "readme", "reference", "tutorial", "how-to", "wiki", "outline", "gitbook"]
+    },
+    {
+      "name": "problem-framing",
+      "displayName": "Problem Framing",
+      "source": "./plugins/problem-framing",
+      "description": "Turns a vague, shifting or solution-shaped request into a short written problem brief: goal, scope and non-goals, constraints, testable acceptance criteria, an agreed glossary and marked open questions. Detects the XY problem, target drift and circumlocution, and resolves a missing term by elicitation instead of silently paraphrasing it.",
+      "category": "productivity",
+      "keywords": ["problem-framing", "requirements", "clarification", "xy-problem", "scoping", "acceptance-criteria", "glossary", "terminology", "brief"]
+    },
+    {
+      "name": "decision-sparring",
+      "displayName": "Decision Sparring",
+      "source": "./plugins/decision-sparring",
+      "description": "Stress-tests a technical or business decision against a structured questionnaire (framing, assumptions, alternatives, evidence, motives, consequences, reversibility) and delivers a reasoned verdict with a stated tipping condition, instead of only asking questions. Scales effort by the one-way/two-way door test.",
+      "category": "productivity",
+      "keywords": ["decision-making", "review", "devils-advocate", "premortem", "architecture", "risk", "adr", "tradeoffs", "critique"]
     }
   ]
 }

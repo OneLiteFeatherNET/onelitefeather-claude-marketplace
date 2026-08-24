@@ -1,0 +1,9 @@
+{
+  "name": "problem-framing",
+  "displayName": "Problem Framing",
+  "version": "0.1.0",
+  "description": "Turns a vague, shifting or solution-shaped request into a short written problem brief: goal, in-scope and out-of-scope lists, constraints, testable acceptance criteria, an agreed glossary and marked open questions. Detects the XY problem, target drift and circumlocution, and resolves a missing term by elicitation instead of silently paraphrasing it into confident vocabulary.",
+  "author": { "name": "OneLiteFeather", "url": "https://github.com/OneLiteFeatherNET" },
+  "license": "MIT",
+  "keywords": ["problem-framing", "requirements", "clarification", "xy-problem", "scoping", "acceptance-criteria", "glossary", "terminology", "brief"]
+}

@@ -6,7 +6,7 @@ OneLiteFeather's Claude Code marketplace — the team's developer framework.
 
 | Plugin | Purpose |
 |--------|---------|
-| **framework** | Team framework: knowledge graph in our Outline "Vault" collection (research material, project knowledge, targeted context recall instead of dumping whole docs), plus `superpowers` (from `claude-plugins-official`) for shared team workflows, `git-hygiene` for commit/PR hygiene and `diataxis-docs` for documentation structure. |
+| **framework** | Team framework: knowledge graph in our Outline "Vault" collection (research material, project knowledge, targeted context recall instead of dumping whole docs), plus `superpowers` (from `claude-plugins-official`) for shared team workflows, `git-hygiene` for commit/PR hygiene, `diataxis-docs` for documentation structure, and `problem-framing` plus `decision-sparring` for how work gets scoped and decided. |
 | **framework-code-navigation** | Optional companion to `framework`: Serena (LSP symbol search) for JVM/Java-Kotlin projects, so the agent navigates code on purpose instead of spamming grep/find/read. Install only on projects where it fits. |
 | **minestom-knowledge** | Accurate knowledge of our internal Minestom libraries (Cyano, Aves, Xerus, Guira, Pica, Coris) and tooling (Gradle conventions, BOM hierarchy) — too internal/new to be in general training data. No MCP servers, pure skill content. |
 | **release-engineering** | OneLiteFeather's CI/CD standard: Release Please, the central Renovate preset plus general Renovate config help, and the reusable GitHub Actions workflows (build, publish, Docker, Gradle specifics). No MCP servers, pure skill content. |
@@ -15,6 +15,8 @@ OneLiteFeather's Claude Code marketplace — the team's developer framework.
 | **micronaut-standards** | OneLiteFeather's standard for Micronaut REST APIs: dependency management, observability, service layer, entity design, configuration, DTO/response modeling, OpenAPI docs, HTTP routing, exception handling, security baseline, Liquibase migrations, Testcontainers, and logging. No MCP servers, pure skill content. |
 | **git-hygiene** | Keeps commit messages, branch names, PR titles and bodies, issue comments and release notes free of AI tool branding, session URLs, machine typography and machine phrasing. Ships the attribution settings, a PreToolUse safety net, and an optional commit-msg hook. No MCP servers, pure skill content plus a setup command. |
 | **diataxis-docs** | OneLiteFeather's documentation standard: Diátaxis (tutorial, how-to, reference, explanation) for planning a docs set, routing content into the right quadrant, writing each page in the voice its quadrant demands, auditing an overloaded README or wiki, and generating the reference quadrant from source with a CI drift gate. Covers repository Markdown, GitHub wiki, Outline and GitBook as publishing targets. No MCP servers, pure skill content. |
+| **problem-framing** | Turns a vague, shifting or solution-shaped request into a short written problem brief before the expensive work starts: goal, scope and non-goals, constraints, testable acceptance criteria, an agreed glossary and marked open questions. Detects the XY problem, target drift, and circumlocution — a thing described by its function because the term is missing — and resolves it by elicitation instead of silently paraphrasing it into confident vocabulary. No MCP servers, pure skill content. |
+| **decision-sparring** | Stress-tests a decision that has already been made and delivers a verdict, not just objections: framing, assumptions, alternatives, evidence, motives, consequences, reversibility, then a deciding factor and a stated tipping condition. Scales effort by the one-way/two-way door test, so a cheap reversible call gets three questions and a reply, not a questionnaire. No MCP servers, pure skill content. |
 
 `context-layer`, `benchmark-stack`, and `workflow` were removed from this
 marketplace. Code navigation has already been rebuilt as
@@ -55,12 +57,17 @@ directly as part of this framework instead of as separate plugins.
 
 # Documentation structure: Diátaxis quadrants, generated reference, docs audits
 /plugin install diataxis-docs@onelitefeather-claude-marketplace
+
+# Scoping and deciding: problem briefs, and verdicts on decisions already made
+/plugin install problem-framing@onelitefeather-claude-marketplace
+/plugin install decision-sparring@onelitefeather-claude-marketplace
 ```
 
-`git-hygiene` and `diataxis-docs` are bundled as `framework` dependencies,
-so installing `framework` fresh installs and enables them automatically —
-the explicit `/plugin install ...` steps above are only needed to install
-them standalone. If you *already* have `framework` installed, you will
+`git-hygiene`, `diataxis-docs`, `problem-framing` and `decision-sparring`
+are bundled as `framework` dependencies, so installing `framework` fresh
+installs and enables them automatically — the explicit
+`/plugin install ...` steps above are only needed to install them
+standalone. If you *already* have `framework` installed, you will
 **not** get them automatically: auto-update is off by default for
 non-Anthropic marketplaces. Either enable auto-update for this marketplace
 in `/plugin`, or run `claude plugin update framework` followed by
