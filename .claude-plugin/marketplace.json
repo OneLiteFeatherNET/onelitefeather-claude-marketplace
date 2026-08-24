@@ -8,7 +8,7 @@
       "name": "framework",
       "displayName": "Framework",
       "source": "./plugins/framework",
-      "description": "OneLiteFeather's developer framework: bundles standardized tools for how the team builds software, including a knowledge graph in Outline's \"Vault\" collection and git hygiene for commit and PR messages.",
+      "description": "OneLiteFeather's developer framework: bundles standardized tools for how the team builds software, including a knowledge graph in Outline's \"Vault\" collection, git hygiene for commit and PR messages, and the Diátaxis documentation standard.",
       "category": "productivity",
       "keywords": ["outline", "wiki", "knowledge-graph", "vault", "context", "retrieval"]
     },
@@ -67,6 +67,14 @@
       "description": "Keeps commit messages, branch names, PR titles and bodies, issue comments and release notes free of AI tool branding, session URLs, machine typography and machine phrasing. Ships the attribution settings, a PreToolUse safety net, and an optional commit-msg hook.",
       "category": "productivity",
       "keywords": ["git", "github", "commit-messages", "pull-requests", "attribution", "typography", "conventional-commits"]
+    },
+    {
+      "name": "diataxis-docs",
+      "displayName": "Diátaxis Docs",
+      "source": "./plugins/diataxis-docs",
+      "description": "OneLiteFeather's documentation standard: Diátaxis (tutorial, how-to, reference, explanation) for planning a docs set, routing content into the right quadrant, writing each page in the voice its quadrant demands, auditing an overloaded README or wiki, and generating the reference quadrant from source with a CI drift gate.",
+      "category": "productivity",
+      "keywords": ["documentation", "diataxis", "technical-writing", "docs", "readme", "reference", "tutorial", "how-to", "wiki", "outline", "gitbook"]
     }
   ]
 }

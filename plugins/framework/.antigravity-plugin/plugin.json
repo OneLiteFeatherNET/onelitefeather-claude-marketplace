@@ -1,6 +1,6 @@
 {
   "name": "framework",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "OneLiteFeather's developer framework: a knowledge graph in Outline's \"Vault\" collection, standardized team workflows. This manifest carries the bundled skills only — the Outline MCP connection and the claude-plugins-official dependency bundle (superpowers, skill-creator, git-hygiene, etc.) are Claude Code marketplace mechanics and are not ported here — git-hygiene's own skills still port if installed separately as its own Antigravity plugin; configure Outline's MCP server separately if a skill needs it.",
   "author": { "name": "OneLiteFeather", "url": "https://github.com/OneLiteFeatherNET" },
   "license": "MIT",
