@@ -1,0 +1,9 @@
+{
+  "name": "diataxis-docs",
+  "displayName": "Diátaxis Docs",
+  "version": "0.1.0",
+  "description": "OneLiteFeather's documentation standard: Diátaxis (tutorial, how-to, reference, explanation) for planning a docs set, routing content into the right quadrant, writing each page in the voice its quadrant demands, auditing an overloaded README or wiki, and generating the reference quadrant from source with a CI drift gate. Covers repository Markdown, GitHub wiki, Outline and GitBook as publishing targets.",
+  "author": { "name": "OneLiteFeather", "url": "https://github.com/OneLiteFeatherNET" },
+  "license": "MIT",
+  "keywords": ["documentation", "diataxis", "technical-writing", "docs", "readme", "reference", "tutorial", "how-to", "wiki", "outline", "gitbook"]
+}
