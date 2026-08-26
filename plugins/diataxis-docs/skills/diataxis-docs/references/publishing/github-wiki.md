@@ -12,6 +12,16 @@ Three constraints shape everything else:
 
 The consequence for Diátaxis: the quadrants have to be encoded in page titles and in a hand-maintained sidebar, and the reference quadrant must be pushed by CI from the code repository rather than edited in place.
 
+## Working with the wiki
+
+Clone it before proposing anything, then read only as far as the five-page cap in `references/auditing.md` allows — the entry page plus wherever that file's pick order leads. Reading all forty pages before changing one produces exactly the migration plan that file warns against; for the shape of the rest, the page list and `git log` are enough.
+
+```
+git clone https://github.com/<owner>/<repo>.wiki.git
+```
+
+Because the wiki has no pull-request flow, a push is live for every reader the moment it lands and cannot be reviewed afterwards. **Never push.** Commit locally, show the user the file list and the diff, and let the user push. Never change `_Sidebar.md` or `_Footer.md` in the same change as a content page — the navigation renders on every page, so a mistake there is a mistake everywhere.
+
 ## Naming
 
 Encode the quadrant in the title, because the title is the only structure the platform preserves:
@@ -25,7 +35,7 @@ Reference-Configuration.md
 Reference-Commands.md
 Reference-Permissions.md
 Explanation-Detection-modes.md
-Explanation-Scope-and-non-goals.md
+Explanation-Not-a-performance-plugin.md
 ```
 
 Hyphens display as spaces, so the rendered titles read as sentences. The prefix survives search and the page list, which is where readers actually navigate from.
@@ -34,7 +44,7 @@ Hyphens display as spaces, so the rendered titles read as sentences. The prefix 
 
 `_Sidebar.md` renders on every page and is the real table of contents. Group by quadrant, name the groups in the reader's language, and keep it hand-written and short. `_Footer.md` is a good place for the "edit on GitHub" pointer and the licence line.
 
-Template in `assets/nav-templates/_Sidebar.md`.
+Templates in `assets/nav-templates/_Sidebar.md` and `_Footer.md`. Both are example content, not fill-in skeletons — read their header comments before copying anything out of them.
 
 Link between pages with `[[Page Title]]`. Cross-quadrant links are load-bearing here: with a flat namespace, links are the only thing keeping a how-to connected to its reference page.
 

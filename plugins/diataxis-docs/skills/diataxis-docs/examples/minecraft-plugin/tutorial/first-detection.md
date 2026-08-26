@@ -1,8 +1,8 @@
 # Your first detection
 
-By the end of this you will have built a redstone clock and watched the server report it in the console.
+In this tutorial we will build a redstone clock and watch the server report it in the console.
 
-You need a Paper server on a supported version and the plugin JAR. This takes about ten minutes.
+You need a Paper server on a supported version, the plugin JAR, and Multiverse-Core installed, which is what the world command below comes from.
 
 ## Install the plugin
 
@@ -10,14 +10,14 @@ You need a Paper server on a supported version and the plugin JAR. This takes ab
 2. Copy the JAR into `plugins/`.
 3. Start the server.
 
-The startup log now contains a line from the plugin naming its version. If it is missing, the JAR is in the wrong folder or the server is not Paper.
+The startup log now contains a line from the plugin naming its version. If that line is missing, the JAR is in the wrong folder.
 
 ## Create a world to work in
 
-1. Run `/mv create arc_test normal`, or create a world however your setup does it.
-2. Teleport into it.
+1. Run `/mv create arc_test normal`.
+2. Run `/mv tp arc_test`.
 
-You are now in an empty world with nothing else running in it, so anything the plugin reports comes from you.
+You are now standing in an empty world with nothing else running in it, so anything the plugin reports comes from you.
 
 ## Build a clock
 
@@ -29,11 +29,11 @@ The torch starts flicking on and off. That is a running clock.
 
 ## Watch it get caught
 
-Wait about fifteen seconds and look at the server console.
+Wait for the next check and look at the server console.
 
-A message appears naming the world and the coordinates of what you just built. Run `/arcm display` and the same clock is listed among the cached detections.
+A message appears naming the world and the coordinates of what you just built. The coordinates are the ones you are standing at — that is the part to notice. Run `/arcm display` and the same clock is listed among the cached detections.
 
-Break the redstone torch. The clock stops, and on the next display the entry is gone.
+Break the redstone torch. The clock stops, and the entry drops off the display shortly afterwards.
 
 ## What you did
 

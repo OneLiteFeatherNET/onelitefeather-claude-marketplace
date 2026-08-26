@@ -1,3 +1,8 @@
+<!-- EXAMPLE CONTENT, not a fill-in template. Every title below belongs to
+     examples/minecraft-plugin. Copy the grouping and the group names only; replace every link
+     with a page that exists in this project, and delete any group that has no pages yet rather
+     than leaving a placeholder. -->
+
 # Table of contents
 
 * [Overview](index.md)
@@ -23,4 +28,4 @@
 ## Background
 
 * [Detection modes](explanation/detection-modes.md)
-* [Scope and non-goals](explanation/scope.md)
+* [Not a performance plugin](explanation/not-a-performance-plugin.md)

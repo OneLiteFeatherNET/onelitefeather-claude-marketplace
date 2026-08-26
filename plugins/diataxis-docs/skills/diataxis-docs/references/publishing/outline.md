@@ -29,6 +29,9 @@ Why this beats a collection per project: collections are the permission and side
 
 ## Structure
 
+Shape only. Child titles change — read the live tree with `list_collection_documents` before
+naming or updating anything.
+
 ```
 Collection: Entwicklung
 ├── Reusable GitHub Actions Workflows        ⚙️  hub
@@ -42,7 +45,7 @@ Collection: Entwicklung
 │   └── Reference: Anforderungs-Template Felder
 │       ├── Vorlage: Anforderungen (Spielkonzept)
 │       └── Vorlage: Anforderungen (Technisches Projekt)
-└── SOPS — Secrets im Kubernetes-FLUX-Repo       single document, no hub
+└── LuckPerms korrekt laden (Titan & …)         single document, no hub
 ```
 
 **The quadrant is a title prefix on the child**, not a container document. `Tutorial: `, `How-To: `, `Reference: `, `Explanation: ` — exactly those four spellings, in English, even though the documents themselves are German. Four extra container documents per subject would be four pages with nothing on them; the hub already carries the routing table.
@@ -53,7 +56,10 @@ Collection: Entwicklung
 
 ## Start with one document, split when it stops working
 
-Most subjects do not need a hub. `SOPS — Secrets im Kubernetes-FLUX-Repo` and `LuckPerms korrekt laden` are single documents and correctly so.
+Most subjects do not need a hub. `LuckPerms korrekt laden (Titan & andere Minestom-Projekte)` is a
+single top-level document in `Entwicklung` and correctly so. `SOPS — Secrets im
+Kubernetes-FLUX-Repo` shows the other end of the same life cycle: it grew four quadrant children
+and became a hub, under `Kubernetes-FLUX — GitOps für feather-core` in `Infrastruktur`.
 
 Promote a single document to a hub when either signal appears:
 
@@ -64,43 +70,19 @@ When you promote it, the old document becomes the hub: it keeps its title, its I
 
 ## Create quadrants on demand
 
-Do not create all four pages up front. `Engineering-Standards — Start hier` has two how-tos and nothing else, and that is a complete docs set for what it covers.
+The volume rule is in `SKILL.md` under "How the work actually goes" and holds for every target. A
+hub carrying two how-tos and nothing else is a complete docs set for what it covers; an empty
+`Tutorial:` or `Explanation:` child is not owed.
 
-The order they usually appear in: how-to first, because someone asked; then reference, once values are being repeated in chat; then explanation, once the same "why is it like that" question comes back a third time; tutorial last and often never, because tutorials only pay off where there are enough newcomers to justify one.
-
-An empty quadrant needs no placeholder. A page saying "TBD" is worse than the absence, because it is a search result that wastes someone's time.
+On Outline the rule bites harder than elsewhere: a placeholder is a search result and a sidebar
+entry, so a document saying "TBD" gets found and opened repeatedly in a way an empty directory
+never is.
 
 ## The hub document itself
 
-The hub is the index page from `SKILL.md`, in OLF's voice. The established skeleton:
-
-```markdown
-Kurzbeschreibung, ein bis zwei Sätze. Diese Seite ist ein Hub — die
-Inhalte liegen in den Unterseiten.
-
-Repository: [org/repo](…) · Lizenz: MIT · Aktuell: **v2.0.1**
-
-## Wo soll ich lesen?
-
-| Du willst… | Geh zu |
-|------------|--------|
-| 🎓 …das Setup Schritt für Schritt durchgehen | [Tutorial: …](…) |
-| 🛠️ …eine konkrete Einstellung ändern | [How-To: …](…) |
-| 📑 …einen Input/Default nachschlagen | [Reference: …](…) |
-| 💡 …verstehen, warum etwas so entschieden wurde | [Explanation: …](…) |
-
-## Was ist enthalten?
-
-Kurze Aufzählung dessen, was das Thema umfasst.
-
-## Weiterführend
-
-* Verwandte Hubs und Dokumente
-
-## Pflege
-
-Wer pflegt, was die Source of Truth ist, wohin Lücken gemeldet werden.
-```
+The hub is the index page from `SKILL.md`, in OLF's voice. The skeleton lives in
+`assets/nav-templates/outline-structure.md`, section "Hub document skeleton" — copy it from there
+rather than from here, so the two cannot drift apart.
 
 The `Wo soll ich lesen?` table is the reader-facing routing table: the left column is a reader intent in the reader's words, the right column is the link. The reader never has to learn the word Diátaxis to use it — the quadrant name appears only inside the link title, where it reads as a category label rather than a demand.
 
@@ -114,8 +96,8 @@ Diátaxis governs documentation *about a subject for someone using it*. It does 
 
 | Kind | Where | Title pattern |
 |---|---|---|
-| Design doc, spec | `Archiv — Design-Dokumente` → `Design-Dokumente` | `YYYY-MM-DD — <Thema> (Design)` |
-| Implementation plan | `Archiv …` → `Umsetzungspläne` | `YYYY-MM-DD — <Thema> (Plan)` |
+| Design doc, spec | `Archiv — Design-Dokumente und Umsetzungspläne` → `Design-Dokumente` | `YYYY-MM-DD — <Thema> (Design)` |
+| Implementation plan | `Archiv — Design-Dokumente und Umsetzungspläne` → `Umsetzungspläne` | `YYYY-MM-DD — <Thema> (Plan)` |
 | Incident | `Vorfälle` | `YYYY-MM-DD — <was passiert ist>` |
 | Runbook for an application | `Anwendungs-Runbooks` | The application name, plain |
 | Runbook for a task | `Runbooks` | `Runbook: <Tätigkeit>` |
@@ -127,7 +109,7 @@ The `documenting-in-outline` skill owns these placements in full; this table exi
 - **A design document is frozen history, a runbook is live.** Merging them produces a page that is not read as a design record and not found as a runbook.
 - **An explanation page links to the ADR, it does not restate it.** The ADR is the decision trail with status and consequences; the explanation page is the outward-facing narrative and may summarise several ADRs. Duplicated, the two disagree within a quarter.
 
-This is also where the "no fifth directory" rule from `SKILL.md` lands in Outline. It still holds *inside* a subject: no `FAQ`, no `Troubleshooting`, no `Sonstiges` child under a hub. It does not mean the operational record has to be squeezed into the quadrants.
+This is also where the "no dumping grounds" rule from `SKILL.md` lands in Outline. It still holds *inside* a subject: no `FAQ` and no `Sonstiges` child under a hub, because those children fill with whatever nobody sorted. A child titled `How-To: Häufige Deployment-Fehler beheben` is not that — it is a how-to with a task title, and it is fine. What the rule does not mean is that the operational record has to be squeezed into the quadrants.
 
 ## Language
 
@@ -141,11 +123,16 @@ Published documentation for open-source repositories is English with translation
 
 ## Working through the API
 
-The Outline tools are deferred: run `tool_search` for them before the first call, otherwise the calls fail on wrong parameter names.
-
+- **Load the tools first, by keyword and not by bare name.** They are deferred, and their
+  registered names carry an MCP server prefix that differs per install, so a `select:` query on
+  bare names matches nothing. Use ToolSearch with `+outline list collections documents create update
+  fetch`, then call them by the fully-qualified names the result prints. Note that
+  `list_collection_documents` takes a `collectionId` UUID, not the collection name in the table
+  above — resolve it with `list_collections` first.
+- **Get the user's go-ahead before the first write, every time.** Outline is shared, and every create and update lands in other people's activity feed and subscriptions. Show the exact titles, the parent document and the collection in one message and wait — for a single document as much as for a set. Reading (`list_collection_documents`, `fetch`) never needs approval; `create_document` and `update_document` always do. This is the gate from `SKILL.md`, restated here because this is the file open at the moment of the write.
 - **Read the structure before writing.** `list_collection_documents` on the target collection, every time. It costs one call and decides parent, title and shape. Placing a document top-level in a collection because the existing tree was never read is the second most common mistake after creating a collection.
 - **Check whether the document already exists**, and update it rather than putting a second one beside it.
-- **Edit with `editMode: "patch"`, never `replace`.** A replace on a page someone else is editing loses their work.
+- **Edit with `editMode: "patch"`, never `replace`.** A replace on a page someone else is editing loses their work, and loses rich formatting markdown cannot carry. `patch` requires `findText` — the exact existing markdown to replace, copied verbatim from the document you just fetched. If `findText` does not match, fetch the document again and correct it; never fall back to `replace` to get past the error. `append` and `prepend` are safe alternatives when you are adding rather than changing.
 - **No H1 at the top.** The title is a separate field; the body starts with prose or `##`.
 - **`icon` is a real emoji** (`"⚙️"`), not a shortcode.
 - **`parentDocumentId` is enough** — the collection is inherited from the parent.
@@ -165,6 +152,6 @@ The repository stays the source of truth for anything generated; the Outline pag
 
 Outline is the default for OLF documentation, but not for everything. The repository wins when the documentation must ship with the software, be readable offline, be diffed in review, or be reachable by people who do not have an Outline account — which is every user-facing docs set of a public open-source project.
 
-Check whether the collection is shared publicly before making Outline the only home for user documentation. `Entwicklung` and `Konzepte - MiniGames` are shared; `Infrastruktur`, `Vault`, `Branding` and `Social Media` are not.
+Check whether the target collection is actually shared publicly before making Outline the only home for user documentation. That is a live permission setting on the instance, not something this file can record: read it in the collection's share settings, and ask the user if you cannot. Guessing it wrong either publishes internal material or hides user documentation from the people it is for, and both fail silently.
 
 Where both are needed, split by audience rather than duplicating: user documentation in the repository, the internal view — operations, decisions, the things that are nobody's business outside the team — in Outline, linked to each other.

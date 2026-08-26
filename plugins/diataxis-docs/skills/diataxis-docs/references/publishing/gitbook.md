@@ -23,37 +23,11 @@ structure:
   summary: SUMMARY.md
 ```
 
-`SUMMARY.md` with the quadrants as groups:
-
-```markdown
-# Table of contents
-
-* [Overview](index.md)
-
-## Getting started
-
-* [Your first detection](tutorial/first-detection.md)
-
-## How-to guides
-
-* [Send alerts to Discord](how-to/send-alerts-to-discord.md)
-* [Notify staff in game](how-to/notify-staff-in-game.md)
-
-## Reference
-
-* [Configuration](reference/configuration.md)
-* [Commands](reference/commands.md)
-* [Permissions](reference/permissions.md)
-
-## Background
-
-* [Detection modes](explanation/detection-modes.md)
-* [Scope and non-goals](explanation/scope.md)
-```
+`SUMMARY.md` uses the four quadrants as page groups. The template is
+`assets/nav-templates/SUMMARY.md` — copy it from there; it is not repeated here, because two copies
+of a navigation file disagree within a release.
 
 Group headings are reader-facing. Use the same reader-language names as everywhere else: getting started, how-to guides, reference, background.
-
-Full template in `assets/nav-templates/SUMMARY.md`.
 
 ## Generated pages with Git Sync
 
