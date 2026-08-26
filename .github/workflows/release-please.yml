@@ -1,0 +1,38 @@
+name: release-please
+
+on:
+  push:
+    branches: [main]
+
+# No permissions by default, so any job added later starts with none and has to
+# ask for what it needs explicitly.
+permissions: {}
+
+concurrency:
+  group: release-please
+  cancel-in-progress: false
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write      # create tags and GitHub releases
+      pull-requests: write # open and update the release PR
+    steps:
+      # Pinned to a commit SHA, not a mutable tag: this job holds contents:write
+      # and pull-requests:write, so a retagged v5 would run with them.
+      - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+# Each plugin is its own release-please package, so a commit is attributed to a
+# plugin by the files it touches, not by its commit scope. Merging the release PR
+# tags every plugin it bumped (e.g. diataxis-docs-v0.2.0) and cuts a GitHub release
+# per tag.
+#
+# There is no publish job: plugins are consumed straight from this repository, so
+# tagging and the changelog are the whole release. If a publish step is ever added,
+# chain it here with needs/if on the action's `releases_created` output rather than
+# with an `on: push: tags:` trigger — tags pushed by GITHUB_TOKEN do not re-trigger
+# workflows in the same repository.
