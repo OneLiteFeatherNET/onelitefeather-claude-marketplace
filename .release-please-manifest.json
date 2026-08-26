@@ -9,5 +9,5 @@
   "plugins/minestom-knowledge": "0.1.0",
   "plugins/problem-framing": "0.1.0",
   "plugins/release-engineering": "0.1.0",
-  "plugins/requirement-engineering": "0.1.0"
+  "plugins/requirement-engineering": "0.2.0"
 }

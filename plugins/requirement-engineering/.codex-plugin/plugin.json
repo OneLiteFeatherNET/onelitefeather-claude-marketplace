@@ -1,6 +1,6 @@
 {
   "name": "requirement-engineering",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Requirement-engineering standard for any project: user stories on a story-map backbone (staged by release slices) + EARS acceptance criteria + MoSCoW per stage + an ISO-25010-based NFR checklist. Creates new requirements docs, restructures prose-only concepts, reconstructs requirements for undocumented running systems, and turns a released stage into issues. Works for internal wiki-documented projects (OneLiteFeather's Outline, German docs), public open-source repos (English, Markdown in-repo) and third-party projects alike; English is canonical, other languages are covered by a localization mapping.",
   "author": {
     "name": "OneLiteFeather",
