@@ -33,4 +33,3 @@ jobs:
     permissions:
       contents: write      # create tags and GitHub releases
       pull-requests: write # open and update the release PR
-    secrets: inherit

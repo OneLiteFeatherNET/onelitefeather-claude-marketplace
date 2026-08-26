@@ -1,10 +1,18 @@
 name: Close invalid PRs
 
+# pull_request_target runs with repository context, so a fork's PR can trigger it.
+# That is required here -- closing a PR needs write access a fork's token lacks --
+# and it is safe only because nothing in this path checks out or executes the
+# fork's code. Keep it that way: never add a checkout step to this workflow.
+
 on:
   pull_request_target:
     types: [opened]
 
+permissions: {}
+
 jobs:
   close:
+    permissions:
+      pull-requests: write # close the PR and leave a comment
     uses: OneLiteFeatherNET/workflows/.github/workflows/close-invalid-prs.yml@v2.8.1
-    secrets: inherit
