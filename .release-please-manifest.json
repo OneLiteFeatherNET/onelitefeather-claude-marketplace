@@ -1,7 +1,7 @@
 {
   "plugins/agent-orchestrator": "0.1.0",
   "plugins/decision-sparring": "0.1.0",
-  "plugins/diataxis-docs": "0.1.0",
+  "plugins/diataxis-docs": "0.2.0",
   "plugins/framework": "0.4.0",
   "plugins/framework-code-navigation": "0.1.0",
   "plugins/git-hygiene": "0.1.0",
