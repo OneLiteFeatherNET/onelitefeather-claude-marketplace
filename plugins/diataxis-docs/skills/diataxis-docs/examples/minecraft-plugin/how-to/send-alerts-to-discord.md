@@ -23,7 +23,7 @@ The placeholders available in `description` are listed in [message placeholders]
 
 ## Check it worked
 
-Build a clock in a world that is not excluded from detection and wait for the next check. A message appears in the channel within about fifteen seconds.
+Build a clock in a world that is not excluded from detection and wait for the next check. A message appears in the channel.
 
 ## If nothing arrives
 

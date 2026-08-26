@@ -26,7 +26,7 @@ the case where dynamic pays off.
 Detection is a background cost, and a server that is already struggling is the worst moment to add
 one. The `tps` settings exist so the plugin steps back when the server is under load rather than
 competing with whatever is causing the problem. This is also the reason the plugin is not a
-performance tool in itself, which is covered in [scope and non-goals](scope.md).
+performance tool in itself, which is covered in [not a performance plugin](not-a-performance-plugin.md).
 
 ## What this means for a decision
 

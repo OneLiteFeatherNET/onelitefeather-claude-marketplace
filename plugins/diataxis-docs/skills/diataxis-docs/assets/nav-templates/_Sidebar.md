@@ -1,3 +1,8 @@
+<!-- EXAMPLE CONTENT, not a fill-in template. Every title below belongs to
+     examples/minecraft-plugin. Copy the grouping and the group names only; replace every link
+     with a page that exists in this project, and delete any group that has no pages yet rather
+     than leaving a placeholder. -->
+
 ### [Home](Home)
 
 **Getting started**
@@ -17,7 +22,4 @@
 
 **Background**
 * [[Explanation Detection modes]]
-* [[Explanation Scope and non-goals]]
-
----
-[Report an issue](../../issues) · [Download](../../releases)
+* [[Explanation Not a performance plugin]]

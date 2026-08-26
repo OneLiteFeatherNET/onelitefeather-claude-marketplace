@@ -1,7 +1,13 @@
-<!-- Generated from src/main/resources/config.yml by the docs-generate Gradle task.
-     Do not edit by hand. Run ./gradlew generateDocs to update. -->
+<!-- EXAMPLE, not copy-ready. This page shows the state AFTER a generator and its CI gate exist:
+     the 🤖 banner below is only correct because, in this fictional project, `docs-generate` really
+     does write the page. A page you transcribe by hand gets the ✍️ pending banner instead — see
+     references/reference-pages.md, "There are two banners and they must never be confused".
+     Copy the entry structure, the field order and the voice; never copy the banner. -->
 
 # Configuration
+
+> **🤖 Generated** from `src/main/resources/config.yml` by the `docs-generate` Gradle task. Do not
+> edit by hand; run `./gradlew generateDocs` to update.
 
 All settings live in `plugins/<Plugin>/config.yml`. Unless stated otherwise, a change takes
 effect after `/arcm reload`.
@@ -13,8 +19,8 @@ effect after `/arcm reload`.
 | | |
 |---|---|
 | Type | enum |
-| Allowed values | `dynamic`, `static` |
 | Default | `dynamic` |
+| Allowed values | `dynamic`, `static` |
 | Reload | `/arcm reload` |
 | Since | 2.1.0 |
 | Source | `Config.check.mode` |
