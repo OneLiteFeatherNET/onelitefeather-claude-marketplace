@@ -2,8 +2,22 @@
   "name": "requirement-engineering",
   "displayName": "Requirement Engineering",
   "version": "0.1.0",
-  "description": "OneLiteFeather's Requirement-Engineering standard for Outline project docs: User Stories (staged by Ausbaustufen) + EARS acceptance-criteria syntax + MoSCoW prioritization, usable for both game concepts and technical projects. Creates new requirements docs and restructures superficial prose-only concept docs. Complements `framework`, which wires up the Outline MCP connection.",
-  "author": { "name": "OneLiteFeather", "url": "https://github.com/OneLiteFeatherNET" },
+  "description": "Requirement-engineering standard for any project: user stories on a story-map backbone (staged by release slices) + EARS acceptance criteria + MoSCoW per stage + an ISO-25010-based NFR checklist. Creates new requirements docs, restructures prose-only concepts, reconstructs requirements for undocumented running systems, and turns a released stage into issues. Works for internal wiki-documented projects (OneLiteFeather's Outline, German docs), public open-source repos (English, Markdown in-repo) and third-party projects alike; English is canonical, other languages are covered by a localization mapping.",
+  "author": {
+    "name": "OneLiteFeather",
+    "url": "https://github.com/OneLiteFeatherNET"
+  },
   "license": "MIT",
-  "keywords": ["requirements", "user-stories", "ears", "moscow", "requirement-engineering", "outline", "game-design", "documentation"]
+  "keywords": [
+    "requirements",
+    "user-stories",
+    "ears",
+    "moscow",
+    "story-mapping",
+    "nfr",
+    "requirement-engineering",
+    "open-source",
+    "outline",
+    "documentation"
+  ]
 }
