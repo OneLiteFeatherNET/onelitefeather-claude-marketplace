@@ -112,6 +112,27 @@ either way. Whichever path gets the MCP connection working, no further
 setup step is needed after that: the `vault-knowledge-graph` skill creates
 the "Vault" collection and its categories itself on first use.
 
+## Releases
+
+Versions are per plugin, not per repository. Release Please watches `main`,
+attributes each commit to a plugin by the files it touches, and opens a
+release PR that bumps only the plugins that actually changed. Merging that
+PR tags them (`diataxis-docs-v0.2.0`) and cuts a GitHub release per tag.
+
+That means two things for a contributor:
+
+- **Write [Conventional Commits](https://www.conventionalcommits.org/).**
+  `feat:` bumps the minor version, `fix:` the patch, `feat!:` or a
+  `BREAKING CHANGE:` footer the major. `chore:`, `docs:` and `refactor:`
+  release nothing. Add the plugin as a scope — `feat(git-hygiene): ...` —
+  so the changelog reads well.
+- **Never edit a version by hand.** The `version` field in every
+  `plugin.json` (`.claude-plugin`, `.codex-plugin`, `.antigravity-plugin`)
+  and every `plugins/<name>/CHANGELOG.md` is written by Release Please.
+
+Touch more than one plugin in a commit and it is attributed to all of
+them, so keep a commit to one plugin where you can.
+
 ## Prerequisites
 
 - Outline account with access to the "Vault" collection (OAuth on first use)
