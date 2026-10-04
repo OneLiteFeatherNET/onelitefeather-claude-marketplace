@@ -15,4 +15,4 @@ jobs:
   close:
     permissions:
       pull-requests: write # close the PR and leave a comment
-    uses: OneLiteFeatherNET/workflows/.github/workflows/close-invalid-prs.yml@v2.8.1
+    uses: OneLiteFeatherNET/workflows/.github/workflows/close-invalid-prs.yml@v2.8.2
