@@ -29,7 +29,7 @@ concurrency:
 
 jobs:
   release-please:
-    uses: OneLiteFeatherNET/workflows/.github/workflows/release-please.yml@v2.8.2
+    uses: OneLiteFeatherNET/workflows/.github/workflows/release-please.yml@v2.9.0
     permissions:
       contents: write      # create tags and GitHub releases
       pull-requests: write # open and update the release PR
